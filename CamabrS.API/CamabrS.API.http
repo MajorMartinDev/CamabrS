@@ -1,0 +1,6 @@
+@CamabrS.API_HostAddress = http://localhost:5019
+
+GET {{CamabrS.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
