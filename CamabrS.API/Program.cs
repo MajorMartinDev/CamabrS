@@ -1,9 +1,8 @@
-using CamabrS.API;
-using CamabrS.API.Inspection.GetInspectionHistory;
+using CamabrS.API.Core.Http;
+using CamabrS.API.Inspection;
 using JasperFx.CodeGeneration;
 using JasperFx.Core;
 using Marten;
-using Marten.Events.Projections;
 using Marten.Exceptions;
 using Npgsql;
 using Oakton;
@@ -18,12 +17,21 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.ApplyOaktonExtensions();
 
-builder.Services.AddMarten(opts =>
+builder.Services
+    .AddDefaultExceptionHandler(
+        (exception, _) => exception switch
+        {
+            ConcurrencyException => exception.MapToProblemDetails(StatusCodes.Status412PreconditionFailed),
+            _ => null
+        })
+    .AddEndpointsApiExplorer()
+    .AddSwaggerGen()
+    .AddMarten(opts =>
 {
     var connectionString = builder.Configuration.GetConnectionString("camabrs_dev");
     opts.Connection(connectionString!);
 
-    opts.Projections.Add<InspectionHistoryTransformation>(ProjectionLifecycle.Inline);
+    opts.ConfigureInspections();
 })
     .IntegrateWithWolverine()
     .EventForwardingToWolverine(opts =>
@@ -56,12 +64,6 @@ builder.Host.UseWolverine(opts =>
 
     //add local queue stuff here
 });
-
-
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 

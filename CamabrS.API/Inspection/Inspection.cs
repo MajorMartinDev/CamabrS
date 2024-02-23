@@ -4,48 +4,52 @@ public sealed record Inspection(
     Guid Id,
     InspectionStatus Status)
 {
-    public sealed record TryAssignSpecialist(Guid InspectionId, Guid SpecialistId, Guid AssignedBy, DateTimeOffset AssignedAt);
-    public sealed record TryUnassignSpecialist();
-    public sealed record TryLockInspection();
-    public sealed record TryUnlockInspection();
-    public sealed record TrySubmitInspectionResult();
-    public sealed record TrySignInspection();
-    public sealed record TryCloseInspection();
-    public sealed record TryReviewInspection();
-    public sealed record TryReopenInspection();
-    public sealed record TryCompleteInspection();
+    //These are needed for "command sourcing" which doesn't neccessarily make sense here,
+    //but I want to show the flexibility of event sourcing. Commands can be enriched
+    //or transformed and appended to the event stream. Not for decision making,
+    //but for history like projections ~auditing purposes.
+    public sealed record AssignSpecialist(Guid InspectionId, Guid AssignedBy, Guid SpecialistId, DateTimeOffset AssignedAt);
+    public sealed record UnassignSpecialist(Guid InspectionId, Guid UnassigendBy, Guid SpecialistId, DateTimeOffset UnassignedAt);
+    public sealed record LockInspection(Guid InspectionId, Guid LockedBy, DateTimeOffset LockedAt);
+    public sealed record UnlockInspection(Guid InspectionId, Guid UnlockedBy, DateTimeOffset UnlockedAt);
+    public sealed record SubmitInspectionResult(Guid InspectionId, Guid SubmittedBy, Guid FormId, DateTimeOffset SubmittedAt);
+    public sealed record SignInspection(Guid InspectionId, Guid SignedBy, string SignatureLink, DateTimeOffset SignedAt);
+    public sealed record CloseInspection(Guid InspectionId, Guid ClosedBy, DateTimeOffset ClosedAt);
+    public sealed record ReviewInspection(Guid InspectionId, Guid ReviewedBy, bool Verdict, string Summary, DateTimeOffset ReviewedAt);
+    public sealed record ReopenInspection(Guid InspectionId, Guid ReopenedBy, DateTimeOffset ReopenedAt);
+    public sealed record CompleteInspection(Guid InspectionId, Guid CompletedBy, DateTimeOffset CompletedAt);
 
-    public static Inspection Create(InspectionOpened opened) =>
-        new(opened.InspectionId, InspectionStatus.Opened);
+    public static Inspection Create(InspectionOpened Opened) =>
+        new(Opened.InspectionId, InspectionStatus.Opened);
 
-    public Inspection Apply(SpecialistAssigned specialistAssigned) =>
+    public Inspection Apply(SpecialistAssigned SpecialistAssigned) =>
         this with { Status = InspectionStatus.Assigned };
 
-    public Inspection Apply(SpecialistUnassigned specialistUnassigned) =>
+    public Inspection Apply(SpecialistUnassigned SpecialistUnassigned) =>
         this with { Status = InspectionStatus.Opened };
 
-    public Inspection Apply(InspectionLocked inspectionLocked) =>
+    public Inspection Apply(InspectionLocked InspectionLocked) =>
         this with { Status = InspectionStatus.Locked };
 
-    public Inspection Apply(InspectionUnlocked inspectionUnlocked) =>
+    public Inspection Apply(InspectionUnlocked InspectionUnlocked) =>
        this with { Status = InspectionStatus.Assigned };
 
-    public Inspection Apply(InspectionResultSubmitted inspectionResultSubmitted) =>
+    public Inspection Apply(InspectionResultSubmitted InspectionResultSubmitted) =>
        this with { Status = InspectionStatus.Submitted };
 
-    public Inspection Apply(InspectionSigned inspectionSigned) =>
+    public Inspection Apply(InspectionSigned InspectionSigned) =>
        this with { Status = InspectionStatus.Signed };
 
-    public Inspection Apply(InspectionClosed inspectionClosed) =>
+    public Inspection Apply(InspectionClosed InspectionClosed) =>
        this with { Status = InspectionStatus.Closed };
 
-    public Inspection Apply(InspectionReviewed inspectionReviewed) =>
+    public Inspection Apply(InspectionReviewed InspectionReviewed) =>
        this with { Status = InspectionStatus.Reviewed };
 
-    public Inspection Apply(InspectionReopened inspectionReopened) =>
+    public Inspection Apply(InspectionReopened InspectionReopened) =>
        this with { Status = InspectionStatus.Opened };
 
-    public Inspection Apply(InspectionCompleted inspectionCompleted) =>
+    public Inspection Apply(InspectionCompleted InspectionCompleted) =>
        this with { Status = InspectionStatus.Completed };
 }
 
@@ -61,14 +65,14 @@ public enum InspectionStatus
     Completed
 }
 
-public sealed record InspectionOpened(Guid InspectionId, Guid ObjectId, Guid OpenedBy, DateTimeOffset OpenedAt);
-public sealed record SpecialistAssigned(Guid SpecialistId, Guid AssignedBy, DateTimeOffset AssignedAt);
-public sealed record SpecialistUnassigned(Guid UnassignedBy, DateTimeOffset UnassignedAt);
-public sealed record InspectionLocked(DateTimeOffset LockedAt);
-public sealed record InspectionUnlocked(Guid UnlockedBy, DateTimeOffset UnlockedAt);
-public sealed record InspectionResultSubmitted(Guid FormId, DateTimeOffset SubmittedAt);
-public sealed record InspectionSigned(DateTimeOffset SignedAt, string SignatureLink);
-public sealed record InspectionClosed(DateTimeOffset ClosedAt);
-public sealed record InspectionReviewed(Guid ReviewedBy, DateTimeOffset ReviewedAt, bool Verdict, string Summary);
-public sealed record InspectionReopened(DateTimeOffset ReopenedAt);
-public sealed record InspectionCompleted(DateTimeOffset ClosedAt);
+public sealed record InspectionOpened(Guid InspectionId, Guid OpenedBy, Guid ObjectId, DateTimeOffset OpenedAt);
+public sealed record SpecialistAssigned(Guid InspectionId, Guid AssignedBy, Guid SpecialistId, DateTimeOffset AssignedAt);
+public sealed record SpecialistUnassigned(Guid InspectionId,Guid UnassignedBy, Guid SpecialistId, DateTimeOffset UnassignedAt);
+public sealed record InspectionLocked(Guid InspectionId, Guid LockedBy, DateTimeOffset LockedAt);
+public sealed record InspectionUnlocked(Guid InspectionId, Guid UnlockedBy, DateTimeOffset UnlockedAt);
+public sealed record InspectionResultSubmitted(Guid InspectionId, Guid SubmittedBy, Guid FormId, DateTimeOffset SubmittedAt);
+public sealed record InspectionSigned(Guid InspectionId, Guid SignedBy, string SignatureLink, DateTimeOffset SignedAt);
+public sealed record InspectionClosed(Guid InspectionId, Guid ClosedBy, DateTimeOffset ClosedAt);
+public sealed record InspectionReviewed(Guid InspectionId, Guid ReviewedBy, bool Verdict, string Summary, DateTimeOffset ReviewedAt);
+public sealed record InspectionReopened(Guid InspectionId, Guid ReopenedBy, DateTimeOffset ReopenedAt);
+public sealed record InspectionCompleted(Guid InspectionId, Guid CompletedBy, DateTimeOffset CompletedAt);

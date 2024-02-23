@@ -2,7 +2,7 @@
 using System.Security.Claims;
 using Wolverine.Http;
 
-namespace CamabrS.API;
+namespace CamabrS.API.Core.Http;
 
 // Using the custom type makes it easier
 // for the Wolverine code generation to route
