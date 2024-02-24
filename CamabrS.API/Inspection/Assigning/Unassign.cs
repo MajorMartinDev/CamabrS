@@ -4,6 +4,11 @@ using Wolverine.Marten;
 using Wolverine;
 using static Microsoft.AspNetCore.Http.TypedResults;
 using CamabrS.API.Core.Http;
+using Marten;
+using Microsoft.AspNetCore.Mvc;
+using Wolverine.Attributes;
+using CamabrS.API.Inspection.GettingDetails;
+using CamabrS.Contracts.Inspection;
 
 namespace CamabrS.API.Inspection.Assigning;
 
@@ -12,15 +17,15 @@ public static class UnassignEndpoints
     [AggregateHandler]
     [WolverinePost("/api/inspections/unassign")]
     public static (IResult, Events, OutgoingMessages) Post(
-        Contracts.Inspection.UnassignSpecialist command,
+        UnassignSpecialist command,
         Inspection inspection,
         DateTimeOffset now,
         User user)
     {
-        var (inspectionId, _, specialistId) = command;
+        var (inspectionId, version, specialistId) = command;
 
         if (inspection.Status != InspectionStatus.Assigned)
-            throw new InvalidOperationException($"Inspection with id {inspectionId} is not in assigned state");
+            throw new InvalidOperationException($"Inspection with id {inspectionId} is not in assigned state!");
 
         var events = new Events();
         var messages = new OutgoingMessages();
@@ -33,14 +38,30 @@ public static class UnassignEndpoints
 
         //TODO send off message to notify Specialist that they got assigned an inspection
 
-        return (Ok(), events, messages);
+        return (Ok(version + events.Count), events, messages);
     }
 
-    public class UnassignSpecialistValidator : AbstractValidator<Contracts.Inspection.UnassignSpecialist>
+    public class UnassignSpecialistValidator : AbstractValidator<UnassignSpecialist>
     {
         public UnassignSpecialistValidator()
         {
             RuleFor(x => x.InspectionId).NotEmpty().NotNull();
+            RuleFor(x => x.SpecialistId).NotEmpty().NotNull();
         }
-    }    
+    }
+
+    [WolverineBefore]
+    public static async Task<ProblemDetails> ValidateInspectionState(
+        AssignSpecialist command,
+        IDocumentSession session)
+    {
+        var (inspectionId, _, specialistId) = command;        
+
+        var inspectionHasSpecialistAssigned = await session.Query<InspectionDetails>()
+            .AnyAsync(x => x.Id == inspectionId && x.AssignedSpecialists.Contains(specialistId));
+
+        return inspectionHasSpecialistAssigned
+            ? WolverineContinue.NoProblems
+            : new ProblemDetails { Detail = $"Specialist with id {specialistId} was not previously assigned to Inspection with id {inspectionId}!" };
+    }
 }

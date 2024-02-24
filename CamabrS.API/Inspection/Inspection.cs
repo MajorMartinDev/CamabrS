@@ -12,6 +12,7 @@ public sealed record Inspection(
     public sealed record UnassignSpecialist(Guid InspectionId, Guid UnassigendBy, Guid SpecialistId, DateTimeOffset UnassignedAt);
     public sealed record LockInspection(Guid InspectionId, Guid LockedBy, DateTimeOffset LockedAt);
     public sealed record UnlockInspection(Guid InspectionId, Guid UnlockedBy, DateTimeOffset UnlockedAt);
+    //TODO Guid FormId is just a placeholder for now. Figure out how to handle forms.
     public sealed record SubmitInspectionResult(Guid InspectionId, Guid SubmittedBy, Guid FormId, DateTimeOffset SubmittedAt);
     public sealed record SignInspection(Guid InspectionId, Guid SignedBy, string SignatureLink, DateTimeOffset SignedAt);
     public sealed record CloseInspection(Guid InspectionId, Guid ClosedBy, DateTimeOffset ClosedAt);

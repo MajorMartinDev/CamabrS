@@ -3,6 +3,8 @@ using Wolverine.Marten;
 using Wolverine;
 using static Microsoft.AspNetCore.Http.TypedResults;
 using CamabrS.API.Core.Http;
+using FluentValidation;
+using CamabrS.Contracts.Inspection;
 
 namespace CamabrS.API.Inspection.Reviewing;
 public static class ReviewEndpoints
@@ -10,15 +12,15 @@ public static class ReviewEndpoints
     [AggregateHandler]
     [WolverinePost("/api/inspections/review")]
     public static (IResult, Events, OutgoingMessages) Post(
-        Contracts.Inspection.ReviewInspection command,
+        ReviewInspection command,
         Inspection inspection,
         DateTimeOffset now,
         User user)
     {
-        var (inspectionId, _, verdict, summary) = command;
+        var (inspectionId, version, verdict, summary) = command;
 
         if (inspection.Status != InspectionStatus.Closed)
-            throw new InvalidOperationException($"Inspection with id {inspectionId} is not in closed state");
+            throw new InvalidOperationException($"Inspection with id {inspectionId} is not in closed state!");
 
         var events = new Events();
         var messages = new OutgoingMessages();
@@ -27,6 +29,17 @@ public static class ReviewEndpoints
 
         events.Add(new InspectionReviewed(inspectionId, user.Id, verdict, summary, now));
 
-        return (Ok(), events, messages);
+        return (Ok(version + events.Count), events, messages);
+    }
+
+    public class ReviewInspectionValidator : AbstractValidator<ReviewInspection>
+    {
+        public ReviewInspectionValidator()
+        {
+            RuleFor(x => x.InspectionId).NotEmpty().NotNull();
+            RuleFor(x => x.Verdict).NotEmpty().NotNull();
+            //TODO define a reasonable default max length and get the value from configuration
+            RuleFor(x => x.Summary).NotEmpty().NotNull().MaximumLength(4000);            
+        }
     }
 }

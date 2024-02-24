@@ -1,7 +1,11 @@
 ﻿using CamabrS.API.Core.Http;
+using CamabrS.API.Object.GettingDetails;
 using CamabrS.Contracts.Inspection;
 using FluentValidation;
 using JasperFx.Core;
+using Marten;
+using Microsoft.AspNetCore.Mvc;
+using Wolverine.Attributes;
 using Wolverine.Http;
 using Wolverine.Marten;
 
@@ -32,5 +36,18 @@ public static class OpenEndpoints
         {
             RuleFor(x => x.ObjectId).NotEmpty().NotNull();
         }
+    }
+
+    [WolverineBefore]
+    public static async Task<ProblemDetails> ValidateInspectionState(
+        OpenInspection command,
+        IDocumentSession session)
+    {
+        var objectExists = await session.Query<ObjectDetails>()
+            .AnyAsync(x => x.Id == command.ObjectId);
+
+        return objectExists
+            ? WolverineContinue.NoProblems
+            : new ProblemDetails { Detail = $"Object with id {command.ObjectId} does not exist!" };
     }
 }

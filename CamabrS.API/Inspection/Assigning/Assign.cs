@@ -1,5 +1,6 @@
 ﻿using CamabrS.API.Core.Http;
-using CamabrS.API.Specialist;
+using CamabrS.API.Specialist.GettingDetails;
+using CamabrS.Contracts.Inspection;
 using FluentValidation;
 using Marten;
 using Microsoft.AspNetCore.Mvc;
@@ -16,12 +17,12 @@ public static class AssignEndpoints
     [AggregateHandler]
     [WolverinePost("/api/inspections/assign")]
     public static (IResult, Events, OutgoingMessages) Post(
-        Contracts.Inspection.AssignSpecialist command,
+        AssignSpecialist command,
         Inspection inspection,
         DateTimeOffset now,
         User user)
     {
-        var (inspectionId, _, specialistId) = command;
+        var (inspectionId, version, specialistId) = command;
 
         if (inspection.Status != InspectionStatus.Opened)
             throw new InvalidOperationException($"Inspection with id {inspectionId} is not in opened state");
@@ -37,28 +38,29 @@ public static class AssignEndpoints
 
         //TODO send off message to notify Specialist that they got assigned an inspection
 
-        return (Ok(), events, messages);
+        return (Ok(version + events.Count), events, messages);
     }
 
-    public class AssignSpecialistValidator : AbstractValidator<Contracts.Inspection.AssignSpecialist>
+    public class AssignSpecialistValidator : AbstractValidator<AssignSpecialist>
     {
         public AssignSpecialistValidator()
         {
             RuleFor(x => x.InspectionId).NotEmpty().NotNull();
+            RuleFor(x => x.SpecialistId).NotEmpty().NotNull();
         }
     }
 
     [WolverineBefore]
     public static async Task<ProblemDetails> ValidateInspectionState(
-        Contracts.Inspection.AssignSpecialist command,
+        AssignSpecialist command,
         IDocumentSession session)
     {
         var (inspectionId, _, specialistId) = command;
 
-        var specialistExists = await session.Query<SpecialistInfo>().AnyAsync(x => x.Id == specialistId);
+        var specialistExists = await session.Query<SpecialistDetails>().AnyAsync(x => x.Id == specialistId);
 
         return specialistExists
             ? WolverineContinue.NoProblems
-            : new ProblemDetails { Detail = $"Specialist with id {specialistId} does not exist" };        
+            : new ProblemDetails { Detail = $"Specialist with id {specialistId} does not exist!" };        
     }
 }

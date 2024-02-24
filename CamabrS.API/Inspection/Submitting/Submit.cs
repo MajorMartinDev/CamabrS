@@ -3,6 +3,8 @@ using Wolverine.Marten;
 using Wolverine;
 using static Microsoft.AspNetCore.Http.TypedResults;
 using CamabrS.API.Core.Http;
+using FluentValidation;
+using CamabrS.Contracts.Inspection;
 
 namespace CamabrS.API.Inspection.Submitting;
 
@@ -11,15 +13,15 @@ public static class SubmitEndpoints
     [AggregateHandler]
     [WolverinePost("/api/inspections/submit")]
     public static (IResult, Events, OutgoingMessages) Post(
-        Contracts.Inspection.SubmitInspectionResult command,
+        SubmitInspectionResult command,
         Inspection inspection,
         DateTimeOffset now,
         User user)
     {
-        var (inspectionId, _, formId) = command;
+        var (inspectionId, version, formId) = command;
 
         if (inspection.Status != InspectionStatus.Locked)
-            throw new InvalidOperationException($"Inspection with id {inspectionId} is not in locked state");
+            throw new InvalidOperationException($"Inspection with id {inspectionId} is not in locked state!");
 
         var events = new Events();
         var messages = new OutgoingMessages();
@@ -28,6 +30,15 @@ public static class SubmitEndpoints
 
         events.Add(new InspectionResultSubmitted(inspectionId, user.Id, formId, now));
 
-        return (Ok(), events, messages);
+        return (Ok(version + events.Count), events, messages);
+    }
+
+    public class SubmitInspectionResultValidator : AbstractValidator<SubmitInspectionResult>
+    {
+        public SubmitInspectionResultValidator()
+        {
+            RuleFor(x => x.InspectionId).NotEmpty().NotNull();
+            RuleFor(x => x.FormId).NotEmpty().NotNull();
+        }
     }
 }

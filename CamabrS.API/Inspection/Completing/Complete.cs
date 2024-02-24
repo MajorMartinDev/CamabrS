@@ -3,6 +3,8 @@ using Wolverine.Marten;
 using Wolverine;
 using static Microsoft.AspNetCore.Http.TypedResults;
 using CamabrS.API.Core.Http;
+using FluentValidation;
+using CamabrS.Contracts.Inspection;
 
 namespace CamabrS.API.Inspection.Completing;
 public static class CompleteEndpoints
@@ -10,15 +12,15 @@ public static class CompleteEndpoints
     [AggregateHandler]
     [WolverinePost("/api/inspections/complete")]
     public static (IResult, Events, OutgoingMessages) Post(
-        Contracts.Inspection.ReopenInspection command,
+        CompleteInspection command,
         Inspection inspection,
         DateTimeOffset now,
         User user)
     {
-        var (inspectionId, _) = command;
+        var (inspectionId, version) = command;
 
         if (inspection.Status != InspectionStatus.Reviewed)
-            throw new InvalidOperationException($"Inspection with id {inspectionId} is not in reviewed state");
+            throw new InvalidOperationException($"Inspection with id {inspectionId} is not in reviewed state!");
 
         var events = new Events();
         var messages = new OutgoingMessages();
@@ -27,6 +29,14 @@ public static class CompleteEndpoints
 
         events.Add(new InspectionCompleted(inspectionId, user.Id, now));
 
-        return (Ok(), events, messages);
+        return (Ok(version + events.Count), events, messages);
+    }
+
+    public class CompleteInspectionValidator : AbstractValidator<CompleteInspection>
+    {
+        public CompleteInspectionValidator()
+        {
+            RuleFor(x => x.InspectionId).NotEmpty().NotNull();            
+        }
     }
 }
