@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CamabrS.API.Core.Http;
 
-public class ExceptionToProblemDetailsHandler(Func<Exception, HttpContext, ProblemDetails?>? customExceptionMap)
+public sealed class ExceptionToProblemDetailsHandler(Func<Exception, HttpContext, ProblemDetails?>? customExceptionMap)
     : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(

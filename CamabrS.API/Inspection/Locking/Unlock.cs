@@ -4,9 +4,19 @@ using Wolverine;
 using static Microsoft.AspNetCore.Http.TypedResults;
 using CamabrS.API.Core.Http;
 using FluentValidation;
-using CamabrS.Contracts.Inspection;
 
 namespace CamabrS.API.Inspection.Locking;
+
+public sealed record UnlockInspection(Guid InspectionId, int Version)
+{
+    public sealed class UnlockInspectionValidator : AbstractValidator<UnlockInspection>
+    {
+        public UnlockInspectionValidator()
+        {
+            RuleFor(x => x.InspectionId).NotEmpty().NotNull();
+        }
+    }
+};
 
 public static class UnlockEndpoints
 {
@@ -31,13 +41,5 @@ public static class UnlockEndpoints
         events.Add(new InspectionUnlocked(inspectionId, user.Id, now));
 
         return (Ok(version + events.Count), events, messages);
-    }
-
-    public class UnlockInspectionValidator : AbstractValidator<UnlockInspection>
-    {
-        public UnlockInspectionValidator()
-        {
-            RuleFor(x => x.InspectionId).NotEmpty().NotNull();            
-        }
-    }
+    }    
 }

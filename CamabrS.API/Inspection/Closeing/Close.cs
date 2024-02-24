@@ -4,9 +4,20 @@ using Wolverine;
 using static Microsoft.AspNetCore.Http.TypedResults;
 using CamabrS.API.Core.Http;
 using FluentValidation;
-using CamabrS.Contracts.Inspection;
 
 namespace CamabrS.API.Inspection.Closeing;
+
+public sealed record CloseInspection(Guid InspectionId, int Version)
+{
+    public sealed class CloseInspectionValidator : AbstractValidator<CloseInspection>
+    {
+        public CloseInspectionValidator()
+        {
+            RuleFor(x => x.InspectionId).NotEmpty().NotNull();
+        }
+    }
+};
+
 public static class CloseEndpoints
 {
     [AggregateHandler]
@@ -30,13 +41,5 @@ public static class CloseEndpoints
         events.Add(new InspectionClosed(inspectionId, user.Id, now));
 
         return (Ok(version + events.Count), events, messages);
-    }
-
-    public class CloseInspectionValidator : AbstractValidator<CloseInspection>
-    {
-        public CloseInspectionValidator()
-        {
-            RuleFor(x => x.InspectionId).NotEmpty().NotNull();            
-        }
-    }
+    }    
 }

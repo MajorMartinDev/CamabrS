@@ -8,12 +8,38 @@ using Marten;
 using Microsoft.AspNetCore.Mvc;
 using Wolverine.Attributes;
 using CamabrS.API.Inspection.GettingDetails;
-using CamabrS.Contracts.Inspection;
 
 namespace CamabrS.API.Inspection.Assigning;
 
+public sealed record UnassignSpecialist(Guid InspectionId, int Version, Guid SpecialistId)
+{
+    public sealed class UnassignSpecialistValidator : AbstractValidator<UnassignSpecialist>
+    {
+        public UnassignSpecialistValidator()
+        {
+            RuleFor(x => x.InspectionId).NotEmpty().NotNull();
+            RuleFor(x => x.SpecialistId).NotEmpty().NotNull();
+        }
+    }
+};
+
 public static class UnassignEndpoints
 {
+    [WolverineBefore]
+    public static async Task<ProblemDetails> ValidateInspectionState(
+        AssignSpecialist command,
+        IDocumentSession session)
+    {
+        var (inspectionId, _, specialistId) = command;
+
+        var inspectionHasSpecialistAssigned = await session.Query<InspectionDetails>()
+            .AnyAsync(x => x.Id == inspectionId && x.AssignedSpecialists.Contains(specialistId));
+
+        return inspectionHasSpecialistAssigned
+            ? WolverineContinue.NoProblems
+            : new ProblemDetails { Detail = $"Specialist with id {specialistId} was not previously assigned to Inspection with id {inspectionId}!" };
+    }
+
     [AggregateHandler]
     [WolverinePost("/api/inspections/unassign")]
     public static (IResult, Events, OutgoingMessages) Post(
@@ -39,29 +65,5 @@ public static class UnassignEndpoints
         //TODO send off message to notify Specialist that they got assigned an inspection
 
         return (Ok(version + events.Count), events, messages);
-    }
-
-    public class UnassignSpecialistValidator : AbstractValidator<UnassignSpecialist>
-    {
-        public UnassignSpecialistValidator()
-        {
-            RuleFor(x => x.InspectionId).NotEmpty().NotNull();
-            RuleFor(x => x.SpecialistId).NotEmpty().NotNull();
-        }
-    }
-
-    [WolverineBefore]
-    public static async Task<ProblemDetails> ValidateInspectionState(
-        AssignSpecialist command,
-        IDocumentSession session)
-    {
-        var (inspectionId, _, specialistId) = command;        
-
-        var inspectionHasSpecialistAssigned = await session.Query<InspectionDetails>()
-            .AnyAsync(x => x.Id == inspectionId && x.AssignedSpecialists.Contains(specialistId));
-
-        return inspectionHasSpecialistAssigned
-            ? WolverineContinue.NoProblems
-            : new ProblemDetails { Detail = $"Specialist with id {specialistId} was not previously assigned to Inspection with id {inspectionId}!" };
-    }
+    }    
 }

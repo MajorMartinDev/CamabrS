@@ -4,9 +4,20 @@ using Wolverine;
 using static Microsoft.AspNetCore.Http.TypedResults;
 using CamabrS.API.Core.Http;
 using FluentValidation;
-using CamabrS.Contracts.Inspection;
 
 namespace CamabrS.API.Inspection.Submitting;
+
+public sealed record SubmitInspectionResult(Guid InspectionId, int Version, Guid FormId)
+{
+    public sealed class SubmitInspectionResultValidator : AbstractValidator<SubmitInspectionResult>
+    {
+        public SubmitInspectionResultValidator()
+        {
+            RuleFor(x => x.InspectionId).NotEmpty().NotNull();
+            RuleFor(x => x.FormId).NotEmpty().NotNull();
+        }
+    }
+};
 
 public static class SubmitEndpoints
 {
@@ -31,14 +42,5 @@ public static class SubmitEndpoints
         events.Add(new InspectionResultSubmitted(inspectionId, user.Id, formId, now));
 
         return (Ok(version + events.Count), events, messages);
-    }
-
-    public class SubmitInspectionResultValidator : AbstractValidator<SubmitInspectionResult>
-    {
-        public SubmitInspectionResultValidator()
-        {
-            RuleFor(x => x.InspectionId).NotEmpty().NotNull();
-            RuleFor(x => x.FormId).NotEmpty().NotNull();
-        }
-    }
+    }    
 }

@@ -1,6 +1,5 @@
 ﻿using CamabrS.API.Core.Http;
 using CamabrS.API.Specialist.GettingDetails;
-using CamabrS.Contracts.Inspection;
 using FluentValidation;
 using Marten;
 using Microsoft.AspNetCore.Mvc;
@@ -12,8 +11,34 @@ using static Microsoft.AspNetCore.Http.TypedResults;
 
 namespace CamabrS.API.Inspection.Assigning;
 
+public sealed record AssignSpecialist(Guid InspectionId, int Version, Guid SpecialistId)
+{
+    public sealed class AssignSpecialistValidator : AbstractValidator<AssignSpecialist>
+    {
+        public AssignSpecialistValidator()
+        {
+            RuleFor(x => x.InspectionId).NotEmpty().NotNull();
+            RuleFor(x => x.SpecialistId).NotEmpty().NotNull();
+        }
+    }
+};
+
 public static class AssignEndpoints
 {
+    [WolverineBefore]
+    public static async Task<ProblemDetails> ValidateInspectionState(
+        AssignSpecialist command,
+        IDocumentSession session)
+    {
+        var (inspectionId, _, specialistId) = command;
+
+        var specialistExists = await session.Query<SpecialistDetails>().AnyAsync(x => x.Id == specialistId);
+
+        return specialistExists
+            ? WolverineContinue.NoProblems
+            : new ProblemDetails { Detail = $"Specialist with id {specialistId} does not exist!" };
+    }
+
     [AggregateHandler]
     [WolverinePost("/api/inspections/assign")]
     public static (IResult, Events, OutgoingMessages) Post(
@@ -39,28 +64,5 @@ public static class AssignEndpoints
         //TODO send off message to notify Specialist that they got assigned an inspection
 
         return (Ok(version + events.Count), events, messages);
-    }
-
-    public class AssignSpecialistValidator : AbstractValidator<AssignSpecialist>
-    {
-        public AssignSpecialistValidator()
-        {
-            RuleFor(x => x.InspectionId).NotEmpty().NotNull();
-            RuleFor(x => x.SpecialistId).NotEmpty().NotNull();
-        }
-    }
-
-    [WolverineBefore]
-    public static async Task<ProblemDetails> ValidateInspectionState(
-        AssignSpecialist command,
-        IDocumentSession session)
-    {
-        var (inspectionId, _, specialistId) = command;
-
-        var specialistExists = await session.Query<SpecialistDetails>().AnyAsync(x => x.Id == specialistId);
-
-        return specialistExists
-            ? WolverineContinue.NoProblems
-            : new ProblemDetails { Detail = $"Specialist with id {specialistId} does not exist!" };        
-    }
+    }    
 }

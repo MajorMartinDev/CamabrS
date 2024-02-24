@@ -4,9 +4,20 @@ using Wolverine;
 using static Microsoft.AspNetCore.Http.TypedResults;
 using CamabrS.API.Core.Http;
 using FluentValidation;
-using CamabrS.Contracts.Inspection;
 
 namespace CamabrS.API.Inspection.Completing;
+
+public sealed record CompleteInspection(Guid InspectionId, int Version)
+{
+    public sealed class CompleteInspectionValidator : AbstractValidator<CompleteInspection>
+    {
+        public CompleteInspectionValidator()
+        {
+            RuleFor(x => x.InspectionId).NotEmpty().NotNull();
+        }
+    }
+};
+
 public static class CompleteEndpoints
 {
     [AggregateHandler]
@@ -30,13 +41,5 @@ public static class CompleteEndpoints
         events.Add(new InspectionCompleted(inspectionId, user.Id, now));
 
         return (Ok(version + events.Count), events, messages);
-    }
-
-    public class CompleteInspectionValidator : AbstractValidator<CompleteInspection>
-    {
-        public CompleteInspectionValidator()
-        {
-            RuleFor(x => x.InspectionId).NotEmpty().NotNull();            
-        }
-    }
+    }    
 }

@@ -4,9 +4,20 @@ using Wolverine;
 using static Microsoft.AspNetCore.Http.TypedResults;
 using CamabrS.API.Core.Http;
 using FluentValidation;
-using CamabrS.Contracts.Inspection;
 
 namespace CamabrS.API.Inspection.Reopening;
+
+public sealed record ReopenInspection(Guid InspectionId, int Version)
+{
+    public sealed class ReopenInspectionValidator : AbstractValidator<ReopenInspection>
+    {
+        public ReopenInspectionValidator()
+        {
+            RuleFor(x => x.InspectionId).NotEmpty().NotNull();
+        }
+    }
+};
+
 public static class ReopenEndpoints
 {
     [AggregateHandler]
@@ -30,13 +41,5 @@ public static class ReopenEndpoints
         events.Add(new InspectionReopened(inspectionId, user.Id, now));
 
         return (Ok(version + events.Count), events, messages);
-    }
-
-    public class ReopenInspectionValidator : AbstractValidator<ReopenInspection>
-    {
-        public ReopenInspectionValidator()
-        {
-            RuleFor(x => x.InspectionId).NotEmpty().NotNull();            
-        }
-    }
+    }    
 }

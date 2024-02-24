@@ -4,10 +4,7 @@ using Wolverine.Http;
 
 namespace CamabrS.API.Core.Http;
 
-// Using the custom type makes it easier
-// for the Wolverine code generation to route
-// things around. I'm not ashamed.
-public record User(Guid Id);
+public sealed record User(Guid Id);
 
 public static class UserDetectionMiddleware
 {
