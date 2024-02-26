@@ -6,12 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using static CamabrS.API.Inspection.Opening.OpenEndpoints;
 
 namespace CamabrS.IntegrationTests.Inspection;
-public sealed class OpenInspectionTests : IntegrationContext
-{
-    public OpenInspectionTests(AppFixture fixture) : base(fixture)
-    {
-    }
-
+public sealed class OpenInspectionTests(AppFixture fixture) : IntegrationContext(fixture)
+{  
     [Fact]
     public async Task Open_a_new_Inspection_should_succeed()
     {
