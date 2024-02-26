@@ -16,17 +16,17 @@ namespace Internal.Generated.WolverineHandlers
     {
         private readonly Wolverine.Http.WolverineHttpOptions _wolverineHttpOptions;
         private readonly Wolverine.Runtime.IWolverineRuntime _wolverineRuntime;
-        private readonly Wolverine.Marten.Publishing.OutboxedSessionFactory _outboxedSessionFactory;
-        private readonly FluentValidation.IValidator<CamabrS.API.Inspection.Signing.SignInspection> _validator;
         private readonly Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Signing.SignInspection> _problemDetailSource;
+        private readonly FluentValidation.IValidator<CamabrS.API.Inspection.Signing.SignInspection> _validator;
+        private readonly Wolverine.Marten.Publishing.OutboxedSessionFactory _outboxedSessionFactory;
 
-        public POST_api_inspections_sign(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Runtime.IWolverineRuntime wolverineRuntime, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory, FluentValidation.IValidator<CamabrS.API.Inspection.Signing.SignInspection> validator, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Signing.SignInspection> problemDetailSource) : base(wolverineHttpOptions)
+        public POST_api_inspections_sign(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Runtime.IWolverineRuntime wolverineRuntime, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Signing.SignInspection> problemDetailSource, FluentValidation.IValidator<CamabrS.API.Inspection.Signing.SignInspection> validator, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory) : base(wolverineHttpOptions)
         {
             _wolverineHttpOptions = wolverineHttpOptions;
             _wolverineRuntime = wolverineRuntime;
-            _outboxedSessionFactory = outboxedSessionFactory;
-            _validator = validator;
             _problemDetailSource = problemDetailSource;
+            _validator = validator;
+            _outboxedSessionFactory = outboxedSessionFactory;
         }
 
 

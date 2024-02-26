@@ -16,16 +16,16 @@ namespace Internal.Generated.WolverineHandlers
     {
         private readonly Wolverine.Http.WolverineHttpOptions _wolverineHttpOptions;
         private readonly Wolverine.Runtime.IWolverineRuntime _wolverineRuntime;
-        private readonly Wolverine.Marten.Publishing.OutboxedSessionFactory _outboxedSessionFactory;
         private readonly FluentValidation.IValidator<CamabrS.API.Inspection.Locking.LockInspection> _validator;
+        private readonly Wolverine.Marten.Publishing.OutboxedSessionFactory _outboxedSessionFactory;
         private readonly Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Locking.LockInspection> _problemDetailSource;
 
-        public POST_api_inspections_lock(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Runtime.IWolverineRuntime wolverineRuntime, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory, FluentValidation.IValidator<CamabrS.API.Inspection.Locking.LockInspection> validator, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Locking.LockInspection> problemDetailSource) : base(wolverineHttpOptions)
+        public POST_api_inspections_lock(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Runtime.IWolverineRuntime wolverineRuntime, FluentValidation.IValidator<CamabrS.API.Inspection.Locking.LockInspection> validator, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Locking.LockInspection> problemDetailSource) : base(wolverineHttpOptions)
         {
             _wolverineHttpOptions = wolverineHttpOptions;
             _wolverineRuntime = wolverineRuntime;
-            _outboxedSessionFactory = outboxedSessionFactory;
             _validator = validator;
+            _outboxedSessionFactory = outboxedSessionFactory;
             _problemDetailSource = problemDetailSource;
         }
 

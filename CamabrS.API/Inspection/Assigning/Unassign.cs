@@ -25,6 +25,11 @@ public sealed record UnassignSpecialist(Guid InspectionId, int Version, Guid Spe
 
 public static class UnassignEndpoints
 {
+    public const string UnassignEnpoint = "/api/inspections/unassign";
+
+    public static string GetSpecialistWasPreviouslyAssignedErrorDetail(Guid specialistId, Guid inspectionId)
+        => $"Specialist with id {specialistId} was not previously assigned to Inspection with id {inspectionId}!";
+
     [WolverineBefore]
     public static async Task<ProblemDetails> ValidateInspectionState(
         UnassignSpecialist command,
@@ -37,10 +42,10 @@ public static class UnassignEndpoints
 
         return inspectionHasSpecialistAssigned
             ? WolverineContinue.NoProblems
-            : new ProblemDetails { Detail = $"Specialist with id {specialistId} was not previously assigned to Inspection with id {inspectionId}!" };
+            : new ProblemDetails { Detail = GetSpecialistWasPreviouslyAssignedErrorDetail(specialistId, inspectionId) };
     }
    
-    [WolverinePost("/api/inspections/unassign"), AggregateHandler]
+    [WolverinePost(UnassignEnpoint), AggregateHandler]
     public static (IResult, Events, OutgoingMessages) Post(
         UnassignSpecialist command,
         Inspection inspection,
@@ -50,7 +55,8 @@ public static class UnassignEndpoints
         var (inspectionId, version, specialistId) = command;
 
         if (inspection.Status != InspectionStatus.Assigned)
-            throw new InvalidOperationException($"Inspection with id {inspectionId} is not in assigned state!");
+            throw new InvalidOperationException(
+                InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Assigned, inspectionId));
 
         var events = new Events();
         var messages = new OutgoingMessages();

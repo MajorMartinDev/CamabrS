@@ -21,8 +21,10 @@ public sealed record SignInspection(Guid InspectionId, int Version, string Signa
 };
 
 public static class SignEndpoints 
-{   
-    [WolverinePost("/api/inspections/sign"), AggregateHandler]
+{
+    public const string SignEnpoint = "/api/inspections/sign";
+
+    [WolverinePost(SignEnpoint), AggregateHandler]
     public static (IResult, Events, OutgoingMessages) Post(
         SignInspection command,
         Inspection inspection,
@@ -32,7 +34,8 @@ public static class SignEndpoints
         var (inspectionId, version, signatureLink) = command;
 
         if (inspection.Status != InspectionStatus.Submitted)
-            throw new InvalidOperationException($"Inspection with id {inspectionId} is not in submitted state!");
+            throw new InvalidOperationException(
+                InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Submitted, inspectionId));
 
         var events = new Events();
         var messages = new OutgoingMessages();

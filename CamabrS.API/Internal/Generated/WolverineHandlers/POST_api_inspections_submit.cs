@@ -15,18 +15,18 @@ namespace Internal.Generated.WolverineHandlers
     public class POST_api_inspections_submit : Wolverine.Http.HttpHandler
     {
         private readonly Wolverine.Http.WolverineHttpOptions _wolverineHttpOptions;
-        private readonly FluentValidation.IValidator<CamabrS.API.Inspection.Submitting.SubmitInspectionResult> _validator;
+        private readonly Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Submitting.SubmitInspectionResult> _problemDetailSource;
         private readonly Wolverine.Runtime.IWolverineRuntime _wolverineRuntime;
         private readonly Wolverine.Marten.Publishing.OutboxedSessionFactory _outboxedSessionFactory;
-        private readonly Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Submitting.SubmitInspectionResult> _problemDetailSource;
+        private readonly FluentValidation.IValidator<CamabrS.API.Inspection.Submitting.SubmitInspectionResult> _validator;
 
-        public POST_api_inspections_submit(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, FluentValidation.IValidator<CamabrS.API.Inspection.Submitting.SubmitInspectionResult> validator, Wolverine.Runtime.IWolverineRuntime wolverineRuntime, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Submitting.SubmitInspectionResult> problemDetailSource) : base(wolverineHttpOptions)
+        public POST_api_inspections_submit(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Submitting.SubmitInspectionResult> problemDetailSource, Wolverine.Runtime.IWolverineRuntime wolverineRuntime, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory, FluentValidation.IValidator<CamabrS.API.Inspection.Submitting.SubmitInspectionResult> validator) : base(wolverineHttpOptions)
         {
             _wolverineHttpOptions = wolverineHttpOptions;
-            _validator = validator;
+            _problemDetailSource = problemDetailSource;
             _wolverineRuntime = wolverineRuntime;
             _outboxedSessionFactory = outboxedSessionFactory;
-            _problemDetailSource = problemDetailSource;
+            _validator = validator;
         }
 
 

@@ -16,17 +16,17 @@ namespace Internal.Generated.WolverineHandlers
     {
         private readonly Wolverine.Http.WolverineHttpOptions _wolverineHttpOptions;
         private readonly Wolverine.Runtime.IWolverineRuntime _wolverineRuntime;
+        private readonly FluentValidation.IValidator<CamabrS.API.Inspection.Assigning.AssignSpecialist> _validator;
         private readonly Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Assigning.AssignSpecialist> _problemDetailSource;
         private readonly Wolverine.Marten.Publishing.OutboxedSessionFactory _outboxedSessionFactory;
-        private readonly FluentValidation.IValidator<CamabrS.API.Inspection.Assigning.AssignSpecialist> _validator;
 
-        public POST_api_inspections_assign(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Runtime.IWolverineRuntime wolverineRuntime, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Assigning.AssignSpecialist> problemDetailSource, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory, FluentValidation.IValidator<CamabrS.API.Inspection.Assigning.AssignSpecialist> validator) : base(wolverineHttpOptions)
+        public POST_api_inspections_assign(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Runtime.IWolverineRuntime wolverineRuntime, FluentValidation.IValidator<CamabrS.API.Inspection.Assigning.AssignSpecialist> validator, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Assigning.AssignSpecialist> problemDetailSource, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory) : base(wolverineHttpOptions)
         {
             _wolverineHttpOptions = wolverineHttpOptions;
             _wolverineRuntime = wolverineRuntime;
+            _validator = validator;
             _problemDetailSource = problemDetailSource;
             _outboxedSessionFactory = outboxedSessionFactory;
-            _validator = validator;
         }
 
 

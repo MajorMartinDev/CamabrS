@@ -19,8 +19,10 @@ public sealed record CloseInspection(Guid InspectionId, int Version)
 };
 
 public static class CloseEndpoints
-{    
-    [WolverinePost("/api/inspections/close"), AggregateHandler]
+{
+    public const string CloseEnpoint = "/api/inspections/close";
+
+    [WolverinePost(CloseEnpoint), AggregateHandler]
     public static (IResult, Events, OutgoingMessages) Post(
         CloseInspection command,
         Inspection inspection,
@@ -30,7 +32,8 @@ public static class CloseEndpoints
         var (inspectionId, version) = command;
 
         if (inspection.Status != InspectionStatus.Signed)
-            throw new InvalidOperationException($"Inspection with id {inspectionId} is not in signed state!");
+            throw new InvalidOperationException(
+                InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Signed, inspectionId));
 
         var events = new Events();
         var messages = new OutgoingMessages();

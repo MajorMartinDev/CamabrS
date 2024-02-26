@@ -22,8 +22,10 @@ public sealed record ReviewInspection(Guid InspectionId, int Version, bool Verdi
 };
 
 public static class ReviewEndpoints
-{    
-    [WolverinePost("/api/inspections/review"), AggregateHandler]
+{
+    public const string ReviewEnpoint = "/api/inspections/review";
+
+    [WolverinePost(ReviewEnpoint), AggregateHandler]
     public static (IResult, Events, OutgoingMessages) Post(
         ReviewInspection command,
         Inspection inspection,
@@ -33,7 +35,8 @@ public static class ReviewEndpoints
         var (inspectionId, version, verdict, summary) = command;
 
         if (inspection.Status != InspectionStatus.Closed)
-            throw new InvalidOperationException($"Inspection with id {inspectionId} is not in closed state!");
+            throw new InvalidOperationException(
+                InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Closed, inspectionId));
 
         var events = new Events();
         var messages = new OutgoingMessages();

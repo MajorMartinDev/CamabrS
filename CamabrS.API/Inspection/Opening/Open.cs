@@ -27,8 +27,6 @@ public static class OpenEndpoints
     public static string GetAssetNotExistsErrorDetail(Guid assetId) 
         => $"Asset with id {assetId} does not exist!";
 
-
-
     [WolverineBefore]
     public static async Task<ProblemDetails> ValidateInspectionState(
         OpenInspection command,

@@ -19,8 +19,10 @@ public sealed record LockInspection(Guid InspectionId, int Version)
 };
 
 public static class LockEndpoints
-{    
-    [WolverinePost("/api/inspections/lock"), AggregateHandler]
+{
+    public const string LockEnpoint = "/api/inspections/lock";
+
+    [WolverinePost(LockEnpoint), AggregateHandler]
     public static (IResult, Events, OutgoingMessages) Post(
         LockInspection command,
         Inspection inspection,
@@ -30,7 +32,8 @@ public static class LockEndpoints
         var (inspectionId, version) = command; 
 
         if (inspection.Status != InspectionStatus.Assigned)
-            throw new InvalidOperationException($"Inspection with id {inspectionId} is not in assigned state!");
+            throw new InvalidOperationException(
+                InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Assigned, inspectionId));
 
         var events = new Events();
         var messages = new OutgoingMessages();

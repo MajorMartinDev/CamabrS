@@ -16,9 +16,8 @@ public sealed class OpenInspectionTests : IntegrationContext
     public async Task Open_a_new_Inspection_should_succeed()
     {
         var user = new User(Guid.NewGuid());
-
-        // Open a new inspection
-        var initial = await Scenario(x =>
+        
+        var initial = await Host.Scenario(x =>
         {            
             x.Post
                 .Json(new OpenInspection(BaselineData.DefaultTestAssetId))
@@ -40,7 +39,7 @@ public sealed class OpenInspectionTests : IntegrationContext
         
         var inspectionDetail = await session.Query<InspectionDetails>().SingleOrDefaultAsync(i => i.Id == inspectionId);
         inspectionDetail.ShouldNotBeNull();
-        inspectionDetail.AssignedSpecialists.Count().ShouldBe(0);        
+        inspectionDetail.AssignedSpecialists.Length.ShouldBe(0);        
     }
 
     [Fact]

@@ -25,6 +25,11 @@ public sealed record AssignSpecialist(Guid InspectionId, int Version, Guid Speci
 
 public static class AssignEndpoints
 {
+    public const string AssignEnpoint = "/api/inspections/assign";
+
+    public static string GetAssetNotExistsErrorDetail(Guid specialistId)
+        => $"Asset with id {specialistId} does not exist!";
+
     [WolverineBefore]
     public static async Task<ProblemDetails> ValidateInspectionState(
         AssignSpecialist command,
@@ -36,10 +41,10 @@ public static class AssignEndpoints
         
         return specialistExists
             ? WolverineContinue.NoProblems
-            : new ProblemDetails { Detail = $"Specialist with id {specialistId} does not exist!" };
+            : new ProblemDetails { Detail = GetAssetNotExistsErrorDetail(specialistId) };
     }
     
-    [WolverinePost("/api/inspections/assign"), AggregateHandler]
+    [WolverinePost(AssignEnpoint), AggregateHandler]
     public static (IResult, Events, OutgoingMessages) Post(
         AssignSpecialist command,
         Inspection inspection,
@@ -49,7 +54,8 @@ public static class AssignEndpoints
         var (inspectionId, version, specialistId) = command;
 
         if (inspection.Status != InspectionStatus.Opened)
-            throw new InvalidOperationException($"Inspection with id {inspectionId} is not in opened state");
+            throw new InvalidOperationException(
+                InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Opened, inspectionId));
 
         var events = new Events();
         var messages = new OutgoingMessages();

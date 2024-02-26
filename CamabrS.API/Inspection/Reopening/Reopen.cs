@@ -19,8 +19,10 @@ public sealed record ReopenInspection(Guid InspectionId, int Version)
 };
 
 public static class ReopenEndpoints
-{    
-    [WolverinePost("/api/inspections/reopen"), AggregateHandler]
+{
+    public const string ReopenEnpoint = "/api/inspections/reopen";
+
+    [WolverinePost(ReopenEnpoint), AggregateHandler]
     public static (IResult, Events, OutgoingMessages) Post(
         ReopenInspection command,
         Inspection inspection,
@@ -30,7 +32,8 @@ public static class ReopenEndpoints
         var (inspectionId, version) = command;
 
         if (inspection.Status != InspectionStatus.Reviewed)
-            throw new InvalidOperationException($"Inspection with id {inspectionId} is not in reviewed state!");
+            throw new InvalidOperationException(
+                InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Reviewed, inspectionId));
 
         var events = new Events();
         var messages = new OutgoingMessages();

@@ -1,4 +1,5 @@
-﻿using Marten.Events;
+﻿using CamabrS.API.Asset;
+using Marten.Events;
 
 namespace CamabrS.API.Inspection;
 
@@ -6,10 +7,10 @@ public sealed record Inspection(
     Guid Id,
     InspectionStatus Status)
 {
-    //These are needed for "command sourcing" which doesn't neccessarily make sense here,
-    //but I want to show the flexibility of event sourcing. Commands can be enriched
+    //These are needed for "command sourcing".
+    //I want to show the flexibility of event sourcing. Commands can be enriched
     //or transformed and appended to the event stream. Not for decision making,
-    //but for history like projections ~auditing purposes.
+    //but for history like projections and stronger auditing purposes.
     public sealed record AssignSpecialist(Guid InspectionId, Guid AssignedBy, Guid SpecialistId, DateTimeOffset AssignedAt);
     public sealed record UnassignSpecialist(Guid InspectionId, Guid UnassigendBy, Guid SpecialistId, DateTimeOffset UnassignedAt);
     public sealed record LockInspection(Guid InspectionId, Guid LockedBy, DateTimeOffset LockedAt);
@@ -79,3 +80,10 @@ public sealed record InspectionClosed(Guid InspectionId, Guid ClosedBy, DateTime
 public sealed record InspectionReviewed(Guid InspectionId, Guid ReviewedBy, bool Verdict, string Summary, DateTimeOffset ReviewedAt);
 public sealed record InspectionReopened(Guid InspectionId, Guid ReopenedBy, DateTimeOffset ReopenedAt);
 public sealed record InspectionCompleted(Guid InspectionId, Guid CompletedBy, DateTimeOffset CompletedAt);
+
+public class InvalidStateException()
+{
+    public static string GetInvalidStateExceptionMessage(InspectionStatus status, Guid id) =>
+        $"Inspection with id {id} is not in {status.ToString().ToLower()} state!";
+
+}

@@ -19,8 +19,10 @@ public sealed record CompleteInspection(Guid InspectionId, int Version)
 };
 
 public static class CompleteEndpoints
-{    
-    [WolverinePost("/api/inspections/complete"), AggregateHandler]
+{
+    public const string CompleteEnpoint = "/api/inspections/complete";
+
+    [WolverinePost(CompleteEnpoint), AggregateHandler]
     public static (IResult, Events, OutgoingMessages) Post(
         CompleteInspection command,
         Inspection inspection,
@@ -30,7 +32,8 @@ public static class CompleteEndpoints
         var (inspectionId, version) = command;
 
         if (inspection.Status != InspectionStatus.Reviewed)
-            throw new InvalidOperationException($"Inspection with id {inspectionId} is not in reviewed state!");
+            throw new InvalidOperationException(
+                InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Reviewed, inspectionId));
 
         var events = new Events();
         var messages = new OutgoingMessages();

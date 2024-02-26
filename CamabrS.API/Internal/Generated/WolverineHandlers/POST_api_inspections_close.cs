@@ -16,17 +16,17 @@ namespace Internal.Generated.WolverineHandlers
     {
         private readonly Wolverine.Http.WolverineHttpOptions _wolverineHttpOptions;
         private readonly Wolverine.Runtime.IWolverineRuntime _wolverineRuntime;
-        private readonly FluentValidation.IValidator<CamabrS.API.Inspection.Closeing.CloseInspection> _validator;
-        private readonly Wolverine.Marten.Publishing.OutboxedSessionFactory _outboxedSessionFactory;
         private readonly Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Closeing.CloseInspection> _problemDetailSource;
+        private readonly Wolverine.Marten.Publishing.OutboxedSessionFactory _outboxedSessionFactory;
+        private readonly FluentValidation.IValidator<CamabrS.API.Inspection.Closeing.CloseInspection> _validator;
 
-        public POST_api_inspections_close(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Runtime.IWolverineRuntime wolverineRuntime, FluentValidation.IValidator<CamabrS.API.Inspection.Closeing.CloseInspection> validator, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Closeing.CloseInspection> problemDetailSource) : base(wolverineHttpOptions)
+        public POST_api_inspections_close(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Runtime.IWolverineRuntime wolverineRuntime, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Closeing.CloseInspection> problemDetailSource, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory, FluentValidation.IValidator<CamabrS.API.Inspection.Closeing.CloseInspection> validator) : base(wolverineHttpOptions)
         {
             _wolverineHttpOptions = wolverineHttpOptions;
             _wolverineRuntime = wolverineRuntime;
-            _validator = validator;
-            _outboxedSessionFactory = outboxedSessionFactory;
             _problemDetailSource = problemDetailSource;
+            _outboxedSessionFactory = outboxedSessionFactory;
+            _validator = validator;
         }
 
 

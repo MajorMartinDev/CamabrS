@@ -20,8 +20,10 @@ public sealed record SubmitInspectionResult(Guid InspectionId, int Version, Guid
 };
 
 public static class SubmitEndpoints
-{    
-    [WolverinePost("/api/inspections/submit"), AggregateHandler]
+{
+    public const string SubmitEnpoint = "/api/inspections/submit";
+
+    [WolverinePost(SubmitEnpoint), AggregateHandler]
     public static (IResult, Events, OutgoingMessages) Post(
         SubmitInspectionResult command,
         Inspection inspection,
@@ -31,7 +33,8 @@ public static class SubmitEndpoints
         var (inspectionId, version, formId) = command;
 
         if (inspection.Status != InspectionStatus.Locked)
-            throw new InvalidOperationException($"Inspection with id {inspectionId} is not in locked state!");
+            throw new InvalidOperationException(
+                InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Locked, inspectionId));
 
         var events = new Events();
         var messages = new OutgoingMessages();
