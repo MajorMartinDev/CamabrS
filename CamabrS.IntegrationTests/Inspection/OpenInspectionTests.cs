@@ -37,10 +37,11 @@ public sealed class OpenInspectionTests : IntegrationContext
        
         opened.AssetId.ShouldBe(BaselineData.DefaultTestAssetId);
         opened.OpenedBy.ShouldBe(user.Id);
+        opened.OpenedAt.ShouldBe(openedAt);
         
         var inspectionDetail = await session.Query<InspectionDetails>().SingleOrDefaultAsync(i => i.Id == inspectionId);
         inspectionDetail.ShouldNotBeNull();
-        inspectionDetail.AssignedSpecialists.Length.ShouldBe(0);        
+        inspectionDetail.AssignedSpecialists.Length.ShouldBe(0);
     }
 
     [Fact]
