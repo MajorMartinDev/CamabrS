@@ -5,10 +5,8 @@ using Wolverine.Http;
 namespace CamabrS.API.Inspection.GettingHistory;
 
 public static class GetHistoryEndpoints
-{
-    public const string GetHistoryEndpointsByInspectionId = "/api/inspections/{incidentId:guid}/history";
-
-    [WolverineGet(GetHistoryEndpointsByInspectionId)]
+{   
+    [WolverineGet("/api/inspections/{incidentId:guid}/history")]
     public static Task<IReadOnlyList<InspectionHistory>> GetHistory(
         [FromRoute] Guid incidentId,
         IQuerySession querySession,

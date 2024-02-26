@@ -3,9 +3,11 @@ using CamabrS.API.Inspection.Closeing;
 using CamabrS.API.Inspection.Completing;
 using CamabrS.API.Inspection.GettingDetails;
 using CamabrS.API.Inspection.Locking;
+using CamabrS.API.Inspection.Opening;
 using CamabrS.API.Inspection.Reviewing;
 using CamabrS.API.Inspection.Signing;
 using CamabrS.API.Inspection.Submitting;
+using Wolverine.Http;
 
 namespace CamabrS.IntegrationTests.Inspection.Fixtures;
 public static class Scenarios
@@ -13,55 +15,94 @@ public static class Scenarios
     public static async Task<InspectionDetails> OpenedInspection(
         this IAlbaHost api)
     {
-        return default;
+        var result = await api.OpenInspection(default, default);
+
+        result = await api.GetInspectionDetails(await result.GetCreatedId());
+        var inspection = await result.ReadAsJsonAsync<InspectionDetails>();
+
+        inspection.ShouldNotBeNull();
+        return inspection;
     }
 
     public static async Task<InspectionDetails> AssignedInspection(
         this IAlbaHost api)
     {
-        return default;
+        var inspection = await api.OpenedInspection();
+        _ = await api.AssignInspection(default, default, default, default);
+
+        inspection.ShouldNotBeNull();
+        return inspection;      
     }
 
     public static async Task<InspectionDetails> LockedInspection(
         this IAlbaHost api)
     {
-        return default;
+        var inspection = await api.AssignedInspection();
+        _ = await api.LockInspection(default, default, default);
+
+        inspection.ShouldNotBeNull();
+        return inspection;
     }
 
     public static async Task<InspectionDetails> SubmittedInspection(
         this IAlbaHost api)
     {
-        return default;
+        var inspection = await api.LockedInspection();
+        _ = await api.SubmitInspection(default, default, default, default);
+
+        inspection.ShouldNotBeNull();
+        return inspection;
     }
 
     public static async Task<InspectionDetails> SignedInspection(
         this IAlbaHost api)
     {
-        return default;
+        var inspection = await api.SubmittedInspection();
+        _ = await api.SignInspection(default, default, string.Empty, default);
+
+        inspection.ShouldNotBeNull();
+        return inspection;
     }
 
     public static async Task<InspectionDetails> ClosedInspection(
         this IAlbaHost api)
     {
-        return default;
+        var inspection = await api.SignedInspection();
+        _ = await api.CloseInspection(default, default, default);
+
+        inspection.ShouldNotBeNull();
+        return inspection;
     }
 
     public static async Task<InspectionDetails> ReviewedInspection(
         this IAlbaHost api)
     {
-        return default;
+        var inspection = await api.ClosedInspection();
+        _ = await api.ReviewInspection(default, default, default, string.Empty, default);
+
+        inspection.ShouldNotBeNull();
+        return inspection;
     }
 
     public static async Task<InspectionDetails> CompletedInspection(
         this IAlbaHost api)
     {
-        return default;
+        var inspection = await api.ReviewedInspection();
+        _ = await api.CompleteInspection(default, default, default);
+
+        inspection.ShouldNotBeNull();
+        return inspection;
     }
 
     public static Task<IScenarioResult> OpenInspection(
-        this IAlbaHost api) =>
+        this IAlbaHost api,
+        Guid assetId,
+        DateTimeOffset openedAt) =>
             api.Scenario(x => 
             {
+                x.Post.Url(OpenEndpoints.OpenEnpoint);
+                x.Post.Json(new OpenInspection(assetId, openedAt));
+
                 x.StatusCodeShouldBe(201);
             });
 
@@ -187,4 +228,39 @@ public static class Scenarios
 
                 x.StatusCodeShouldBeOk();
             });
+
+    public static Task<IScenarioResult> GetInspectionDetails(
+        this IAlbaHost api,
+        Guid inspectionId
+    ) =>
+        api.Scenario(x =>
+        {
+            x.Get.Url($"/api/inspections/{inspectionId}");
+
+            x.StatusCodeShouldBeOk();
+        });
+
+    public static async Task<Guid> GetCreatedId(this IScenarioResult result)
+    {
+        var response = await result.ReadAsJsonAsync<CreationResponse>();
+        response.ShouldNotBeNull();
+        response!.Url.ShouldStartWith("/api/inspections/");
+
+        return response.GetCreatedId("/api/inspections/");
+    }
+
+    public static Guid GetCreatedId(this CreationResponse response, string urlPrefix)
+    {
+        response.Url.ShouldStartWith(urlPrefix);
+
+        var uri = new Uri(response.Url.Split("?")[0]);
+        var createdId = uri.Segments.Last();
+
+        if (!Guid.TryParse(createdId, out var guid))
+        {
+            Assert.Fail("Wrong Created Id");
+        }
+
+        return guid;
+    }
 }
