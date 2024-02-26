@@ -1,4 +1,6 @@
-﻿namespace CamabrS.API.Inspection;
+﻿using Marten.Events;
+
+namespace CamabrS.API.Inspection;
 
 public sealed record Inspection(
     Guid Id,
@@ -20,8 +22,8 @@ public sealed record Inspection(
     public sealed record ReopenInspection(Guid InspectionId, Guid ReopenedBy, DateTimeOffset ReopenedAt);
     public sealed record CompleteInspection(Guid InspectionId, Guid CompletedBy, DateTimeOffset CompletedAt);
 
-    public static Inspection Create(InspectionOpened Opened) =>
-        new(Opened.InspectionId, InspectionStatus.Opened);
+    public static Inspection Create(IEvent<InspectionOpened> Opened) =>
+        new(Opened.Id, InspectionStatus.Opened);
 
     public Inspection Apply(SpecialistAssigned SpecialistAssigned) =>
         this with { Status = InspectionStatus.Assigned };
@@ -66,7 +68,7 @@ public enum InspectionStatus
     Completed
 }
 
-public sealed record InspectionOpened(Guid InspectionId, Guid OpenedBy, Guid ObjectId, DateTimeOffset OpenedAt);
+public sealed record InspectionOpened(Guid OpenedBy, Guid AssetId, DateTimeOffset OpenedAt);
 public sealed record SpecialistAssigned(Guid InspectionId, Guid AssignedBy, Guid SpecialistId, DateTimeOffset AssignedAt);
 public sealed record SpecialistUnassigned(Guid InspectionId,Guid UnassignedBy, Guid SpecialistId, DateTimeOffset UnassignedAt);
 public sealed record InspectionLocked(Guid InspectionId, Guid LockedBy, DateTimeOffset LockedAt);

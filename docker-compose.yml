@@ -6,3 +6,17 @@ services:
     build:
       context: .
       dockerfile: CamabrS.API/Dockerfile
+    depends_on:
+      - camabrs-db
+       
+  camabrs-db:
+    image: postgres:latest
+    container_name: camabrsdb
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./.containers/database:/var/lib/postgresql/data
+    ports:
+      - 5434:5432

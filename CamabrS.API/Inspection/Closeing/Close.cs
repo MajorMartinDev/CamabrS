@@ -19,9 +19,8 @@ public sealed record CloseInspection(Guid InspectionId, int Version)
 };
 
 public static class CloseEndpoints
-{
-    [AggregateHandler]
-    [WolverinePost("/api/inspections/close")]
+{    
+    [WolverinePost("/api/inspections/close"), AggregateHandler]
     public static (IResult, Events, OutgoingMessages) Post(
         CloseInspection command,
         Inspection inspection,

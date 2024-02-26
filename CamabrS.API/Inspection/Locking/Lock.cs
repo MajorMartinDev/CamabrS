@@ -19,9 +19,8 @@ public sealed record LockInspection(Guid InspectionId, int Version)
 };
 
 public static class LockEndpoints
-{
-    [AggregateHandler]
-    [WolverinePost("/api/inspections/lock")]
+{    
+    [WolverinePost("/api/inspections/lock"), AggregateHandler]
     public static (IResult, Events, OutgoingMessages) Post(
         LockInspection command,
         Inspection inspection,

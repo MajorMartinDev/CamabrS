@@ -19,9 +19,8 @@ public sealed record CompleteInspection(Guid InspectionId, int Version)
 };
 
 public static class CompleteEndpoints
-{
-    [AggregateHandler]
-    [WolverinePost("/api/inspections/complete")]
+{    
+    [WolverinePost("/api/inspections/complete"), AggregateHandler]
     public static (IResult, Events, OutgoingMessages) Post(
         CompleteInspection command,
         Inspection inspection,

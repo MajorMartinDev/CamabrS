@@ -19,9 +19,8 @@ public sealed record UnlockInspection(Guid InspectionId, int Version)
 };
 
 public static class UnlockEndpoints
-{
-    [AggregateHandler]
-    [WolverinePost("/api/inspections/unlock")]
+{   
+    [WolverinePost("/api/inspections/unlock"), AggregateHandler]
     public static (IResult, Events, OutgoingMessages) Post(
         UnlockInspection command,
         Inspection inspection,

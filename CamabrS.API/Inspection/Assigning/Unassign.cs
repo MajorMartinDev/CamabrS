@@ -27,7 +27,7 @@ public static class UnassignEndpoints
 {
     [WolverineBefore]
     public static async Task<ProblemDetails> ValidateInspectionState(
-        AssignSpecialist command,
+        UnassignSpecialist command,
         IDocumentSession session)
     {
         var (inspectionId, _, specialistId) = command;
@@ -39,9 +39,8 @@ public static class UnassignEndpoints
             ? WolverineContinue.NoProblems
             : new ProblemDetails { Detail = $"Specialist with id {specialistId} was not previously assigned to Inspection with id {inspectionId}!" };
     }
-
-    [AggregateHandler]
-    [WolverinePost("/api/inspections/unassign")]
+   
+    [WolverinePost("/api/inspections/unassign"), AggregateHandler]
     public static (IResult, Events, OutgoingMessages) Post(
         UnassignSpecialist command,
         Inspection inspection,

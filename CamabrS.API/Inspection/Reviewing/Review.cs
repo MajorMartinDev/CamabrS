@@ -22,9 +22,8 @@ public sealed record ReviewInspection(Guid InspectionId, int Version, bool Verdi
 };
 
 public static class ReviewEndpoints
-{
-    [AggregateHandler]
-    [WolverinePost("/api/inspections/review")]
+{    
+    [WolverinePost("/api/inspections/review"), AggregateHandler]
     public static (IResult, Events, OutgoingMessages) Post(
         ReviewInspection command,
         Inspection inspection,

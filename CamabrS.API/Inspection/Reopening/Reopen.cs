@@ -19,9 +19,8 @@ public sealed record ReopenInspection(Guid InspectionId, int Version)
 };
 
 public static class ReopenEndpoints
-{
-    [AggregateHandler]
-    [WolverinePost("/api/inspections/reopen")]
+{    
+    [WolverinePost("/api/inspections/reopen"), AggregateHandler]
     public static (IResult, Events, OutgoingMessages) Post(
         ReopenInspection command,
         Inspection inspection,

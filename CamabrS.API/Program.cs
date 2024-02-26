@@ -1,3 +1,4 @@
+using CamabrS.API.Asset;
 using CamabrS.API.Core.Http;
 using CamabrS.API.Inspection;
 using JasperFx.CodeGeneration;
@@ -6,6 +7,7 @@ using Marten;
 using Marten.Exceptions;
 using Npgsql;
 using Oakton;
+using Weasel.Core;
 using Wolverine;
 using Wolverine.ErrorHandling;
 using Wolverine.FluentValidation;
@@ -31,7 +33,10 @@ builder.Services
     var connectionString = builder.Configuration.GetConnectionString("camabrs_dev");
     opts.Connection(connectionString!);
 
+    opts.AutoCreateSchemaObjects = AutoCreate.All;
+
     opts.ConfigureInspections();
+    opts.ConfigureAssets();
 })
     .IntegrateWithWolverine()
     .EventForwardingToWolverine(opts =>
@@ -91,3 +96,10 @@ app.UseHttpsRedirection();
 // This is important for Wolverine/Marten diagnostics 
 // and environment management
 return await app.RunOaktonCommands(args);
+
+namespace CamabrS.Api
+{    
+    public partial class Program
+    {
+    }
+}

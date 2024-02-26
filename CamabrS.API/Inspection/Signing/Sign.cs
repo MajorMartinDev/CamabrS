@@ -21,9 +21,8 @@ public sealed record SignInspection(Guid InspectionId, int Version, string Signa
 };
 
 public static class SignEndpoints 
-{
-    [AggregateHandler]
-    [WolverinePost("/api/inspections/sign")]
+{   
+    [WolverinePost("/api/inspections/sign"), AggregateHandler]
     public static (IResult, Events, OutgoingMessages) Post(
         SignInspection command,
         Inspection inspection,

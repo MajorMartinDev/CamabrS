@@ -12,12 +12,12 @@ public sealed class InspectionHistoryTransformation : EventProjection
 {
     public InspectionHistory Transform(IEvent<InspectionOpened> input)
     {
-        var (inspectionId, openedBy, objectId, openedAt) = input.Data;
+        var (openedBy, assetId, openedAt) = input.Data;
 
         return new InspectionHistory(
             CombGuidIdGeneration.NewGuid(),
-            inspectionId,
-            $"['{openedAt}'] Inspection with id: '{inspectionId}' for object with id: '{objectId}' opened by user '{openedBy}'.");
+            input.Id,
+            $"['{openedAt}'] Inspection with id: '{input.Id}' for asset with id: '{assetId}' opened by user '{openedBy}'.");
     }
 
     public InspectionHistory Transform(IEvent<AssignSpecialist> input)

@@ -33,14 +33,13 @@ public static class AssignEndpoints
         var (inspectionId, _, specialistId) = command;
 
         var specialistExists = await session.Query<SpecialistDetails>().AnyAsync(x => x.Id == specialistId);
-
+        
         return specialistExists
             ? WolverineContinue.NoProblems
             : new ProblemDetails { Detail = $"Specialist with id {specialistId} does not exist!" };
     }
-
-    [AggregateHandler]
-    [WolverinePost("/api/inspections/assign")]
+    
+    [WolverinePost("/api/inspections/assign"), AggregateHandler]
     public static (IResult, Events, OutgoingMessages) Post(
         AssignSpecialist command,
         Inspection inspection,

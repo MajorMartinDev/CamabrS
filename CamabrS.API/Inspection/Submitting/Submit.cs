@@ -20,9 +20,8 @@ public sealed record SubmitInspectionResult(Guid InspectionId, int Version, Guid
 };
 
 public static class SubmitEndpoints
-{
-    [AggregateHandler]
-    [WolverinePost("/api/inspections/submit")]
+{    
+    [WolverinePost("/api/inspections/submit"), AggregateHandler]
     public static (IResult, Events, OutgoingMessages) Post(
         SubmitInspectionResult command,
         Inspection inspection,
