@@ -1,5 +1,4 @@
-﻿using CamabrS.API.Asset;
-using Marten.Events;
+﻿using Marten.Events;
 
 namespace CamabrS.API.Inspection;
 

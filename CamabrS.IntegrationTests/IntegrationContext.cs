@@ -20,7 +20,7 @@ public abstract class IntegrationContext : IAsyncLifetime
 
     public IDocumentStore Store => _fixture.Host.Services.GetRequiredService<IDocumentStore>();
 
-    async Task IAsyncLifetime.InitializeAsync()
+    public virtual async Task InitializeAsync()
     {
         // Using Marten, wipe out all data and reset the state
         // back to exactly what we described in BaselineData
