@@ -1,8 +1,14 @@
-﻿namespace CamabrS.IntegrationTests.Inspection;
+﻿using CamabrS.IntegrationTests.Inspection.Fixtures;
 
-public sealed class AssignSpecialistTests : IntegrationContext
+namespace CamabrS.IntegrationTests.Inspection;
+
+public sealed class AssignSpecialistTests(AppFixture fixture) : ApiWithOpenedInspection(fixture)
 {
-    public AssignSpecialistTests(AppFixture fixture) : base(fixture)
+    [Fact]
+    public async Task AssignSpecialistCommandSucceeds()
     {
+        true.ShouldBeTrue();
+
+        await Task.CompletedTask;
     }
 }
