@@ -7,7 +7,7 @@ using FluentValidation;
 
 namespace CamabrS.API.Inspection.Signing;
 
-public sealed record SignInspection(Guid InspectionId, int Version, string SignatureLink)
+public sealed record SignInspection(Guid InspectionId, int Version, string SignatureLink, DateTimeOffset SignedAt)
 {
     public sealed class SignInspectionValidator : AbstractValidator<SignInspection>
     {
@@ -27,11 +27,10 @@ public static class SignEndpoints
     [WolverinePost(SignEnpoint), AggregateHandler]
     public static (IResult, Events, OutgoingMessages) Post(
         SignInspection command,
-        Inspection inspection,
-        DateTimeOffset now,
+        Inspection inspection,        
         User user)
     {
-        var (inspectionId, version, signatureLink) = command;
+        var (inspectionId, version, signatureLink, signedAt) = command;
 
         if (inspection.Status != InspectionStatus.Submitted)
             throw new InvalidOperationException(
@@ -40,9 +39,9 @@ public static class SignEndpoints
         var events = new Events();
         var messages = new OutgoingMessages();
 
-        events.Add(new Inspection.SignInspection(inspectionId, user.Id, signatureLink, now));
+        events.Add(new Inspection.SignInspection(inspectionId, user.Id, signatureLink, signedAt));
 
-        events.Add(new InspectionSigned(inspectionId, user.Id, signatureLink, now));
+        events.Add(new InspectionSigned(inspectionId, user.Id, signatureLink, signedAt));
 
         return (Ok(version + events.Count), events, messages);
     }    

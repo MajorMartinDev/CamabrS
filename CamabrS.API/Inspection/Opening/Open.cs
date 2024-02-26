@@ -9,7 +9,7 @@ using Wolverine.Marten;
 
 namespace CamabrS.API.Inspection.Opening;
 
-public sealed record OpenInspection(Guid AssetId)
+public sealed record OpenInspection(Guid AssetId, DateTimeOffset OpenedAt)
 {
     public sealed class OpenInspectionValidator : AbstractValidator<OpenInspection>
     {
@@ -49,11 +49,12 @@ public static class OpenEndpoints
 
     [WolverinePost(OpenEnpoint)]
     public static (NewInspectionOpenedResponse, IStartStream) OpenInspection(
-        OpenInspection command,
-        DateTimeOffset now,
+        OpenInspection command,        
         User user)
     {
-        var inspectionOpened = new InspectionOpened(user.Id, command.AssetId, now);
+        var (assetId, openedAt) = command;
+
+        var inspectionOpened = new InspectionOpened(user.Id, assetId, openedAt);
 
         var open = MartenOps.StartStream<Inspection>(inspectionOpened);
 

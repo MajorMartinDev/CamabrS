@@ -11,7 +11,7 @@ using CamabrS.API.Inspection.GettingDetails;
 
 namespace CamabrS.API.Inspection.Assigning;
 
-public sealed record UnassignSpecialist(Guid InspectionId, int Version, Guid SpecialistId)
+public sealed record UnassignSpecialist(Guid InspectionId, int Version, Guid SpecialistId, DateTimeOffset UnassignedAt)
 {
     public sealed class UnassignSpecialistValidator : AbstractValidator<UnassignSpecialist>
     {
@@ -35,7 +35,7 @@ public static class UnassignEndpoints
         UnassignSpecialist command,
         IDocumentSession session)
     {
-        var (inspectionId, _, specialistId) = command;
+        var (inspectionId, _, specialistId, unassignedAt) = command;
 
         var inspectionHasSpecialistAssigned = await session.Query<InspectionDetails>()
             .AnyAsync(x => x.Id == inspectionId && x.AssignedSpecialists.Contains(specialistId));
@@ -49,10 +49,9 @@ public static class UnassignEndpoints
     public static (IResult, Events, OutgoingMessages) Post(
         UnassignSpecialist command,
         Inspection inspection,
-        DateTimeOffset now,
         User user)
     {
-        var (inspectionId, version, specialistId) = command;
+        var (inspectionId, version, specialistId, unassignedAt) = command;
 
         if (inspection.Status != InspectionStatus.Assigned)
             throw new InvalidOperationException(
@@ -61,11 +60,11 @@ public static class UnassignEndpoints
         var events = new Events();
         var messages = new OutgoingMessages();
 
-        events.Add(new Inspection.UnassignSpecialist(inspectionId, user.Id, specialistId, now));
+        events.Add(new Inspection.UnassignSpecialist(inspectionId, user.Id, specialistId, unassignedAt));
 
         //TODO add missing business logic to check if the specialist can be assigned based on certifications
         //TODO consider saving or logging information if the specialist could not be assigned based in missing certification
-        events.Add(new SpecialistUnassigned(inspectionId, user.Id, specialistId, now));
+        events.Add(new SpecialistUnassigned(inspectionId, user.Id, specialistId, unassignedAt));
 
         //TODO send off message to notify Specialist that they got assigned an inspection
 

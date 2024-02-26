@@ -7,7 +7,7 @@ using FluentValidation;
 
 namespace CamabrS.API.Inspection.Locking;
 
-public sealed record LockInspection(Guid InspectionId, int Version)
+public sealed record LockInspection(Guid InspectionId, int Version, DateTimeOffset LockedAt)
 {
     public sealed class LockInspectionValidator : AbstractValidator<LockInspection>
     {
@@ -25,11 +25,10 @@ public static class LockEndpoints
     [WolverinePost(LockEnpoint), AggregateHandler]
     public static (IResult, Events, OutgoingMessages) Post(
         LockInspection command,
-        Inspection inspection,
-        DateTimeOffset now,
+        Inspection inspection,        
         User user)
     {
-        var (inspectionId, version) = command; 
+        var (inspectionId, version, lockedAt) = command; 
 
         if (inspection.Status != InspectionStatus.Assigned)
             throw new InvalidOperationException(
@@ -38,9 +37,9 @@ public static class LockEndpoints
         var events = new Events();
         var messages = new OutgoingMessages();
 
-        events.Add(new Inspection.LockInspection(inspectionId, user.Id, now));
+        events.Add(new Inspection.LockInspection(inspectionId, user.Id, lockedAt));
 
-        events.Add(new InspectionLocked(inspectionId, user.Id, now));
+        events.Add(new InspectionLocked(inspectionId, user.Id, lockedAt));
 
         return (Ok(version + events.Count), events, messages);
     }    

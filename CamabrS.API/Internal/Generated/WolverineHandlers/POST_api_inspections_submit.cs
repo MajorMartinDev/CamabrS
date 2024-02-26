@@ -58,8 +58,6 @@ namespace Internal.Generated.WolverineHandlers
             }
 
 
-            System.DateTimeOffset now = default;
-            System.DateTimeOffset.TryParse(httpContext.Request.Query["now"], System.Globalization.CultureInfo.InvariantCulture, out now);
             await using var documentSession = _outboxedSessionFactory.OpenSession(messageContext);
             var eventStore = documentSession.Events;
             
@@ -68,7 +66,7 @@ namespace Internal.Generated.WolverineHandlers
 
             
             // The actual HTTP request handler execution
-            (var result, var events, var outgoingMessages) = CamabrS.API.Inspection.Submitting.SubmitEndpoints.Post(command, eventStream.Aggregate, now, user);
+            (var result, var events, var outgoingMessages) = CamabrS.API.Inspection.Submitting.SubmitEndpoints.Post(command, eventStream.Aggregate, user);
 
             if (events != null)
             {

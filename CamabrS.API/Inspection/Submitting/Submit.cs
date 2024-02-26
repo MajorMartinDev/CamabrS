@@ -7,7 +7,7 @@ using FluentValidation;
 
 namespace CamabrS.API.Inspection.Submitting;
 
-public sealed record SubmitInspectionResult(Guid InspectionId, int Version, Guid FormId)
+public sealed record SubmitInspectionResult(Guid InspectionId, int Version, Guid FormId, DateTimeOffset SubmittedAt)
 {
     public sealed class SubmitInspectionResultValidator : AbstractValidator<SubmitInspectionResult>
     {
@@ -26,11 +26,10 @@ public static class SubmitEndpoints
     [WolverinePost(SubmitEnpoint), AggregateHandler]
     public static (IResult, Events, OutgoingMessages) Post(
         SubmitInspectionResult command,
-        Inspection inspection,
-        DateTimeOffset now,
+        Inspection inspection,        
         User user)
     {
-        var (inspectionId, version, formId) = command;
+        var (inspectionId, version, formId, submittedAt) = command;
 
         if (inspection.Status != InspectionStatus.Locked)
             throw new InvalidOperationException(
@@ -39,9 +38,9 @@ public static class SubmitEndpoints
         var events = new Events();
         var messages = new OutgoingMessages();
 
-        events.Add(new Inspection.SubmitInspectionResult(inspectionId, user.Id, formId, now));
+        events.Add(new Inspection.SubmitInspectionResult(inspectionId, user.Id, formId, submittedAt));
 
-        events.Add(new InspectionResultSubmitted(inspectionId, user.Id, formId, now));
+        events.Add(new InspectionResultSubmitted(inspectionId, user.Id, formId, submittedAt));
 
         return (Ok(version + events.Count), events, messages);
     }    

@@ -7,7 +7,7 @@ using FluentValidation;
 
 namespace CamabrS.API.Inspection.Reopening;
 
-public sealed record ReopenInspection(Guid InspectionId, int Version)
+public sealed record ReopenInspection(Guid InspectionId, int Version, DateTimeOffset ReopenedAt)
 {
     public sealed class ReopenInspectionValidator : AbstractValidator<ReopenInspection>
     {
@@ -25,11 +25,10 @@ public static class ReopenEndpoints
     [WolverinePost(ReopenEnpoint), AggregateHandler]
     public static (IResult, Events, OutgoingMessages) Post(
         ReopenInspection command,
-        Inspection inspection,
-        DateTimeOffset now,
+        Inspection inspection,        
         User user)
     {
-        var (inspectionId, version) = command;
+        var (inspectionId, version, reopenedAt) = command;
 
         if (inspection.Status != InspectionStatus.Reviewed)
             throw new InvalidOperationException(
@@ -38,9 +37,9 @@ public static class ReopenEndpoints
         var events = new Events();
         var messages = new OutgoingMessages();
 
-        events.Add(new Inspection.ReopenInspection(inspectionId, user.Id, now));
+        events.Add(new Inspection.ReopenInspection(inspectionId, user.Id, reopenedAt));
 
-        events.Add(new InspectionReopened(inspectionId, user.Id, now));
+        events.Add(new InspectionReopened(inspectionId, user.Id, reopenedAt));
 
         return (Ok(version + events.Count), events, messages);
     }    

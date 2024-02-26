@@ -16,17 +16,17 @@ namespace Internal.Generated.WolverineHandlers
     {
         private readonly Wolverine.Http.WolverineHttpOptions _wolverineHttpOptions;
         private readonly Wolverine.Runtime.IWolverineRuntime _wolverineRuntime;
-        private readonly Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Opening.OpenInspection> _problemDetailSource;
         private readonly FluentValidation.IValidator<CamabrS.API.Inspection.Opening.OpenInspection> _validator;
         private readonly Wolverine.Marten.Publishing.OutboxedSessionFactory _outboxedSessionFactory;
+        private readonly Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Opening.OpenInspection> _problemDetailSource;
 
-        public POST_api_inspections_open(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Runtime.IWolverineRuntime wolverineRuntime, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Opening.OpenInspection> problemDetailSource, FluentValidation.IValidator<CamabrS.API.Inspection.Opening.OpenInspection> validator, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory) : base(wolverineHttpOptions)
+        public POST_api_inspections_open(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Runtime.IWolverineRuntime wolverineRuntime, FluentValidation.IValidator<CamabrS.API.Inspection.Opening.OpenInspection> validator, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Opening.OpenInspection> problemDetailSource) : base(wolverineHttpOptions)
         {
             _wolverineHttpOptions = wolverineHttpOptions;
             _wolverineRuntime = wolverineRuntime;
-            _problemDetailSource = problemDetailSource;
             _validator = validator;
             _outboxedSessionFactory = outboxedSessionFactory;
+            _problemDetailSource = problemDetailSource;
         }
 
 
@@ -60,8 +60,6 @@ namespace Internal.Generated.WolverineHandlers
             }
 
 
-            System.DateTimeOffset now = default;
-            System.DateTimeOffset.TryParse(httpContext.Request.Query["now"], System.Globalization.CultureInfo.InvariantCulture, out now);
             var problemDetails3 = await CamabrS.API.Inspection.Opening.OpenEndpoints.ValidateInspectionState(command, documentSession).ConfigureAwait(false);
             // Evaluate whether the processing should stop if there are any problems
             if (!(ReferenceEquals(problemDetails3, Wolverine.Http.WolverineContinue.NoProblems)))
@@ -73,7 +71,7 @@ namespace Internal.Generated.WolverineHandlers
 
             
             // The actual HTTP request handler execution
-            (var newInspectionOpenedResponse_response, var startStream) = CamabrS.API.Inspection.Opening.OpenEndpoints.OpenInspection(command, now, user);
+            (var newInspectionOpenedResponse_response, var startStream) = CamabrS.API.Inspection.Opening.OpenEndpoints.OpenInspection(command, user);
 
             
             // Placed by Wolverine's ISideEffect policy

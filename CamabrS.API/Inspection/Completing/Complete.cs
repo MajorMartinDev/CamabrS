@@ -7,7 +7,7 @@ using FluentValidation;
 
 namespace CamabrS.API.Inspection.Completing;
 
-public sealed record CompleteInspection(Guid InspectionId, int Version)
+public sealed record CompleteInspection(Guid InspectionId, int Version, DateTimeOffset CompletedAt)
 {
     public sealed class CompleteInspectionValidator : AbstractValidator<CompleteInspection>
     {
@@ -25,11 +25,10 @@ public static class CompleteEndpoints
     [WolverinePost(CompleteEnpoint), AggregateHandler]
     public static (IResult, Events, OutgoingMessages) Post(
         CompleteInspection command,
-        Inspection inspection,
-        DateTimeOffset now,
+        Inspection inspection,       
         User user)
     {
-        var (inspectionId, version) = command;
+        var (inspectionId, version, completedAt) = command;
 
         if (inspection.Status != InspectionStatus.Reviewed)
             throw new InvalidOperationException(
@@ -38,9 +37,9 @@ public static class CompleteEndpoints
         var events = new Events();
         var messages = new OutgoingMessages();
 
-        events.Add(new Inspection.CompleteInspection(inspectionId, user.Id, now));
+        events.Add(new Inspection.CompleteInspection(inspectionId, user.Id, completedAt));
 
-        events.Add(new InspectionCompleted(inspectionId, user.Id, now));
+        events.Add(new InspectionCompleted(inspectionId, user.Id, completedAt));
 
         return (Ok(version + events.Count), events, messages);
     }    

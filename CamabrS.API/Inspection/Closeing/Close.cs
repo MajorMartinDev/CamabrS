@@ -7,7 +7,7 @@ using FluentValidation;
 
 namespace CamabrS.API.Inspection.Closeing;
 
-public sealed record CloseInspection(Guid InspectionId, int Version)
+public sealed record CloseInspection(Guid InspectionId, int Version, DateTimeOffset ClosedAt)
 {
     public sealed class CloseInspectionValidator : AbstractValidator<CloseInspection>
     {
@@ -25,11 +25,10 @@ public static class CloseEndpoints
     [WolverinePost(CloseEnpoint), AggregateHandler]
     public static (IResult, Events, OutgoingMessages) Post(
         CloseInspection command,
-        Inspection inspection,
-        DateTimeOffset now,
+        Inspection inspection,        
         User user)
     {
-        var (inspectionId, version) = command;
+        var (inspectionId, version, closedAt) = command;
 
         if (inspection.Status != InspectionStatus.Signed)
             throw new InvalidOperationException(
@@ -38,9 +37,9 @@ public static class CloseEndpoints
         var events = new Events();
         var messages = new OutgoingMessages();
 
-        events.Add(new Inspection.CloseInspection(inspectionId, user.Id, now));
+        events.Add(new Inspection.CloseInspection(inspectionId, user.Id, closedAt));
 
-        events.Add(new InspectionClosed(inspectionId, user.Id, now));
+        events.Add(new InspectionClosed(inspectionId, user.Id, closedAt));
 
         return (Ok(version + events.Count), events, messages);
     }    

@@ -15,16 +15,16 @@ namespace Internal.Generated.WolverineHandlers
     public class POST_api_inspections_complete : Wolverine.Http.HttpHandler
     {
         private readonly Wolverine.Http.WolverineHttpOptions _wolverineHttpOptions;
-        private readonly Wolverine.Runtime.IWolverineRuntime _wolverineRuntime;
         private readonly FluentValidation.IValidator<CamabrS.API.Inspection.Completing.CompleteInspection> _validator;
+        private readonly Wolverine.Runtime.IWolverineRuntime _wolverineRuntime;
         private readonly Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Completing.CompleteInspection> _problemDetailSource;
         private readonly Wolverine.Marten.Publishing.OutboxedSessionFactory _outboxedSessionFactory;
 
-        public POST_api_inspections_complete(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Runtime.IWolverineRuntime wolverineRuntime, FluentValidation.IValidator<CamabrS.API.Inspection.Completing.CompleteInspection> validator, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Completing.CompleteInspection> problemDetailSource, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory) : base(wolverineHttpOptions)
+        public POST_api_inspections_complete(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, FluentValidation.IValidator<CamabrS.API.Inspection.Completing.CompleteInspection> validator, Wolverine.Runtime.IWolverineRuntime wolverineRuntime, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Completing.CompleteInspection> problemDetailSource, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory) : base(wolverineHttpOptions)
         {
             _wolverineHttpOptions = wolverineHttpOptions;
-            _wolverineRuntime = wolverineRuntime;
             _validator = validator;
+            _wolverineRuntime = wolverineRuntime;
             _problemDetailSource = problemDetailSource;
             _outboxedSessionFactory = outboxedSessionFactory;
         }
@@ -58,8 +58,6 @@ namespace Internal.Generated.WolverineHandlers
             }
 
 
-            System.DateTimeOffset now = default;
-            System.DateTimeOffset.TryParse(httpContext.Request.Query["now"], System.Globalization.CultureInfo.InvariantCulture, out now);
             await using var documentSession = _outboxedSessionFactory.OpenSession(messageContext);
             var eventStore = documentSession.Events;
             
@@ -68,7 +66,7 @@ namespace Internal.Generated.WolverineHandlers
 
             
             // The actual HTTP request handler execution
-            (var result, var events, var outgoingMessages) = CamabrS.API.Inspection.Completing.CompleteEndpoints.Post(command, eventStream.Aggregate, now, user);
+            (var result, var events, var outgoingMessages) = CamabrS.API.Inspection.Completing.CompleteEndpoints.Post(command, eventStream.Aggregate, user);
 
             if (events != null)
             {

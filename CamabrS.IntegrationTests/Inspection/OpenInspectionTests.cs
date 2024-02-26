@@ -16,11 +16,12 @@ public sealed class OpenInspectionTests : IntegrationContext
     public async Task Open_a_new_Inspection_should_succeed()
     {
         var user = new User(Guid.NewGuid());
+        var openedAt = DateTimeOffset.UtcNow;
         
         var initial = await Host.Scenario(x =>
         {            
             x.Post
-                .Json(new OpenInspection(BaselineData.DefaultTestAssetId))
+                .Json(new OpenInspection(BaselineData.DefaultTestAssetId, openedAt))
                 .ToUrl(OpenEnpoint);
 
             x.StatusCodeShouldBe(201);
@@ -46,13 +47,14 @@ public sealed class OpenInspectionTests : IntegrationContext
     public async Task Open_a_new_Inspection_with_nonexistent_Asset_should_fail()
     {
         var assetId = Guid.NewGuid();
+        var openedAt = DateTimeOffset.UtcNow;
 
         var user = new User(Guid.NewGuid());
 
         var initial = await Host.Scenario(x =>
         {
             x.Post
-                .Json(new OpenInspection(assetId))
+                .Json(new OpenInspection(assetId, openedAt))
                 .ToUrl(OpenEnpoint);
 
             x.StatusCodeShouldBe(403);            
