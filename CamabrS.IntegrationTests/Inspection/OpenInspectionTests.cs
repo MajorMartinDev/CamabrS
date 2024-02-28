@@ -2,7 +2,6 @@
 using CamabrS.API.Inspection;
 using CamabrS.API.Inspection.GettingDetails;
 using CamabrS.API.Inspection.Opening;
-using Microsoft.AspNetCore.Mvc;
 using static CamabrS.API.Inspection.Opening.OpenEndpoints;
 
 namespace CamabrS.IntegrationTests.Inspection;
@@ -20,12 +19,12 @@ public sealed class OpenInspectionTests(AppFixture fixture) : IntegrationContext
                 .Json(new OpenInspection(BaselineData.DefaultTestAssetId, openedAt))
                 .ToUrl(OpenEnpoint);
 
-            x.StatusCodeShouldBe(201);
+            x.StatusCodeShouldBeOk();
 
             x.WithClaim(new Claim("user-id", user.Id.ToString()));            
         });
 
-        var inspectionId = initial.ReadAsJson<NewInspectionOpenedResponse>()!.InspectionId;
+        var inspectionId = initial.ReadAsJson<ApiCreationResponse>()!.Id;
 
         using var session = Store.LightweightSession();
         var events = await session.Events.FetchStreamAsync(inspectionId);

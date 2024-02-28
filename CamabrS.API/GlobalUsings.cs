@@ -1,0 +1,13 @@
+﻿global using JasperFx.CodeGeneration;
+global using JasperFx.Core;
+global using Marten;
+global using Marten.Exceptions;
+global using Npgsql;
+global using Oakton;
+global using Weasel.Core;
+global using Wolverine;
+global using Wolverine.ErrorHandling;
+global using Wolverine.FluentValidation;
+global using Wolverine.Http;
+global using Wolverine.Http.FluentValidation;
+global using Wolverine.Marten;

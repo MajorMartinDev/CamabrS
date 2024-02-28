@@ -15,18 +15,18 @@ namespace Internal.Generated.WolverineHandlers
     public class POST_api_inspections_complete : Wolverine.Http.HttpHandler
     {
         private readonly Wolverine.Http.WolverineHttpOptions _wolverineHttpOptions;
-        private readonly FluentValidation.IValidator<CamabrS.API.Inspection.Completing.CompleteInspection> _validator;
         private readonly Wolverine.Runtime.IWolverineRuntime _wolverineRuntime;
-        private readonly Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Completing.CompleteInspection> _problemDetailSource;
+        private readonly FluentValidation.IValidator<CamabrS.API.Inspection.Completing.CompleteInspection> _validator;
         private readonly Wolverine.Marten.Publishing.OutboxedSessionFactory _outboxedSessionFactory;
+        private readonly Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Completing.CompleteInspection> _problemDetailSource;
 
-        public POST_api_inspections_complete(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, FluentValidation.IValidator<CamabrS.API.Inspection.Completing.CompleteInspection> validator, Wolverine.Runtime.IWolverineRuntime wolverineRuntime, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Completing.CompleteInspection> problemDetailSource, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory) : base(wolverineHttpOptions)
+        public POST_api_inspections_complete(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Runtime.IWolverineRuntime wolverineRuntime, FluentValidation.IValidator<CamabrS.API.Inspection.Completing.CompleteInspection> validator, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Completing.CompleteInspection> problemDetailSource) : base(wolverineHttpOptions)
         {
             _wolverineHttpOptions = wolverineHttpOptions;
-            _validator = validator;
             _wolverineRuntime = wolverineRuntime;
-            _problemDetailSource = problemDetailSource;
+            _validator = validator;
             _outboxedSessionFactory = outboxedSessionFactory;
+            _problemDetailSource = problemDetailSource;
         }
 
 
@@ -66,7 +66,7 @@ namespace Internal.Generated.WolverineHandlers
 
             
             // The actual HTTP request handler execution
-            (var result, var events, var outgoingMessages) = CamabrS.API.Inspection.Completing.CompleteEndpoints.Post(command, eventStream.Aggregate, user);
+            (var apiResponse_response, var events, var outgoingMessages) = CamabrS.API.Inspection.Completing.CompleteEndpoints.Post(command, eventStream.Aggregate, user);
 
             if (events != null)
             {
@@ -81,7 +81,8 @@ namespace Internal.Generated.WolverineHandlers
             await messageContext.EnqueueCascadingAsync(outgoingMessages).ConfigureAwait(false);
 
             await documentSession.SaveChangesAsync(httpContext.RequestAborted).ConfigureAwait(false);
-            await result.ExecuteAsync(httpContext).ConfigureAwait(false);
+            // Writing the response body to JSON because this was the first 'return variable' in the method signature
+            await WriteJsonAsync(httpContext, apiResponse_response);
             
             // Making sure there is at least one call to flush outgoing, cascading messages
             await messageContext.FlushOutgoingMessagesAsync().ConfigureAwait(false);

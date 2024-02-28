@@ -44,16 +44,10 @@ namespace Marten.Generated.EventStore
 
         public CamabrS.API.Inspection.GettingDetails.InspectionDetails Create(Marten.Events.IEvent @event, Marten.IQuerySession session)
         {
-            var byteArray1 = new System.Byte[]{};
-            var guid1 = new System.Guid(byteArray1);
-            var byteArray2 = new System.Byte[]{};
-            var guid2 = new System.Guid(byteArray2);
-            var guidArray = new System.Guid[]{guid2};
-            var inspectionDetails = new CamabrS.API.Inspection.GettingDetails.InspectionDetails(guid1, guidArray);
             switch (@event)
             {
                 case Marten.Events.IEvent<CamabrS.API.Inspection.InspectionOpened> event_InspectionOpened45:
-                    inspectionDetails = CamabrS.API.Inspection.GettingDetails.InspectionDetailsProjection.Create(event_InspectionOpened45);
+                    return CamabrS.API.Inspection.GettingDetails.InspectionDetailsProjection.Create(event_InspectionOpened45);
                     break;
             }
 
@@ -106,16 +100,10 @@ namespace Marten.Generated.EventStore
 
         public CamabrS.API.Inspection.GettingDetails.InspectionDetails Create(Marten.Events.IEvent @event, Marten.IQuerySession session)
         {
-            var byteArray1 = new System.Byte[]{};
-            var guid1 = new System.Guid(byteArray1);
-            var byteArray2 = new System.Byte[]{};
-            var guid2 = new System.Guid(byteArray2);
-            var guidArray = new System.Guid[]{guid2};
-            var inspectionDetails = new CamabrS.API.Inspection.GettingDetails.InspectionDetails(guid1, guidArray);
             switch (@event)
             {
                 case Marten.Events.IEvent<CamabrS.API.Inspection.InspectionOpened> event_InspectionOpened46:
-                    inspectionDetails = CamabrS.API.Inspection.GettingDetails.InspectionDetailsProjection.Create(event_InspectionOpened46);
+                    return CamabrS.API.Inspection.GettingDetails.InspectionDetailsProjection.Create(event_InspectionOpened46);
                     break;
             }
 

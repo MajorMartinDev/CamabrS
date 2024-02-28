@@ -1,19 +1,7 @@
 using CamabrS.API.Asset;
 using CamabrS.API.Core.Http;
 using CamabrS.API.Inspection;
-using JasperFx.CodeGeneration;
-using JasperFx.Core;
-using Marten;
-using Marten.Exceptions;
-using Npgsql;
-using Oakton;
-using Weasel.Core;
-using Wolverine;
-using Wolverine.ErrorHandling;
-using Wolverine.FluentValidation;
-using Wolverine.Http;
-using Wolverine.Http.FluentValidation;
-using Wolverine.Marten;
+using CamabrS.API.Specialist;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +25,7 @@ builder.Services
 
     opts.ConfigureInspections();
     opts.ConfigureAssets();
+    opts.ConfigureSpecialists();
 })
     .IntegrateWithWolverine()
     .EventForwardingToWolverine(opts =>

@@ -1,11 +1,9 @@
 ﻿using CamabrS.API.Asset.GettingDetails;
 using CamabrS.API.Core.Http;
+using CamabrS.API.Inspection.Assigning;
 using FluentValidation;
-using Marten;
 using Microsoft.AspNetCore.Mvc;
 using Wolverine.Attributes;
-using Wolverine.Http;
-using Wolverine.Marten;
 
 namespace CamabrS.API.Inspection.Opening;
 
@@ -42,13 +40,10 @@ public static class OpenEndpoints
                     Status = 403,
                     Detail = GetAssetNotExistsErrorDetail(command.AssetId)
             };
-    }
-
-    public record NewInspectionOpenedResponse(Guid InspectionId) 
-        : CreationResponse("/api/inspections/" + InspectionId);
+    }    
 
     [WolverinePost(OpenEnpoint)]
-    public static (NewInspectionOpenedResponse, IStartStream) OpenInspection(
+    public static (ApiCreationResponse, IStartStream) OpenInspection(
         OpenInspection command,        
         User user)
     {
@@ -58,6 +53,8 @@ public static class OpenEndpoints
 
         var open = MartenOps.StartStream<Inspection>(inspectionOpened);
 
-        return (new NewInspectionOpenedResponse(open.StreamId), open);
+        return (new ApiCreationResponse(
+            open.StreamId, 1, [AssignEndpoints.AssignEnpoint]), 
+            open);
     }
 }

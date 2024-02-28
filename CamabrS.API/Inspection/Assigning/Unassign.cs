@@ -46,7 +46,7 @@ public static class UnassignEndpoints
     }
    
     [WolverinePost(UnassignEnpoint), AggregateHandler]
-    public static (IResult, Events, OutgoingMessages) Post(
+    public static (ApiResponse, Events, OutgoingMessages) Post(
         UnassignSpecialist command,
         Inspection inspection,
         User user)
@@ -68,6 +68,10 @@ public static class UnassignEndpoints
 
         //TODO send off message to notify Specialist that they got assigned an inspection
 
-        return (Ok(version + events.Count), events, messages);
+        return (
+            new ApiResponse(
+                (version + events.Count),
+                [AssignEndpoints.AssignEnpoint]), 
+                events, messages);
     }    
 }

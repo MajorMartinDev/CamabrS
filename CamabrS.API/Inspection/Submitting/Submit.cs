@@ -4,6 +4,7 @@ using Wolverine;
 using static Microsoft.AspNetCore.Http.TypedResults;
 using CamabrS.API.Core.Http;
 using FluentValidation;
+using CamabrS.API.Inspection.Signing;
 
 namespace CamabrS.API.Inspection.Submitting;
 
@@ -24,7 +25,7 @@ public static class SubmitEndpoints
     public const string SubmitEnpoint = "/api/inspections/submit";
 
     [WolverinePost(SubmitEnpoint), AggregateHandler]
-    public static (IResult, Events, OutgoingMessages) Post(
+    public static (ApiResponse, Events, OutgoingMessages) Post(
         SubmitInspectionResult command,
         Inspection inspection,        
         User user)
@@ -42,6 +43,10 @@ public static class SubmitEndpoints
 
         events.Add(new InspectionResultSubmitted(inspectionId, user.Id, formId, submittedAt));
 
-        return (Ok(version + events.Count), events, messages);
+        return (
+            new ApiResponse(
+                (version + events.Count), 
+                [SignEndpoints.SignEnpoint]),
+                events, messages);
     }    
 }

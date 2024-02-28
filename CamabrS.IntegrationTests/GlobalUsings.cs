@@ -1,8 +1,10 @@
 global using Alba;
 global using Alba.Security;
+global using Bogus.DataSets;
 global using JasperFx.Core;
 global using Marten;
 global using Marten.Schema;
+global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.Extensions.DependencyInjection;
 global using Oakton;
 global using Shouldly;
@@ -11,5 +13,6 @@ global using System.Security.Claims;
 global using System.Threading;
 global using System.Threading.Tasks;
 global using Wolverine;
+global using Wolverine.Http;
 global using Wolverine.Tracking;
 global using Xunit;

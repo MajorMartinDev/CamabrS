@@ -16,17 +16,17 @@ namespace Internal.Generated.WolverineHandlers
     {
         private readonly Wolverine.Http.WolverineHttpOptions _wolverineHttpOptions;
         private readonly Wolverine.Runtime.IWolverineRuntime _wolverineRuntime;
+        private readonly Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Opening.OpenInspection> _problemDetailSource;
         private readonly FluentValidation.IValidator<CamabrS.API.Inspection.Opening.OpenInspection> _validator;
         private readonly Wolverine.Marten.Publishing.OutboxedSessionFactory _outboxedSessionFactory;
-        private readonly Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Opening.OpenInspection> _problemDetailSource;
 
-        public POST_api_inspections_open(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Runtime.IWolverineRuntime wolverineRuntime, FluentValidation.IValidator<CamabrS.API.Inspection.Opening.OpenInspection> validator, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Opening.OpenInspection> problemDetailSource) : base(wolverineHttpOptions)
+        public POST_api_inspections_open(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Runtime.IWolverineRuntime wolverineRuntime, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Opening.OpenInspection> problemDetailSource, FluentValidation.IValidator<CamabrS.API.Inspection.Opening.OpenInspection> validator, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory) : base(wolverineHttpOptions)
         {
             _wolverineHttpOptions = wolverineHttpOptions;
             _wolverineRuntime = wolverineRuntime;
+            _problemDetailSource = problemDetailSource;
             _validator = validator;
             _outboxedSessionFactory = outboxedSessionFactory;
-            _problemDetailSource = problemDetailSource;
         }
 
 
@@ -71,14 +71,12 @@ namespace Internal.Generated.WolverineHandlers
 
             
             // The actual HTTP request handler execution
-            (var newInspectionOpenedResponse_response, var startStream) = CamabrS.API.Inspection.Opening.OpenEndpoints.OpenInspection(command, user);
+            (var apiCreationResponse_response, var startStream) = CamabrS.API.Inspection.Opening.OpenEndpoints.OpenInspection(command, user);
 
             
             // Placed by Wolverine's ISideEffect policy
             startStream.Execute(documentSession);
 
-            // This response type customizes the HTTP response
-            ApplyHttpAware(newInspectionOpenedResponse_response, httpContext);
             
             // Commit any outstanding Marten changes
             await documentSession.SaveChangesAsync(httpContext.RequestAborted).ConfigureAwait(false);
@@ -88,7 +86,7 @@ namespace Internal.Generated.WolverineHandlers
             await messageContext.FlushOutgoingMessagesAsync().ConfigureAwait(false);
 
             // Writing the response body to JSON because this was the first 'return variable' in the method signature
-            await WriteJsonAsync(httpContext, newInspectionOpenedResponse_response);
+            await WriteJsonAsync(httpContext, apiCreationResponse_response);
         }
 
     }

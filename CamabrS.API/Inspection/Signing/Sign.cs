@@ -4,6 +4,7 @@ using Wolverine;
 using static Microsoft.AspNetCore.Http.TypedResults;
 using CamabrS.API.Core.Http;
 using FluentValidation;
+using CamabrS.API.Inspection.Closeing;
 
 namespace CamabrS.API.Inspection.Signing;
 
@@ -25,7 +26,7 @@ public static class SignEndpoints
     public const string SignEnpoint = "/api/inspections/sign";
 
     [WolverinePost(SignEnpoint), AggregateHandler]
-    public static (IResult, Events, OutgoingMessages) Post(
+    public static (ApiResponse, Events, OutgoingMessages) Post(
         SignInspection command,
         Inspection inspection,        
         User user)
@@ -43,6 +44,10 @@ public static class SignEndpoints
 
         events.Add(new InspectionSigned(inspectionId, user.Id, signatureLink, signedAt));
 
-        return (Ok(version + events.Count), events, messages);
+        return (
+            new ApiResponse(
+                (version + events.Count), 
+                [CloseEndpoints.CloseEnpoint]), 
+                events, messages);
     }    
 }

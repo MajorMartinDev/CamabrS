@@ -4,6 +4,7 @@ using Wolverine;
 using static Microsoft.AspNetCore.Http.TypedResults;
 using CamabrS.API.Core.Http;
 using FluentValidation;
+using CamabrS.API.Inspection.Assigning;
 
 namespace CamabrS.API.Inspection.Reopening;
 
@@ -23,7 +24,7 @@ public static class ReopenEndpoints
     public const string ReopenEnpoint = "/api/inspections/reopen";
 
     [WolverinePost(ReopenEnpoint), AggregateHandler]
-    public static (IResult, Events, OutgoingMessages) Post(
+    public static (ApiResponse, Events, OutgoingMessages) Post(
         ReopenInspection command,
         Inspection inspection,        
         User user)
@@ -41,6 +42,10 @@ public static class ReopenEndpoints
 
         events.Add(new InspectionReopened(inspectionId, user.Id, reopenedAt));
 
-        return (Ok(version + events.Count), events, messages);
+        return (
+            new ApiResponse(
+                (version + events.Count), 
+                [AssignEndpoints.AssignEnpoint]), 
+                events, messages);
     }    
 }

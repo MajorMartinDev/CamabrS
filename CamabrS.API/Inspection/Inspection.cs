@@ -28,6 +28,7 @@ public sealed record Inspection(
     public Inspection Apply(SpecialistAssigned SpecialistAssigned) =>
         this with { Status = InspectionStatus.Assigned };
 
+    //TODO missing business logic
     public Inspection Apply(SpecialistUnassigned SpecialistUnassigned) =>
         this with { Status = InspectionStatus.Opened };
 
@@ -84,5 +85,8 @@ public class InvalidStateException()
 {
     public static string GetInvalidStateExceptionMessage(InspectionStatus status, Guid id) =>
         $"Inspection with id {id} is not in {status.ToString().ToLower()} state!";
+
+    public static string GetInvalidStateExceptionMessageForAssignment(Guid id) =>
+        $"Inspection with id {id} is not in opened or assigned state!";
 
 }

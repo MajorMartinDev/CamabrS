@@ -1,3 +1,11 @@
-﻿namespace CamabrS.API.Specialist.GettingDetails;
+﻿using Marten.Events.Aggregation;
+
+namespace CamabrS.API.Specialist.GettingDetails;
 
 public sealed record SpecialistDetails(Guid Id);
+
+public sealed class SpecialistDetailsProjection : SingleStreamProjection<SpecialistDetails>
+{
+    public static SpecialistDetails Create(SpecialistCreated created) =>
+        new(created.Id);
+}

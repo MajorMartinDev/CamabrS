@@ -1,12 +1,10 @@
 ﻿using CamabrS.API.Core.Http;
+using CamabrS.API.Inspection.GettingDetails;
+using CamabrS.API.Inspection.Locking;
 using CamabrS.API.Specialist.GettingDetails;
 using FluentValidation;
-using Marten;
 using Microsoft.AspNetCore.Mvc;
-using Wolverine;
 using Wolverine.Attributes;
-using Wolverine.Http;
-using Wolverine.Marten;
 using static Microsoft.AspNetCore.Http.TypedResults;
 
 namespace CamabrS.API.Inspection.Assigning;
@@ -27,8 +25,11 @@ public static class AssignEndpoints
 {
     public const string AssignEnpoint = "/api/inspections/assign";
 
-    public static string GetAssetNotExistsErrorDetail(Guid specialistId)
-        => $"Asset with id {specialistId} does not exist!";
+    public static string GetSpecialistNotExistsErrorDetail(Guid specialistId)
+        => $"Specialist with id {specialistId} does not exist!";
+
+    public static string GetSpecialistHasAlreadyBeenAddedErrorDetail(Guid specialistId)
+        => $"Specialist with id {specialistId} has already been assigned to the Inspection.";
 
     [WolverineBefore]
     public static async Task<ProblemDetails> ValidateInspectionState(
@@ -38,23 +39,31 @@ public static class AssignEndpoints
         var (inspectionId, _, specialistId, assignedAt) = command;
 
         var specialistExists = await session.Query<SpecialistDetails>().AnyAsync(x => x.Id == specialistId);
-        
-        return specialistExists
-            ? WolverineContinue.NoProblems
-            : new ProblemDetails { Detail = GetAssetNotExistsErrorDetail(specialistId) };
+
+        if (!specialistExists) return new ProblemDetails { Detail = GetSpecialistNotExistsErrorDetail(specialistId) };
+
+        var specialistHasAlreadyBeenAdded
+            = await session.Query<InspectionDetails>()
+                .AnyAsync(x => x.Id == command.InspectionId && x.AssignedSpecialists.Contains(command.SpecialistId));
+
+        if (specialistHasAlreadyBeenAdded) return new ProblemDetails { Detail = GetSpecialistHasAlreadyBeenAddedErrorDetail(specialistId) };
+
+        return WolverineContinue.NoProblems;
     }
     
     [WolverinePost(AssignEnpoint), AggregateHandler]
-    public static (IResult, Events, OutgoingMessages) Post(
+    public static (ApiResponse, Events, OutgoingMessages) Post(
         AssignSpecialist command,
         Inspection inspection,        
         User user)
     {
         var (inspectionId, version, specialistId, assignedAt) = command;
 
-        if (inspection.Status != InspectionStatus.Opened)
+        var notAssignable = !(inspection.Status == InspectionStatus.Opened || inspection.Status == InspectionStatus.Assigned);
+
+        if (notAssignable)
             throw new InvalidOperationException(
-                InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Opened, inspectionId));
+                InvalidStateException.GetInvalidStateExceptionMessageForAssignment(inspectionId));        
 
         var events = new Events();
         var messages = new OutgoingMessages();
@@ -66,7 +75,11 @@ public static class AssignEndpoints
         events.Add(new SpecialistAssigned(inspectionId, user.Id, specialistId, assignedAt));
 
         //TODO send off message to notify Specialist that they got assigned an inspection
-
-        return (Ok(version + events.Count), events, messages);
+        
+        return (
+            new ApiResponse(
+                (version + events.Count),
+                [UnassignEndpoints.UnassignEnpoint, AssignEnpoint, LockEndpoints.LockEnpoint]),
+            events, messages);
     }    
 }

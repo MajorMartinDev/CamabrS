@@ -4,6 +4,7 @@ using Wolverine;
 using static Microsoft.AspNetCore.Http.TypedResults;
 using CamabrS.API.Core.Http;
 using FluentValidation;
+using CamabrS.API.Inspection.Reviewing;
 
 namespace CamabrS.API.Inspection.Closeing;
 
@@ -23,7 +24,7 @@ public static class CloseEndpoints
     public const string CloseEnpoint = "/api/inspections/close";
 
     [WolverinePost(CloseEnpoint), AggregateHandler]
-    public static (IResult, Events, OutgoingMessages) Post(
+    public static (ApiResponse, Events, OutgoingMessages) Post(
         CloseInspection command,
         Inspection inspection,        
         User user)
@@ -41,6 +42,10 @@ public static class CloseEndpoints
 
         events.Add(new InspectionClosed(inspectionId, user.Id, closedAt));
 
-        return (Ok(version + events.Count), events, messages);
+        return (
+            new ApiResponse(
+                (version + events.Count), 
+                [ReviewEndpoints.ReviewEnpoint]),
+                events, messages);
     }    
 }

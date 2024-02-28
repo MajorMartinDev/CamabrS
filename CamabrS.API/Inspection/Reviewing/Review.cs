@@ -4,6 +4,8 @@ using Wolverine;
 using static Microsoft.AspNetCore.Http.TypedResults;
 using CamabrS.API.Core.Http;
 using FluentValidation;
+using CamabrS.API.Inspection.Reopening;
+using CamabrS.API.Inspection.Completing;
 
 namespace CamabrS.API.Inspection.Reviewing;
 
@@ -26,7 +28,7 @@ public static class ReviewEndpoints
     public const string ReviewEnpoint = "/api/inspections/review";
 
     [WolverinePost(ReviewEnpoint), AggregateHandler]
-    public static (IResult, Events, OutgoingMessages) Post(
+    public static (ApiResponse, Events, OutgoingMessages) Post(
         ReviewInspection command,
         Inspection inspection,       
         User user)
@@ -44,6 +46,16 @@ public static class ReviewEndpoints
 
         events.Add(new InspectionReviewed(inspectionId, user.Id, verdict, summary, reviewedAt));
 
-        return (Ok(version + events.Count), events, messages);
-    }   
+        return (
+            new ApiResponse(
+                (version + events.Count),                
+                GetNextAvailableSteps(verdict)), 
+                events, messages);
+    }
+
+    public static List<string> GetNextAvailableSteps(bool verdict)
+    {
+        return verdict is true ? 
+            [CompleteEndpoints.CompleteEnpoint] : [ReopenEndpoints.ReopenEnpoint];
+    }
 }

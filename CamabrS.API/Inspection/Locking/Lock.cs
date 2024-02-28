@@ -4,6 +4,7 @@ using Wolverine;
 using static Microsoft.AspNetCore.Http.TypedResults;
 using CamabrS.API.Core.Http;
 using FluentValidation;
+using CamabrS.API.Inspection.Submitting;
 
 namespace CamabrS.API.Inspection.Locking;
 
@@ -23,7 +24,7 @@ public static class LockEndpoints
     public const string LockEnpoint = "/api/inspections/lock";
 
     [WolverinePost(LockEnpoint), AggregateHandler]
-    public static (IResult, Events, OutgoingMessages) Post(
+    public static (ApiResponse, Events, OutgoingMessages) Post(
         LockInspection command,
         Inspection inspection,        
         User user)
@@ -41,6 +42,10 @@ public static class LockEndpoints
 
         events.Add(new InspectionLocked(inspectionId, user.Id, lockedAt));
 
-        return (Ok(version + events.Count), events, messages);
+        return (
+            new ApiResponse(
+                (version + events.Count),
+                [UnlockEndpoints.UnlockEnpoint, SubmitEndpoints.SubmitEnpoint]),
+                events, messages);
     }    
 }

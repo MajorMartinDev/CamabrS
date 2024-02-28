@@ -15,18 +15,18 @@ namespace Internal.Generated.WolverineHandlers
     public class POST_api_inspections_unassign : Wolverine.Http.HttpHandler
     {
         private readonly Wolverine.Http.WolverineHttpOptions _wolverineHttpOptions;
-        private readonly Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Assigning.UnassignSpecialist> _problemDetailSource;
         private readonly Wolverine.Runtime.IWolverineRuntime _wolverineRuntime;
-        private readonly Wolverine.Marten.Publishing.OutboxedSessionFactory _outboxedSessionFactory;
         private readonly FluentValidation.IValidator<CamabrS.API.Inspection.Assigning.UnassignSpecialist> _validator;
+        private readonly Wolverine.Marten.Publishing.OutboxedSessionFactory _outboxedSessionFactory;
+        private readonly Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Assigning.UnassignSpecialist> _problemDetailSource;
 
-        public POST_api_inspections_unassign(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Assigning.UnassignSpecialist> problemDetailSource, Wolverine.Runtime.IWolverineRuntime wolverineRuntime, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory, FluentValidation.IValidator<CamabrS.API.Inspection.Assigning.UnassignSpecialist> validator) : base(wolverineHttpOptions)
+        public POST_api_inspections_unassign(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Runtime.IWolverineRuntime wolverineRuntime, FluentValidation.IValidator<CamabrS.API.Inspection.Assigning.UnassignSpecialist> validator, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Assigning.UnassignSpecialist> problemDetailSource) : base(wolverineHttpOptions)
         {
             _wolverineHttpOptions = wolverineHttpOptions;
-            _problemDetailSource = problemDetailSource;
             _wolverineRuntime = wolverineRuntime;
-            _outboxedSessionFactory = outboxedSessionFactory;
             _validator = validator;
+            _outboxedSessionFactory = outboxedSessionFactory;
+            _problemDetailSource = problemDetailSource;
         }
 
 
@@ -75,7 +75,7 @@ namespace Internal.Generated.WolverineHandlers
 
             
             // The actual HTTP request handler execution
-            (var result, var events, var outgoingMessages) = CamabrS.API.Inspection.Assigning.UnassignEndpoints.Post(command, eventStream.Aggregate, user);
+            (var apiResponse_response, var events, var outgoingMessages) = CamabrS.API.Inspection.Assigning.UnassignEndpoints.Post(command, eventStream.Aggregate, user);
 
             if (events != null)
             {
@@ -98,7 +98,8 @@ namespace Internal.Generated.WolverineHandlers
             // Have to flush outgoing messages just in case Marten did nothing because of https://github.com/JasperFx/wolverine/issues/536
             await messageContext.FlushOutgoingMessagesAsync().ConfigureAwait(false);
 
-            await result.ExecuteAsync(httpContext).ConfigureAwait(false);
+            // Writing the response body to JSON because this was the first 'return variable' in the method signature
+            await WriteJsonAsync(httpContext, apiResponse_response);
         }
 
     }

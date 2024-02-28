@@ -23,7 +23,7 @@ public static class CompleteEndpoints
     public const string CompleteEnpoint = "/api/inspections/complete";
 
     [WolverinePost(CompleteEnpoint), AggregateHandler]
-    public static (IResult, Events, OutgoingMessages) Post(
+    public static (ApiResponse, Events, OutgoingMessages) Post(
         CompleteInspection command,
         Inspection inspection,       
         User user)
@@ -41,6 +41,10 @@ public static class CompleteEndpoints
 
         events.Add(new InspectionCompleted(inspectionId, user.Id, completedAt));
 
-        return (Ok(version + events.Count), events, messages);
+        return (
+            new ApiResponse(
+                (version + events.Count), 
+                []),
+                events, messages);
     }    
 }

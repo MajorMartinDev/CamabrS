@@ -19,4 +19,8 @@
     <PackageReference Include="WolverineFx.Http.Marten" Version="2.0.0-alpha.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Internal\" />
+  </ItemGroup>
+
 </Project>

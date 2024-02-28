@@ -1,7 +1,5 @@
-﻿using Marten;
-using Marten.AspNetCore;
+﻿using Marten.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
-using Wolverine.Http;
 
 namespace CamabrS.API.Inspection.GettingDetails;
 
