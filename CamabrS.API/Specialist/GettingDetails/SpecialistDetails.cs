@@ -1,6 +1,4 @@
-﻿using Marten.Events.Aggregation;
-
-namespace CamabrS.API.Specialist.GettingDetails;
+﻿namespace CamabrS.API.Specialist.GettingDetails;
 
 public sealed record SpecialistDetails(Guid Id);
 

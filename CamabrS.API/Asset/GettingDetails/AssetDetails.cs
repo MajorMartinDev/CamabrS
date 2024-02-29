@@ -1,6 +1,4 @@
-﻿using Marten.Events.Aggregation;
-
-namespace CamabrS.API.Asset.GettingDetails;
+﻿namespace CamabrS.API.Asset.GettingDetails;
 
 public sealed record AssetDetails(Guid Id);
 

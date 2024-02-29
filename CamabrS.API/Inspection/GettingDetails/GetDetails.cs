@@ -1,7 +1,4 @@
-﻿using Marten.AspNetCore;
-using Microsoft.AspNetCore.Mvc;
-
-namespace CamabrS.API.Inspection.GettingDetails;
+﻿namespace CamabrS.API.Inspection.GettingDetails;
 
 public static class GetDetailsEndpoints
 {

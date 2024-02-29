@@ -37,20 +37,12 @@ public sealed class SubmittedInspectionResultTests(AppFixture fixture) : ApiWith
     //unlock
 
     [Fact]
-    public async Task Unlocking_Inspection_by_lock_holding_Specialist_should_fail()
+    public async Task Unlocking_Inspection_should_fail()
     {
         false.ShouldBeTrue();
 
         await Task.CompletedTask;
-    }
-
-    [Fact]
-    public async Task Unlocking_Inspection_by_another_Specialist_should_fail()
-    {
-        false.ShouldBeTrue();
-
-        await Task.CompletedTask;
-    }
+    }    
 
     //submit
 

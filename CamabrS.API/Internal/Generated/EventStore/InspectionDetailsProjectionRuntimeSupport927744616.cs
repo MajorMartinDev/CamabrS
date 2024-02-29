@@ -57,6 +57,40 @@ namespace Marten.Generated.EventStore
 
         public CamabrS.API.Inspection.GettingDetails.InspectionDetails Apply(Marten.Events.IEvent @event, CamabrS.API.Inspection.GettingDetails.InspectionDetails aggregate, Marten.IQuerySession session)
         {
+            switch (@event)
+            {
+                case Marten.Events.IEvent<CamabrS.API.Inspection.InspectionClosed> event_InspectionClosed52:
+                    aggregate = _inspectionDetailsProjection.Apply(event_InspectionClosed52.Data, aggregate);
+                    break;
+                case Marten.Events.IEvent<CamabrS.API.Inspection.InspectionCompleted> event_InspectionCompleted55:
+                    aggregate = _inspectionDetailsProjection.Apply(event_InspectionCompleted55.Data, aggregate);
+                    break;
+                case Marten.Events.IEvent<CamabrS.API.Inspection.InspectionLocked> event_InspectionLocked48:
+                    aggregate = _inspectionDetailsProjection.Apply(event_InspectionLocked48.Data, aggregate);
+                    break;
+                case Marten.Events.IEvent<CamabrS.API.Inspection.InspectionReopened> event_InspectionReopened54:
+                    aggregate = _inspectionDetailsProjection.Apply(event_InspectionReopened54.Data, aggregate);
+                    break;
+                case Marten.Events.IEvent<CamabrS.API.Inspection.InspectionResultSubmitted> event_InspectionResultSubmitted50:
+                    aggregate = _inspectionDetailsProjection.Apply(event_InspectionResultSubmitted50.Data, aggregate);
+                    break;
+                case Marten.Events.IEvent<CamabrS.API.Inspection.InspectionReviewed> event_InspectionReviewed53:
+                    aggregate = _inspectionDetailsProjection.Apply(event_InspectionReviewed53.Data, aggregate);
+                    break;
+                case Marten.Events.IEvent<CamabrS.API.Inspection.InspectionSigned> event_InspectionSigned51:
+                    aggregate = _inspectionDetailsProjection.Apply(event_InspectionSigned51.Data, aggregate);
+                    break;
+                case Marten.Events.IEvent<CamabrS.API.Inspection.InspectionUnlocked> event_InspectionUnlocked49:
+                    aggregate = _inspectionDetailsProjection.Apply(event_InspectionUnlocked49.Data, aggregate);
+                    break;
+                case Marten.Events.IEvent<CamabrS.API.Inspection.SpecialistAssigned> event_SpecialistAssigned46:
+                    aggregate = _inspectionDetailsProjection.Apply(event_SpecialistAssigned46.Data, aggregate);
+                    break;
+                case Marten.Events.IEvent<CamabrS.API.Inspection.SpecialistUnassigned> event_SpecialistUnassigned47:
+                    aggregate = _inspectionDetailsProjection.Apply(event_SpecialistUnassigned47.Data, aggregate);
+                    break;
+            }
+
             return aggregate;
         }
 
@@ -89,8 +123,48 @@ namespace Marten.Generated.EventStore
         {
             switch (evt)
             {
-                case Marten.Events.IEvent<CamabrS.API.Inspection.InspectionOpened> event_InspectionOpened47:
-                    aggregate = CamabrS.API.Inspection.GettingDetails.InspectionDetailsProjection.Create(event_InspectionOpened47);
+                case Marten.Events.IEvent<CamabrS.API.Inspection.InspectionClosed> event_InspectionClosed63:
+                    aggregate ??= CreateDefault(evt);
+                    aggregate = _inspectionDetailsProjection.Apply(event_InspectionClosed63.Data, aggregate);
+                    return aggregate;
+                case Marten.Events.IEvent<CamabrS.API.Inspection.InspectionCompleted> event_InspectionCompleted66:
+                    aggregate ??= CreateDefault(evt);
+                    aggregate = _inspectionDetailsProjection.Apply(event_InspectionCompleted66.Data, aggregate);
+                    return aggregate;
+                case Marten.Events.IEvent<CamabrS.API.Inspection.InspectionLocked> event_InspectionLocked59:
+                    aggregate ??= CreateDefault(evt);
+                    aggregate = _inspectionDetailsProjection.Apply(event_InspectionLocked59.Data, aggregate);
+                    return aggregate;
+                case Marten.Events.IEvent<CamabrS.API.Inspection.InspectionOpened> event_InspectionOpened67:
+                    aggregate = CamabrS.API.Inspection.GettingDetails.InspectionDetailsProjection.Create(event_InspectionOpened67);
+                    return aggregate;
+                case Marten.Events.IEvent<CamabrS.API.Inspection.InspectionReopened> event_InspectionReopened65:
+                    aggregate ??= CreateDefault(evt);
+                    aggregate = _inspectionDetailsProjection.Apply(event_InspectionReopened65.Data, aggregate);
+                    return aggregate;
+                case Marten.Events.IEvent<CamabrS.API.Inspection.InspectionResultSubmitted> event_InspectionResultSubmitted61:
+                    aggregate ??= CreateDefault(evt);
+                    aggregate = _inspectionDetailsProjection.Apply(event_InspectionResultSubmitted61.Data, aggregate);
+                    return aggregate;
+                case Marten.Events.IEvent<CamabrS.API.Inspection.InspectionReviewed> event_InspectionReviewed64:
+                    aggregate ??= CreateDefault(evt);
+                    aggregate = _inspectionDetailsProjection.Apply(event_InspectionReviewed64.Data, aggregate);
+                    return aggregate;
+                case Marten.Events.IEvent<CamabrS.API.Inspection.InspectionSigned> event_InspectionSigned62:
+                    aggregate ??= CreateDefault(evt);
+                    aggregate = _inspectionDetailsProjection.Apply(event_InspectionSigned62.Data, aggregate);
+                    return aggregate;
+                case Marten.Events.IEvent<CamabrS.API.Inspection.InspectionUnlocked> event_InspectionUnlocked60:
+                    aggregate ??= CreateDefault(evt);
+                    aggregate = _inspectionDetailsProjection.Apply(event_InspectionUnlocked60.Data, aggregate);
+                    return aggregate;
+                case Marten.Events.IEvent<CamabrS.API.Inspection.SpecialistAssigned> event_SpecialistAssigned57:
+                    aggregate ??= CreateDefault(evt);
+                    aggregate = _inspectionDetailsProjection.Apply(event_SpecialistAssigned57.Data, aggregate);
+                    return aggregate;
+                case Marten.Events.IEvent<CamabrS.API.Inspection.SpecialistUnassigned> event_SpecialistUnassigned58:
+                    aggregate ??= CreateDefault(evt);
+                    aggregate = _inspectionDetailsProjection.Apply(event_SpecialistUnassigned58.Data, aggregate);
                     return aggregate;
             }
 
@@ -102,8 +176,8 @@ namespace Marten.Generated.EventStore
         {
             switch (@event)
             {
-                case Marten.Events.IEvent<CamabrS.API.Inspection.InspectionOpened> event_InspectionOpened46:
-                    return CamabrS.API.Inspection.GettingDetails.InspectionDetailsProjection.Create(event_InspectionOpened46);
+                case Marten.Events.IEvent<CamabrS.API.Inspection.InspectionOpened> event_InspectionOpened56:
+                    return CamabrS.API.Inspection.GettingDetails.InspectionDetailsProjection.Create(event_InspectionOpened56);
                     break;
             }
 

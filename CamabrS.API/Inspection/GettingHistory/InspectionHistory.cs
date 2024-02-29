@@ -1,14 +1,11 @@
-﻿using JasperFx.Core;
-using Marten.Events;
-using Marten.Events.Projections;
-using static CamabrS.API.Inspection.Inspection;
+﻿using static CamabrS.API.Inspection.Inspection;
 
 
 namespace CamabrS.API.Inspection.GettingHistory;
 
 public sealed record InspectionHistory(Guid Id, Guid InspectionId, string Description);
 
-public sealed class InspectionHistoryTransformation : EventProjection 
+public sealed class InspectionHistoryTransformation : EventProjection
 {
     public InspectionHistory Transform(IEvent<InspectionOpened> input)
     {
@@ -42,7 +39,7 @@ public sealed class InspectionHistoryTransformation : EventProjection
 
     public InspectionHistory Transform(IEvent<UnassignSpecialist> input)
     {
-        var(inspectionId, unassignedBy, specialistId, unassasignedAt) = input.Data;
+        var (inspectionId, unassignedBy, specialistId, unassasignedAt) = input.Data;
 
         return new InspectionHistory(
             CombGuidIdGeneration.NewGuid(),
@@ -52,7 +49,7 @@ public sealed class InspectionHistoryTransformation : EventProjection
 
     public InspectionHistory Transform(IEvent<SpecialistUnassigned> input)
     {
-        var(inspectionId, unassignedBy, specialistId, unassignedAt) = input.Data;
+        var (inspectionId, unassignedBy, specialistId, unassignedAt) = input.Data;
 
         return new InspectionHistory(
             CombGuidIdGeneration.NewGuid(),
@@ -62,22 +59,22 @@ public sealed class InspectionHistoryTransformation : EventProjection
 
     public InspectionHistory Transform(IEvent<LockInspection> input)
     {
-        var(inspectionId, lockedBy, lockedAt) = input.Data;
+        var (inspectionId, lockHoldingSpecialist, lockedBy, lockedAt) = input.Data;
 
         return new InspectionHistory(
             CombGuidIdGeneration.NewGuid(),
             inspectionId,
-            $"['{lockedAt}'] User with id: '{lockedBy}' wants to lock Inspection.");
+            $"['{lockedAt}'] User with id: '{lockedBy}' wants to lock Inspection with lock holding specialist {lockHoldingSpecialist}.");
     }
 
     public InspectionHistory Transform(IEvent<InspectionLocked> input)
     {
-        var(inspectionId, lockedBy, lockedAt) = input.Data;
+        var (inspectionId, lockHoldingSpecialist, lockedBy, lockedAt) = input.Data;
 
         return new InspectionHistory(
             CombGuidIdGeneration.NewGuid(),
             inspectionId,
-            $"['{lockedAt}'] User with id: '{lockedBy}' locked Inspection.");
+            $"['{lockedAt}'] User with id: '{lockedBy}' locked Inspection with lock holding specialist {lockHoldingSpecialist}.");
     }
 
     public InspectionHistory Transform(IEvent<UnlockInspection> input)

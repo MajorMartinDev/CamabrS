@@ -1,9 +1,6 @@
 ﻿using CamabrS.API.Asset.GettingDetails;
 using CamabrS.API.Core.Http;
 using CamabrS.API.Inspection.Assigning;
-using FluentValidation;
-using Microsoft.AspNetCore.Mvc;
-using Wolverine.Attributes;
 
 namespace CamabrS.API.Inspection.Opening;
 

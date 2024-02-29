@@ -1,9 +1,4 @@
-﻿using Wolverine.Http;
-using Wolverine.Marten;
-using Wolverine;
-using static Microsoft.AspNetCore.Http.TypedResults;
-using CamabrS.API.Core.Http;
-using FluentValidation;
+﻿using CamabrS.API.Core.Http;
 using CamabrS.API.Inspection.Assigning;
 
 namespace CamabrS.API.Inspection.Reopening;
@@ -29,18 +24,20 @@ public static class ReopenEndpoints
         Inspection inspection,        
         User user)
     {
+        var events = new Events();
+        var messages = new OutgoingMessages();
+
         var (inspectionId, version, reopenedAt) = command;
 
         if (inspection.Status != InspectionStatus.Reviewed)
             throw new InvalidOperationException(
                 InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Reviewed, inspectionId));
 
-        var events = new Events();
-        var messages = new OutgoingMessages();
-
         events.Add(new Inspection.ReopenInspection(inspectionId, user.Id, reopenedAt));
 
         events.Add(new InspectionReopened(inspectionId, user.Id, reopenedAt));
+
+        //TODO send off message to notify Specialist that they got unassigned from an inspection
 
         return (
             new ApiResponse(

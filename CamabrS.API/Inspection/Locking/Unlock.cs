@@ -1,9 +1,4 @@
-﻿using Wolverine.Http;
-using Wolverine.Marten;
-using Wolverine;
-using static Microsoft.AspNetCore.Http.TypedResults;
-using CamabrS.API.Core.Http;
-using FluentValidation;
+﻿using CamabrS.API.Core.Http;
 using CamabrS.API.Inspection.Assigning;
 
 namespace CamabrS.API.Inspection.Locking;
@@ -29,14 +24,14 @@ public static class UnlockEndpoints
         Inspection inspection,        
         User user)
     {
+        var events = new Events();
+        var messages = new OutgoingMessages();
+
         var (inspectionId, version, unlockedAt) = command;
 
         if (inspection.Status != InspectionStatus.Locked)
             throw new InvalidOperationException(
                 InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Locked, inspectionId));
-
-        var events = new Events();
-        var messages = new OutgoingMessages();
 
         events.Add(new Inspection.UnlockInspection(inspectionId, user.Id, unlockedAt));
 

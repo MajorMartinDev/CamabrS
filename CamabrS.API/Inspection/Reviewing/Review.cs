@@ -1,9 +1,4 @@
-﻿using Wolverine.Http;
-using Wolverine.Marten;
-using Wolverine;
-using static Microsoft.AspNetCore.Http.TypedResults;
-using CamabrS.API.Core.Http;
-using FluentValidation;
+﻿using CamabrS.API.Core.Http;
 using CamabrS.API.Inspection.Reopening;
 using CamabrS.API.Inspection.Completing;
 
@@ -33,14 +28,14 @@ public static class ReviewEndpoints
         Inspection inspection,       
         User user)
     {
+        var events = new Events();
+        var messages = new OutgoingMessages();
+
         var (inspectionId, version, verdict, summary, reviewedAt) = command;
 
         if (inspection.Status != InspectionStatus.Closed)
             throw new InvalidOperationException(
                 InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Closed, inspectionId));
-
-        var events = new Events();
-        var messages = new OutgoingMessages();
 
         events.Add(new Inspection.ReviewInspection(inspectionId, user.Id, verdict, summary, reviewedAt));
 

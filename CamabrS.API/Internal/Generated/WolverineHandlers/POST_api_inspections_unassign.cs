@@ -15,18 +15,18 @@ namespace Internal.Generated.WolverineHandlers
     public class POST_api_inspections_unassign : Wolverine.Http.HttpHandler
     {
         private readonly Wolverine.Http.WolverineHttpOptions _wolverineHttpOptions;
-        private readonly Wolverine.Runtime.IWolverineRuntime _wolverineRuntime;
-        private readonly FluentValidation.IValidator<CamabrS.API.Inspection.Assigning.UnassignSpecialist> _validator;
-        private readonly Wolverine.Marten.Publishing.OutboxedSessionFactory _outboxedSessionFactory;
         private readonly Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Assigning.UnassignSpecialist> _problemDetailSource;
+        private readonly Wolverine.Marten.Publishing.OutboxedSessionFactory _outboxedSessionFactory;
+        private readonly FluentValidation.IValidator<CamabrS.API.Inspection.Assigning.UnassignSpecialist> _validator;
+        private readonly Wolverine.Runtime.IWolverineRuntime _wolverineRuntime;
 
-        public POST_api_inspections_unassign(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Runtime.IWolverineRuntime wolverineRuntime, FluentValidation.IValidator<CamabrS.API.Inspection.Assigning.UnassignSpecialist> validator, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Assigning.UnassignSpecialist> problemDetailSource) : base(wolverineHttpOptions)
+        public POST_api_inspections_unassign(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Assigning.UnassignSpecialist> problemDetailSource, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory, FluentValidation.IValidator<CamabrS.API.Inspection.Assigning.UnassignSpecialist> validator, Wolverine.Runtime.IWolverineRuntime wolverineRuntime) : base(wolverineHttpOptions)
         {
             _wolverineHttpOptions = wolverineHttpOptions;
-            _wolverineRuntime = wolverineRuntime;
-            _validator = validator;
-            _outboxedSessionFactory = outboxedSessionFactory;
             _problemDetailSource = problemDetailSource;
+            _outboxedSessionFactory = outboxedSessionFactory;
+            _validator = validator;
+            _wolverineRuntime = wolverineRuntime;
         }
 
 
@@ -64,15 +64,6 @@ namespace Internal.Generated.WolverineHandlers
             // Loading Marten aggregate
             var eventStream = await eventStore.FetchForWriting<CamabrS.API.Inspection.Inspection>(command.InspectionId, command.Version, httpContext.RequestAborted).ConfigureAwait(false);
 
-            var problemDetails3 = await CamabrS.API.Inspection.Assigning.UnassignEndpoints.ValidateInspectionState(command, documentSession).ConfigureAwait(false);
-            // Evaluate whether the processing should stop if there are any problems
-            if (!(ReferenceEquals(problemDetails3, Wolverine.Http.WolverineContinue.NoProblems)))
-            {
-                await WriteProblems(problemDetails3, httpContext).ConfigureAwait(false);
-                return;
-            }
-
-
             
             // The actual HTTP request handler execution
             (var apiResponse_response, var events, var outgoingMessages) = CamabrS.API.Inspection.Assigning.UnassignEndpoints.Post(command, eventStream.Aggregate, user);
@@ -90,16 +81,12 @@ namespace Internal.Generated.WolverineHandlers
             await messageContext.EnqueueCascadingAsync(outgoingMessages).ConfigureAwait(false);
 
             await documentSession.SaveChangesAsync(httpContext.RequestAborted).ConfigureAwait(false);
-            
-            // Commit any outstanding Marten changes
-            await documentSession.SaveChangesAsync(httpContext.RequestAborted).ConfigureAwait(false);
-
-            
-            // Have to flush outgoing messages just in case Marten did nothing because of https://github.com/JasperFx/wolverine/issues/536
-            await messageContext.FlushOutgoingMessagesAsync().ConfigureAwait(false);
-
             // Writing the response body to JSON because this was the first 'return variable' in the method signature
             await WriteJsonAsync(httpContext, apiResponse_response);
+            
+            // Making sure there is at least one call to flush outgoing, cascading messages
+            await messageContext.FlushOutgoingMessagesAsync().ConfigureAwait(false);
+
         }
 
     }

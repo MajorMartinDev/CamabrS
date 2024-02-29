@@ -48,8 +48,8 @@ namespace Marten.Generated.EventStore
             var specialist = new CamabrS.API.Specialist.Specialist(guid);
             switch (@event)
             {
-                case Marten.Events.IEvent<CamabrS.API.Specialist.SpecialistCreated> event_SpecialistCreated54:
-                    specialist = CamabrS.API.Specialist.Specialist.Create(event_SpecialistCreated54.Data);
+                case Marten.Events.IEvent<CamabrS.API.Specialist.SpecialistCreated> event_SpecialistCreated74:
+                    specialist = CamabrS.API.Specialist.Specialist.Create(event_SpecialistCreated74.Data);
                     break;
             }
 
@@ -91,8 +91,8 @@ namespace Marten.Generated.EventStore
         {
             switch (evt)
             {
-                case Marten.Events.IEvent<CamabrS.API.Specialist.SpecialistCreated> event_SpecialistCreated56:
-                    aggregate = CamabrS.API.Specialist.Specialist.Create(event_SpecialistCreated56.Data);
+                case Marten.Events.IEvent<CamabrS.API.Specialist.SpecialistCreated> event_SpecialistCreated76:
+                    aggregate = CamabrS.API.Specialist.Specialist.Create(event_SpecialistCreated76.Data);
                     return aggregate;
             }
 
@@ -107,8 +107,8 @@ namespace Marten.Generated.EventStore
             var specialist = new CamabrS.API.Specialist.Specialist(guid);
             switch (@event)
             {
-                case Marten.Events.IEvent<CamabrS.API.Specialist.SpecialistCreated> event_SpecialistCreated55:
-                    specialist = CamabrS.API.Specialist.Specialist.Create(event_SpecialistCreated55.Data);
+                case Marten.Events.IEvent<CamabrS.API.Specialist.SpecialistCreated> event_SpecialistCreated75:
+                    specialist = CamabrS.API.Specialist.Specialist.Create(event_SpecialistCreated75.Data);
                     break;
             }
 

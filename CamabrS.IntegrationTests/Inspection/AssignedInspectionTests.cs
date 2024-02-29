@@ -1,12 +1,16 @@
 ﻿using CamabrS.API.Inspection;
 using CamabrS.API.Inspection.Assigning;
 using CamabrS.API.Inspection.GettingDetails;
+using CamabrS.API.Inspection.Locking;
 using CamabrS.IntegrationTests.Inspection.Fixtures;
 
 namespace CamabrS.IntegrationTests.Inspection;
 
 public sealed class AssignedInspectionTests(AppFixture fixture) : ApiWithAssignedInspection(fixture), IAsyncLifetime
 {
+    private static readonly Lorem loremIpsum = new();
+    private static readonly Internet internet = new();
+
     //assign
 
     [Fact]
@@ -64,9 +68,12 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : ApiWithAssigne
     [Fact]
     public async Task Unassigning_a_not_assigned_Specialist_from_an_assigned_Inspection_should_fail()
     {
-        false.ShouldBeTrue();
+        var result = await Host.UnassignSpecialist(Inspection.Id, Inspection.Version, BaselineData.AnotherSpecilaist, DateTimeOffset.Now);
 
-        await Task.CompletedTask;
+        var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
+        problemDetails.ShouldNotBeNull();
+        problemDetails.Status.ShouldBe(500);
+        problemDetails.Detail.ShouldBe(UnassignEndpoints.GetSpecialistWasPreviouslyAssignedErrorDetail(BaselineData.AnotherSpecilaist, Inspection.Id));
     }
 
     //lock
@@ -74,17 +81,27 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : ApiWithAssigne
     [Fact]
     public async Task Locking_Inspection_should_succeed()
     {
-        false.ShouldBeTrue();
+        await Host.LockInspection(Inspection.Id, BaselineData.LockHoldingSpecialist, 
+            Inspection.Version, DateTimeOffset.Now);
 
-        await Task.CompletedTask;
+        var result = await Host.GetInspectionDetails(Inspection.Id);
+        var inspection = await result.ReadAsJsonAsync<InspectionDetails>();
+
+        inspection.ShouldNotBeNull();
+        inspection.LockHoldingSpecialist.ShouldBe(BaselineData.LockHoldingSpecialist);
+        inspection.Status.ShouldBe(InspectionStatus.Locked);
     }
 
     [Fact]
     public async Task Not_assigned_specialist_tries_to_lock_Inspection_should_fail()
     {
-        false.ShouldBeTrue();
+        var result = await Host.LockInspection(Inspection.Id, BaselineData.AnotherSpecilaist,
+            Inspection.Version, DateTimeOffset.Now);
 
-        await Task.CompletedTask;
+        var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
+        problemDetails.ShouldNotBeNull();
+        problemDetails.Status.ShouldBe(500);
+        problemDetails.Detail.ShouldBe(LockEndpoints.GetLockHoldingSpecialistWasNotAssignedErrorDetail(BaselineData.AnotherSpecilaist, Inspection.Id));
     }
 
     //unlock
@@ -92,9 +109,12 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : ApiWithAssigne
     [Fact]
     public async Task Unlocking_Inspection_by_assigned_Specialist_should_fail()
     {
-        false.ShouldBeTrue();
+        var result = await Host.UnlockInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now);
 
-        await Task.CompletedTask;
+        var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
+        problemDetails.ShouldNotBeNull();
+        problemDetails.Status.ShouldBe(500);
+        problemDetails.Detail.ShouldBe(InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Locked, Inspection.Id));
     }
 
     //submit
@@ -102,9 +122,12 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : ApiWithAssigne
     [Fact]
     public async Task Submitting_Inspection_result_by_assigned_Specialist_should_fail()
     {
-        false.ShouldBeTrue();
+        var result = await Host.SubmitInspection(Inspection.Id, Inspection.Version, CombGuidIdGeneration.NewGuid(), DateTimeOffset.Now);
 
-        await Task.CompletedTask;
+        var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
+        problemDetails.ShouldNotBeNull();
+        problemDetails.Status.ShouldBe(500);
+        problemDetails.Detail.ShouldBe(InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Locked, Inspection.Id));
     }
 
     //sign
@@ -112,9 +135,12 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : ApiWithAssigne
     [Fact]
     public async Task Signing_Inspection_by_assigend_Specialist_should_fail()
     {
-        false.ShouldBeTrue();
+        var result = await Host.SignInspection(Inspection.Id, Inspection.Version, internet.Url(), DateTimeOffset.Now);
 
-        await Task.CompletedTask;
+        var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
+        problemDetails.ShouldNotBeNull();
+        problemDetails.Status.ShouldBe(500);
+        problemDetails.Detail.ShouldBe(InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Submitted, Inspection.Id));
     }
 
     //close
@@ -122,9 +148,12 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : ApiWithAssigne
     [Fact]
     public async Task Closeing_Inspection_by_assigned_Specialist_should_fail()
     {
-        false.ShouldBeTrue();
+        var result = await Host.CloseInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now);
 
-        await Task.CompletedTask;
+        var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
+        problemDetails.ShouldNotBeNull();
+        problemDetails.Status.ShouldBe(500);
+        problemDetails.Detail.ShouldBe(InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Signed, Inspection.Id));
     }
 
     //review
@@ -132,9 +161,12 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : ApiWithAssigne
     [Fact]
     public async Task Reviewing_Inspection_should_fail()
     {
-        false.ShouldBeTrue();
+        var result = await Host.ReviewInspection(Inspection.Id, Inspection.Version, true, loremIpsum.Paragraph(), DateTimeOffset.Now);
 
-        await Task.CompletedTask;
+        var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
+        problemDetails.ShouldNotBeNull();
+        problemDetails.Status.ShouldBe(500);
+        problemDetails.Detail.ShouldBe(InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Closed, Inspection.Id));
     }
 
     //reopen
@@ -142,9 +174,12 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : ApiWithAssigne
     [Fact]
     public async Task Reopening_Inspection_should_fail()
     {
-        false.ShouldBeTrue();
+        var result = await Host.ReopenInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now);
 
-        await Task.CompletedTask;
+        var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
+        problemDetails.ShouldNotBeNull();
+        problemDetails.Status.ShouldBe(500);
+        problemDetails.Detail.ShouldBe(InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Reviewed, Inspection.Id));
     }
 
     //complete
@@ -152,8 +187,11 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : ApiWithAssigne
     [Fact]
     public async Task Completing_Inspection_should_fail()
     {
-        false.ShouldBeTrue();
+        var result = await Host.CompleteInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now);
 
-        await Task.CompletedTask;
+        var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
+        problemDetails.ShouldNotBeNull();
+        problemDetails.Status.ShouldBe(500);
+        problemDetails.Detail.ShouldBe(InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Reviewed, Inspection.Id));
     }
 }

@@ -1,8 +1,4 @@
-﻿using Marten;
-using Microsoft.AspNetCore.Mvc;
-using Wolverine.Http;
-
-namespace CamabrS.API.Inspection.GettingHistory;
+﻿namespace CamabrS.API.Inspection.GettingHistory;
 
 public static class GetHistoryEndpoints
 {   

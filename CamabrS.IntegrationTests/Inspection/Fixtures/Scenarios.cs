@@ -6,6 +6,7 @@ using CamabrS.API.Inspection.Completing;
 using CamabrS.API.Inspection.GettingDetails;
 using CamabrS.API.Inspection.Locking;
 using CamabrS.API.Inspection.Opening;
+using CamabrS.API.Inspection.Reopening;
 using CamabrS.API.Inspection.Reviewing;
 using CamabrS.API.Inspection.Signing;
 using CamabrS.API.Inspection.Submitting;
@@ -61,7 +62,7 @@ public static class Scenarios
         var lockedAt = DateTimeOffset.UtcNow;
 
         var inspection = await api.AssignedInspection();
-        var result = await api.LockInspection(inspection.Id, inspection.Version, lockedAt);
+        var result = await api.LockInspection(inspection.Id, BaselineData.LockHoldingSpecialist, inspection.Version, lockedAt);
 
         result = await api.GetInspectionDetails(inspection.Id);
         inspection = await result.ReadAsJsonAsync<InspectionDetails>();
@@ -207,12 +208,13 @@ public static class Scenarios
     public static Task<IScenarioResult> LockInspection(
         this IAlbaHost api,
         Guid inspectionId,
+        Guid lockHoldingSpecialist,
         int expectedVersion,
         DateTimeOffset lockedAt) =>
             api.Scenario(x =>
             {
                 x.Post.Url(LockEndpoints.LockEnpoint);
-                x.Post.Json(new LockInspection(inspectionId, expectedVersion, lockedAt));
+                x.Post.Json(new LockInspection(inspectionId, lockHoldingSpecialist, expectedVersion, lockedAt));
 
                 x.IgnoreStatusCode();
 
@@ -292,6 +294,21 @@ public static class Scenarios
             {
                 x.Post.Url(ReviewEndpoints.ReviewEnpoint);
                 x.Post.Json(new ReviewInspection(inspectionId, expectedVersion, verdict, summary, reviewedAt));
+
+                x.IgnoreStatusCode();
+
+                x.WithClaim(new Claim("user-id", user.Id.ToString()));
+            });
+
+    public static Task<IScenarioResult> ReopenInspection(
+        this IAlbaHost api,
+        Guid inspectionId,
+        int expectedVersion,
+        DateTimeOffset completedAt) =>
+            api.Scenario(x =>
+            {
+                x.Post.Url(ReopenEndpoints.ReopenEnpoint);
+                x.Post.Json(new ReopenInspection(inspectionId, expectedVersion, completedAt));
 
                 x.IgnoreStatusCode();
 

@@ -15,18 +15,18 @@ namespace Internal.Generated.WolverineHandlers
     public class POST_api_inspections_reopen : Wolverine.Http.HttpHandler
     {
         private readonly Wolverine.Http.WolverineHttpOptions _wolverineHttpOptions;
-        private readonly Wolverine.Runtime.IWolverineRuntime _wolverineRuntime;
         private readonly Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Reopening.ReopenInspection> _problemDetailSource;
         private readonly Wolverine.Marten.Publishing.OutboxedSessionFactory _outboxedSessionFactory;
         private readonly FluentValidation.IValidator<CamabrS.API.Inspection.Reopening.ReopenInspection> _validator;
+        private readonly Wolverine.Runtime.IWolverineRuntime _wolverineRuntime;
 
-        public POST_api_inspections_reopen(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Runtime.IWolverineRuntime wolverineRuntime, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Reopening.ReopenInspection> problemDetailSource, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory, FluentValidation.IValidator<CamabrS.API.Inspection.Reopening.ReopenInspection> validator) : base(wolverineHttpOptions)
+        public POST_api_inspections_reopen(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Reopening.ReopenInspection> problemDetailSource, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory, FluentValidation.IValidator<CamabrS.API.Inspection.Reopening.ReopenInspection> validator, Wolverine.Runtime.IWolverineRuntime wolverineRuntime) : base(wolverineHttpOptions)
         {
             _wolverineHttpOptions = wolverineHttpOptions;
-            _wolverineRuntime = wolverineRuntime;
             _problemDetailSource = problemDetailSource;
             _outboxedSessionFactory = outboxedSessionFactory;
             _validator = validator;
+            _wolverineRuntime = wolverineRuntime;
         }
 
 

@@ -1,5 +1,4 @@
 ﻿using CamabrS.API.Asset.GettingDetails;
-using Marten.Events.Projections;
 
 namespace CamabrS.API.Asset;
 

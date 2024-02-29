@@ -1,7 +1,5 @@
 ﻿using CamabrS.API.Inspection.GettingDetails;
 using CamabrS.API.Inspection.GettingHistory;
-using Marten;
-using Marten.Events.Projections;
 
 namespace CamabrS.API.Inspection;
 

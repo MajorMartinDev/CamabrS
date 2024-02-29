@@ -1,12 +1,11 @@
-﻿using Marten.Events;
-using Marten.Events.Aggregation;
-
-namespace CamabrS.API.Inspection.GettingDetails;
+﻿namespace CamabrS.API.Inspection.GettingDetails;
 
 public sealed record InspectionDetails
-    (Guid Id, 
+    (Guid Id,
+    //TODO this doesn not differ from Inspection for now, but once the Specialist stream is defined as well this will be enriched
     Guid[] AssignedSpecialists, 
-    InspectionStatus Status, 
+    InspectionStatus Status,
+    Guid LockHoldingSpecialist = default,
     Guid FormId = default,
     bool Verdict = default,
     string? SignatureLink = default,
@@ -17,9 +16,7 @@ public sealed class InspectionDetailsProjection: SingleStreamProjection<Inspecti
 {
     public static InspectionDetails Create(IEvent<InspectionOpened> opened) =>
         new(opened.Id, [], InspectionStatus.Opened);
-
-    //public static InspectionDetails Apply(Inspection.AssignSpecialist assignSpecialist, InspectionDetails current) => current; 
-
+   
     public InspectionDetails Apply(SpecialistAssigned specialistAssigned, InspectionDetails current) =>
         current with 
         { 
@@ -35,7 +32,7 @@ public sealed class InspectionDetailsProjection: SingleStreamProjection<Inspecti
         UnassignSpecialist(specialistUnassigned, current);
 
     public InspectionDetails Apply(InspectionLocked inspectionLocked, InspectionDetails current) =>
-        current with { Status = InspectionStatus.Locked };
+        current with { LockHoldingSpecialist = inspectionLocked.LockHoldingSpecialist, Status = InspectionStatus.Locked };
 
     public InspectionDetails Apply(InspectionUnlocked inspectionUnlocked, InspectionDetails current) =>
         current with { Status = InspectionStatus.Assigned };
@@ -53,7 +50,7 @@ public sealed class InspectionDetailsProjection: SingleStreamProjection<Inspecti
         current with { Status = InspectionStatus.Reviewed, Verdict = inspectionReviewed.Verdict, Summary = inspectionReviewed.Summary };
 
     public InspectionDetails Apply(InspectionReopened inspectionReopened, InspectionDetails current) =>
-        current with { Status = InspectionStatus.Opened };
+        current with { Status = InspectionStatus.Opened, AssignedSpecialists = [] };
 
     public InspectionDetails Apply(InspectionCompleted inspectionCompleted, InspectionDetails current) =>
         current with { Status = InspectionStatus.Completed };

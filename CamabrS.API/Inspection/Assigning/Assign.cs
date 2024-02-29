@@ -1,11 +1,6 @@
 ﻿using CamabrS.API.Core.Http;
-using CamabrS.API.Inspection.GettingDetails;
 using CamabrS.API.Inspection.Locking;
 using CamabrS.API.Specialist.GettingDetails;
-using FluentValidation;
-using Microsoft.AspNetCore.Mvc;
-using Wolverine.Attributes;
-using static Microsoft.AspNetCore.Http.TypedResults;
 
 namespace CamabrS.API.Inspection.Assigning;
 
@@ -40,15 +35,9 @@ public static class AssignEndpoints
 
         var specialistExists = await session.Query<SpecialistDetails>().AnyAsync(x => x.Id == specialistId);
 
-        if (!specialistExists) return new ProblemDetails { Detail = GetSpecialistNotExistsErrorDetail(specialistId) };
-
-        var specialistHasAlreadyBeenAdded
-            = await session.Query<InspectionDetails>()
-                .AnyAsync(x => x.Id == command.InspectionId && x.AssignedSpecialists.Contains(command.SpecialistId));
-
-        if (specialistHasAlreadyBeenAdded) return new ProblemDetails { Detail = GetSpecialistHasAlreadyBeenAddedErrorDetail(specialistId) };
-
-        return WolverineContinue.NoProblems;
+        return specialistExists ? 
+            WolverineContinue.NoProblems : 
+            new ProblemDetails { Detail = GetSpecialistNotExistsErrorDetail(specialistId) };         
     }
     
     [WolverinePost(AssignEnpoint), AggregateHandler]
@@ -57,17 +46,20 @@ public static class AssignEndpoints
         Inspection inspection,        
         User user)
     {
+        var events = new Events();
+        var messages = new OutgoingMessages();
+
         var (inspectionId, version, specialistId, assignedAt) = command;
 
         var notAssignable = !(inspection.Status == InspectionStatus.Opened || inspection.Status == InspectionStatus.Assigned);
 
         if (notAssignable)
             throw new InvalidOperationException(
-                InvalidStateException.GetInvalidStateExceptionMessageForAssignment(inspectionId));        
+                InvalidStateException.GetInvalidStateExceptionMessageForAssignment(inspectionId));
 
-        var events = new Events();
-        var messages = new OutgoingMessages();
-        
+        var specialistHasAlreadyBeenAdded = inspection.AssignedSpecialists.Contains(specialistId);
+        if (specialistHasAlreadyBeenAdded) throw new InvalidOperationException(GetSpecialistHasAlreadyBeenAddedErrorDetail(specialistId));
+
         events.Add(new Inspection.AssignSpecialist(inspectionId, user.Id, specialistId, assignedAt));
 
         //TODO add missing business logic to check if the specialist can be assigned based on certifications

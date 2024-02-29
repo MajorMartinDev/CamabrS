@@ -48,8 +48,8 @@ namespace Marten.Generated.EventStore
             var asset = new CamabrS.API.Asset.Asset(guid);
             switch (@event)
             {
-                case Marten.Events.IEvent<CamabrS.API.Asset.AssetCreated> event_AssetCreated48:
-                    asset = CamabrS.API.Asset.Asset.Create(event_AssetCreated48.Data);
+                case Marten.Events.IEvent<CamabrS.API.Asset.AssetCreated> event_AssetCreated68:
+                    asset = CamabrS.API.Asset.Asset.Create(event_AssetCreated68.Data);
                     break;
             }
 
@@ -91,8 +91,8 @@ namespace Marten.Generated.EventStore
         {
             switch (evt)
             {
-                case Marten.Events.IEvent<CamabrS.API.Asset.AssetCreated> event_AssetCreated50:
-                    aggregate = CamabrS.API.Asset.Asset.Create(event_AssetCreated50.Data);
+                case Marten.Events.IEvent<CamabrS.API.Asset.AssetCreated> event_AssetCreated70:
+                    aggregate = CamabrS.API.Asset.Asset.Create(event_AssetCreated70.Data);
                     return aggregate;
             }
 
@@ -107,8 +107,8 @@ namespace Marten.Generated.EventStore
             var asset = new CamabrS.API.Asset.Asset(guid);
             switch (@event)
             {
-                case Marten.Events.IEvent<CamabrS.API.Asset.AssetCreated> event_AssetCreated49:
-                    asset = CamabrS.API.Asset.Asset.Create(event_AssetCreated49.Data);
+                case Marten.Events.IEvent<CamabrS.API.Asset.AssetCreated> event_AssetCreated69:
+                    asset = CamabrS.API.Asset.Asset.Create(event_AssetCreated69.Data);
                     break;
             }
 

@@ -1,9 +1,4 @@
-﻿using Wolverine.Http;
-using Wolverine.Marten;
-using Wolverine;
-using static Microsoft.AspNetCore.Http.TypedResults;
-using CamabrS.API.Core.Http;
-using FluentValidation;
+﻿using CamabrS.API.Core.Http;
 
 namespace CamabrS.API.Inspection.Completing;
 
@@ -28,15 +23,15 @@ public static class CompleteEndpoints
         Inspection inspection,       
         User user)
     {
+        var events = new Events();
+        var messages = new OutgoingMessages();
+
         var (inspectionId, version, completedAt) = command;
 
         if (inspection.Status != InspectionStatus.Reviewed)
             throw new InvalidOperationException(
                 InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Reviewed, inspectionId));
-
-        var events = new Events();
-        var messages = new OutgoingMessages();
-
+        
         events.Add(new Inspection.CompleteInspection(inspectionId, user.Id, completedAt));
 
         events.Add(new InspectionCompleted(inspectionId, user.Id, completedAt));

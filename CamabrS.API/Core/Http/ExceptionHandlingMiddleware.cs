@@ -1,8 +1,4 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
-
-namespace CamabrS.API.Core.Http;
+﻿namespace CamabrS.API.Core.Http;
 
 public sealed class ExceptionToProblemDetailsHandler(Func<Exception, HttpContext, ProblemDetails?>? customExceptionMap)
     : IExceptionHandler
@@ -41,7 +37,7 @@ public static class ProblemDetailsExtensions
         var statusCode = exception switch
         {
             ArgumentException _ => StatusCodes.Status400BadRequest,
-            ValidationException _ => StatusCodes.Status400BadRequest,
+            FluentValidation.ValidationException _ => StatusCodes.Status400BadRequest,
             UnauthorizedAccessException _ => StatusCodes.Status401Unauthorized,
             InvalidOperationException _ => StatusCodes.Status403Forbidden,
             NotImplementedException _ => StatusCodes.Status501NotImplemented,

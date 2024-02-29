@@ -1,8 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using Wolverine.Http;
-
-namespace CamabrS.API.Core.Http;
+﻿namespace CamabrS.API.Core.Http;
 
 public sealed record User(Guid Id);
 

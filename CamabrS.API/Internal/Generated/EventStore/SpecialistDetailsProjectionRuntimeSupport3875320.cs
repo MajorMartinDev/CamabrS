@@ -49,8 +49,8 @@ namespace Marten.Generated.EventStore
             var specialistDetails = new CamabrS.API.Specialist.GettingDetails.SpecialistDetails(guid);
             switch (@event)
             {
-                case Marten.Events.IEvent<CamabrS.API.Specialist.SpecialistCreated> event_SpecialistCreated57:
-                    specialistDetails = CamabrS.API.Specialist.GettingDetails.SpecialistDetailsProjection.Create(event_SpecialistCreated57.Data);
+                case Marten.Events.IEvent<CamabrS.API.Specialist.SpecialistCreated> event_SpecialistCreated77:
+                    specialistDetails = CamabrS.API.Specialist.GettingDetails.SpecialistDetailsProjection.Create(event_SpecialistCreated77.Data);
                     break;
             }
 
@@ -92,8 +92,8 @@ namespace Marten.Generated.EventStore
         {
             switch (evt)
             {
-                case Marten.Events.IEvent<CamabrS.API.Specialist.SpecialistCreated> event_SpecialistCreated59:
-                    aggregate = CamabrS.API.Specialist.GettingDetails.SpecialistDetailsProjection.Create(event_SpecialistCreated59.Data);
+                case Marten.Events.IEvent<CamabrS.API.Specialist.SpecialistCreated> event_SpecialistCreated79:
+                    aggregate = CamabrS.API.Specialist.GettingDetails.SpecialistDetailsProjection.Create(event_SpecialistCreated79.Data);
                     return aggregate;
             }
 
@@ -108,8 +108,8 @@ namespace Marten.Generated.EventStore
             var specialistDetails = new CamabrS.API.Specialist.GettingDetails.SpecialistDetails(guid);
             switch (@event)
             {
-                case Marten.Events.IEvent<CamabrS.API.Specialist.SpecialistCreated> event_SpecialistCreated58:
-                    specialistDetails = CamabrS.API.Specialist.GettingDetails.SpecialistDetailsProjection.Create(event_SpecialistCreated58.Data);
+                case Marten.Events.IEvent<CamabrS.API.Specialist.SpecialistCreated> event_SpecialistCreated78:
+                    specialistDetails = CamabrS.API.Specialist.GettingDetails.SpecialistDetailsProjection.Create(event_SpecialistCreated78.Data);
                     break;
             }
 

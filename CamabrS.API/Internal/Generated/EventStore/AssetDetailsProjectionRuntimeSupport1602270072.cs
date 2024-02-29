@@ -49,8 +49,8 @@ namespace Marten.Generated.EventStore
             var assetDetails = new CamabrS.API.Asset.GettingDetails.AssetDetails(guid);
             switch (@event)
             {
-                case Marten.Events.IEvent<CamabrS.API.Asset.AssetCreated> event_AssetCreated51:
-                    assetDetails = CamabrS.API.Asset.GettingDetails.AssetDetailsProjection.Create(event_AssetCreated51.Data);
+                case Marten.Events.IEvent<CamabrS.API.Asset.AssetCreated> event_AssetCreated71:
+                    assetDetails = CamabrS.API.Asset.GettingDetails.AssetDetailsProjection.Create(event_AssetCreated71.Data);
                     break;
             }
 
@@ -92,8 +92,8 @@ namespace Marten.Generated.EventStore
         {
             switch (evt)
             {
-                case Marten.Events.IEvent<CamabrS.API.Asset.AssetCreated> event_AssetCreated53:
-                    aggregate = CamabrS.API.Asset.GettingDetails.AssetDetailsProjection.Create(event_AssetCreated53.Data);
+                case Marten.Events.IEvent<CamabrS.API.Asset.AssetCreated> event_AssetCreated73:
+                    aggregate = CamabrS.API.Asset.GettingDetails.AssetDetailsProjection.Create(event_AssetCreated73.Data);
                     return aggregate;
             }
 
@@ -108,8 +108,8 @@ namespace Marten.Generated.EventStore
             var assetDetails = new CamabrS.API.Asset.GettingDetails.AssetDetails(guid);
             switch (@event)
             {
-                case Marten.Events.IEvent<CamabrS.API.Asset.AssetCreated> event_AssetCreated52:
-                    assetDetails = CamabrS.API.Asset.GettingDetails.AssetDetailsProjection.Create(event_AssetCreated52.Data);
+                case Marten.Events.IEvent<CamabrS.API.Asset.AssetCreated> event_AssetCreated72:
+                    assetDetails = CamabrS.API.Asset.GettingDetails.AssetDetailsProjection.Create(event_AssetCreated72.Data);
                     break;
             }
 
