@@ -15,8 +15,8 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.5" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
-    <PackageReference Include="WolverineFx.Http.FluentValidation" Version="2.0.0-alpha.1" />
-    <PackageReference Include="WolverineFx.Http.Marten" Version="2.0.0-alpha.1" />
+    <PackageReference Include="WolverineFx.Http.FluentValidation" Version="2.0.0-beta.2" />
+    <PackageReference Include="WolverineFx.Http.Marten" Version="2.0.0-beta.2" />
   </ItemGroup>
 
   <ItemGroup>

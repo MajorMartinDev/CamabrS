@@ -19,6 +19,9 @@ public static class SubmitEndpoints
 {
     public const string SubmitEnpoint = "/api/inspections/submit";
 
+    public static string GetInvalidSubmittingAttemptErrorMessage()
+        => "Inspection can only be submitted by the lock holding specialist.";
+
     [WolverinePost(SubmitEnpoint), AggregateHandler]
     public static (ApiResponse, Events, OutgoingMessages) Post(
         SubmitInspectionResult command,
@@ -30,9 +33,14 @@ public static class SubmitEndpoints
 
         var (inspectionId, version, formId, submittedAt) = command;
 
-        if (inspection.Status != InspectionStatus.Locked)
+        var invalidState = !(inspection.Status == InspectionStatus.Locked || inspection.Status == InspectionStatus.Submitted);
+        if (invalidState)
             throw new InvalidOperationException(
-                InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Locked, inspectionId));
+                InvalidStateException.GetInvalidStateExceptionMessageForSubmitting(inspectionId));
+
+        if (user.Id != inspection.LockHoldingSpecialist)
+            throw new InvalidOperationException(
+                GetInvalidSubmittingAttemptErrorMessage());                
 
         events.Add(new Inspection.SubmitInspectionResult(inspectionId, user.Id, formId, submittedAt));
 

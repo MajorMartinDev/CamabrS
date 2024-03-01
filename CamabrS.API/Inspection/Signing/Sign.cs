@@ -20,6 +20,9 @@ public static class SignEndpoints
 {
     public const string SignEnpoint = "/api/inspections/sign";
 
+    public static string GetInvalidSigningAttemptErrorMessage()
+        => "Inspection can only be signed by the lock holding specialist.";
+
     [WolverinePost(SignEnpoint), AggregateHandler]
     public static (ApiResponse, Events, OutgoingMessages) Post(
         SignInspection command,
@@ -29,11 +32,15 @@ public static class SignEndpoints
         var events = new Events();
         var messages = new OutgoingMessages();
 
-        var (inspectionId, version, signatureLink, signedAt) = command;
+        var (inspectionId, version, signatureLink, signedAt) = command;        
 
         if (inspection.Status != InspectionStatus.Submitted)
             throw new InvalidOperationException(
                 InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Submitted, inspectionId));
+
+        if (user.Id != inspection.LockHoldingSpecialist)
+            throw new InvalidOperationException(
+                GetInvalidSigningAttemptErrorMessage());
 
         events.Add(new Inspection.SignInspection(inspectionId, user.Id, signatureLink, signedAt));
 

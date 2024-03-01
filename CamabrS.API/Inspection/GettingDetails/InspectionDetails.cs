@@ -5,7 +5,7 @@ public sealed record InspectionDetails
     //TODO this doesn not differ from Inspection for now, but once the Specialist stream is defined as well this will be enriched
     Guid[] AssignedSpecialists, 
     InspectionStatus Status,
-    Guid LockHoldingSpecialist = default,
+    Guid? LockHoldingSpecialist = null,
     Guid FormId = default,
     bool Verdict = default,
     string? SignatureLink = default,
@@ -26,8 +26,7 @@ public sealed class InspectionDetailsProjection: SingleStreamProjection<Inspecti
             ).ToArray(),
             Status = InspectionStatus.Assigned
         };
-
-    //TODO missing business logic
+    
     public InspectionDetails Apply(SpecialistUnassigned specialistUnassigned, InspectionDetails current) =>
         UnassignSpecialist(specialistUnassigned, current);
 
@@ -35,7 +34,7 @@ public sealed class InspectionDetailsProjection: SingleStreamProjection<Inspecti
         current with { LockHoldingSpecialist = inspectionLocked.LockHoldingSpecialist, Status = InspectionStatus.Locked };
 
     public InspectionDetails Apply(InspectionUnlocked inspectionUnlocked, InspectionDetails current) =>
-        current with { Status = InspectionStatus.Assigned };
+        current with { Status = InspectionStatus.Assigned, LockHoldingSpecialist = null };
 
     public InspectionDetails Apply(InspectionResultSubmitted inspectionResultSubmitted, InspectionDetails current) =>
         current with { Status = InspectionStatus.Submitted, FormId = inspectionResultSubmitted.FormId };

@@ -18,6 +18,9 @@ public static class UnlockEndpoints
 {
     public const string UnlockEnpoint = "/api/inspections/unlock";
 
+    public static string GetInvalidUnlockingAttemptErrorMessage()
+        => "Inspection can only be unlocked by the lock holding specialist.";
+
     [WolverinePost(UnlockEnpoint), AggregateHandler]
     public static (ApiResponse, Events, OutgoingMessages) Post(
         UnlockInspection command,
@@ -27,11 +30,15 @@ public static class UnlockEndpoints
         var events = new Events();
         var messages = new OutgoingMessages();
 
-        var (inspectionId, version, unlockedAt) = command;
+        var (inspectionId, version, unlockedAt) = command;        
 
         if (inspection.Status != InspectionStatus.Locked)
             throw new InvalidOperationException(
                 InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Locked, inspectionId));
+
+        if (user.Id != inspection.LockHoldingSpecialist)
+            throw new InvalidOperationException(
+                GetInvalidUnlockingAttemptErrorMessage());
 
         events.Add(new Inspection.UnlockInspection(inspectionId, user.Id, unlockedAt));
 

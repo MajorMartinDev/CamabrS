@@ -15,17 +15,17 @@ namespace Internal.Generated.WolverineHandlers
     public class POST_api_inspections_sign : Wolverine.Http.HttpHandler
     {
         private readonly Wolverine.Http.WolverineHttpOptions _wolverineHttpOptions;
-        private readonly FluentValidation.IValidator<CamabrS.API.Inspection.Signing.SignInspection> _validator;
-        private readonly Wolverine.Marten.Publishing.OutboxedSessionFactory _outboxedSessionFactory;
         private readonly Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Signing.SignInspection> _problemDetailSource;
+        private readonly Wolverine.Marten.Publishing.OutboxedSessionFactory _outboxedSessionFactory;
+        private readonly FluentValidation.IValidator<CamabrS.API.Inspection.Signing.SignInspection> _validator;
         private readonly Wolverine.Runtime.IWolverineRuntime _wolverineRuntime;
 
-        public POST_api_inspections_sign(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, FluentValidation.IValidator<CamabrS.API.Inspection.Signing.SignInspection> validator, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Signing.SignInspection> problemDetailSource, Wolverine.Runtime.IWolverineRuntime wolverineRuntime) : base(wolverineHttpOptions)
+        public POST_api_inspections_sign(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Signing.SignInspection> problemDetailSource, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory, FluentValidation.IValidator<CamabrS.API.Inspection.Signing.SignInspection> validator, Wolverine.Runtime.IWolverineRuntime wolverineRuntime) : base(wolverineHttpOptions)
         {
             _wolverineHttpOptions = wolverineHttpOptions;
-            _validator = validator;
-            _outboxedSessionFactory = outboxedSessionFactory;
             _problemDetailSource = problemDetailSource;
+            _outboxedSessionFactory = outboxedSessionFactory;
+            _validator = validator;
             _wolverineRuntime = wolverineRuntime;
         }
 

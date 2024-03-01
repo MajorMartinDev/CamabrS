@@ -2,8 +2,9 @@
 
 public sealed record Inspection(
     Guid Id,
-    Guid[] AssignedSpecialists,
-    InspectionStatus Status)
+    Guid[] AssignedSpecialists,    
+    InspectionStatus Status,
+    Guid? LockHoldingSpecialist = null)
 {
     //These are needed for "command sourcing".
     //I want to show the flexibility of event sourcing. Commands can be enriched
@@ -42,10 +43,10 @@ public sealed record Inspection(
     }
 
     public Inspection Apply(InspectionLocked inspectionLocked) =>
-        this with { Status = InspectionStatus.Locked };
+        this with { Status = InspectionStatus.Locked, LockHoldingSpecialist = inspectionLocked.LockHoldingSpecialist };
 
     public Inspection Apply(InspectionUnlocked inspectionUnlocked) =>
-       this with { Status = InspectionStatus.Assigned };
+       this with { Status = InspectionStatus.Assigned, LockHoldingSpecialist = null };
 
     public Inspection Apply(InspectionResultSubmitted inspectionResultSubmitted) =>
        this with { Status = InspectionStatus.Submitted };
@@ -76,7 +77,7 @@ public sealed record Inspection(
 }
 
 public enum InspectionStatus
-{
+{    
     Opened,
     Assigned,
     Locked,
@@ -106,4 +107,7 @@ public class InvalidStateException()
 
     public static string GetInvalidStateExceptionMessageForAssignment(Guid id) =>
         $"Inspection with id {id} is not in opened or assigned state!";
+
+    public static string GetInvalidStateExceptionMessageForSubmitting(Guid id) =>
+        $"Inspection with id {id} is not in locked or submitted state!";
 }

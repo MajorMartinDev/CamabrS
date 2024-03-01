@@ -22,6 +22,7 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : ApiWithAssigne
         var inspection = await result.ReadAsJsonAsync<InspectionDetails>();
 
         inspection.ShouldNotBeNull();
+        inspection.Status.ShouldBe(InspectionStatus.Assigned);
         inspection.AssignedSpecialists.Length.ShouldBe(2);
         inspection.AssignedSpecialists.Contains(BaselineData.AnotherAssignedSpecialist).ShouldBeTrue();       
     }
@@ -109,7 +110,7 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : ApiWithAssigne
     [Fact]
     public async Task Unlocking_Inspection_by_assigned_Specialist_should_fail()
     {
-        var result = await Host.UnlockInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now);
+        var result = await Host.UnlockInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now, BaselineData.LockHoldingSpecialist);
 
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
         problemDetails.ShouldNotBeNull();
@@ -122,12 +123,12 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : ApiWithAssigne
     [Fact]
     public async Task Submitting_Inspection_result_by_assigned_Specialist_should_fail()
     {
-        var result = await Host.SubmitInspection(Inspection.Id, Inspection.Version, CombGuidIdGeneration.NewGuid(), DateTimeOffset.Now);
+        var result = await Host.SubmitInspection(Inspection.Id, Inspection.Version, CombGuidIdGeneration.NewGuid(), DateTimeOffset.Now, BaselineData.LockHoldingSpecialist);
 
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
         problemDetails.ShouldNotBeNull();
         problemDetails.Status.ShouldBe(500);
-        problemDetails.Detail.ShouldBe(InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Locked, Inspection.Id));
+        problemDetails.Detail.ShouldBe(InvalidStateException.GetInvalidStateExceptionMessageForSubmitting(Inspection.Id));
     }
 
     //sign
@@ -135,7 +136,7 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : ApiWithAssigne
     [Fact]
     public async Task Signing_Inspection_by_assigend_Specialist_should_fail()
     {
-        var result = await Host.SignInspection(Inspection.Id, Inspection.Version, internet.Url(), DateTimeOffset.Now);
+        var result = await Host.SignInspection(Inspection.Id, Inspection.Version, internet.Url(), DateTimeOffset.Now, BaselineData.LockHoldingSpecialist);
 
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
         problemDetails.ShouldNotBeNull();

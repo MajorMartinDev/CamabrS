@@ -34,9 +34,10 @@ public sealed class OpenInspectionTests(AppFixture fixture) : IntegrationContext
         opened.OpenedBy.ShouldBe(user.Id);
         opened.OpenedAt.ShouldBe(openedAt);
         
-        var inspectionDetail = await session.Query<InspectionDetails>().SingleOrDefaultAsync(i => i.Id == inspectionId);
-        inspectionDetail.ShouldNotBeNull();
-        inspectionDetail.AssignedSpecialists.Length.ShouldBe(0);
+        var inspection = await session.Query<InspectionDetails>().SingleOrDefaultAsync(i => i.Id == inspectionId);
+        inspection.ShouldNotBeNull();
+        inspection.AssignedSpecialists.Length.ShouldBe(0);
+        inspection.Status.ShouldBe(InspectionStatus.Opened);
     }
 
     [Fact]

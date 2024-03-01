@@ -15,17 +15,17 @@ namespace Internal.Generated.WolverineHandlers
     public class POST_api_inspections_assign : Wolverine.Http.HttpHandler
     {
         private readonly Wolverine.Http.WolverineHttpOptions _wolverineHttpOptions;
-        private readonly Wolverine.Marten.Publishing.OutboxedSessionFactory _outboxedSessionFactory;
         private readonly FluentValidation.IValidator<CamabrS.API.Inspection.Assigning.AssignSpecialist> _validator;
         private readonly Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Assigning.AssignSpecialist> _problemDetailSource;
+        private readonly Wolverine.Marten.Publishing.OutboxedSessionFactory _outboxedSessionFactory;
         private readonly Wolverine.Runtime.IWolverineRuntime _wolverineRuntime;
 
-        public POST_api_inspections_assign(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory, FluentValidation.IValidator<CamabrS.API.Inspection.Assigning.AssignSpecialist> validator, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Assigning.AssignSpecialist> problemDetailSource, Wolverine.Runtime.IWolverineRuntime wolverineRuntime) : base(wolverineHttpOptions)
+        public POST_api_inspections_assign(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, FluentValidation.IValidator<CamabrS.API.Inspection.Assigning.AssignSpecialist> validator, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Assigning.AssignSpecialist> problemDetailSource, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory, Wolverine.Runtime.IWolverineRuntime wolverineRuntime) : base(wolverineHttpOptions)
         {
             _wolverineHttpOptions = wolverineHttpOptions;
-            _outboxedSessionFactory = outboxedSessionFactory;
             _validator = validator;
             _problemDetailSource = problemDetailSource;
+            _outboxedSessionFactory = outboxedSessionFactory;
             _wolverineRuntime = wolverineRuntime;
         }
 

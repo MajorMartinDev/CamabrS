@@ -70,7 +70,7 @@ public sealed class ReviewedInspectionTests(AppFixture fixture) : ApiWithReviewe
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
         problemDetails.ShouldNotBeNull();
         problemDetails.Status.ShouldBe(500);
-        problemDetails.Detail.ShouldBe(InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Locked, Inspection.Id));
+        problemDetails.Detail.ShouldBe(InvalidStateException.GetInvalidStateExceptionMessageForSubmitting(Inspection.Id));
     }
 
     //sign

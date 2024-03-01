@@ -1,9 +1,13 @@
 ﻿using CamabrS.API.Inspection;
+using CamabrS.API.Inspection.GettingDetails;
+using CamabrS.API.Inspection.Signing;
+using CamabrS.API.Inspection.Submitting;
 using CamabrS.IntegrationTests.Inspection.Fixtures;
+using System;
 
 namespace CamabrS.IntegrationTests.Inspection;
 
-public sealed class CompletedInspectionTests(AppFixture fixture) : ApiWithCompletedInspection(fixture)
+public sealed class SubmittedInspectionTests(AppFixture fixture) : ApiWithSubmittedInspectionResult(fixture)
 {
     private static readonly Lorem loremIpsum = new();
     private static readonly Internet internet = new();
@@ -11,7 +15,7 @@ public sealed class CompletedInspectionTests(AppFixture fixture) : ApiWithComple
     //assign
 
     [Fact]
-    public async Task Assigning_a_Specialist_to_a_completed_Inspection_should_fail()
+    public async Task Assigning_a_Specialist_to_a_submitted_Inspection_should_fail()
     {
         var result = await Host.AssignSpecialist(Inspection.Id, Inspection.Version, BaselineData.LockHoldingSpecialist, DateTimeOffset.Now);
 
@@ -24,7 +28,7 @@ public sealed class CompletedInspectionTests(AppFixture fixture) : ApiWithComple
     //unassign
 
     [Fact]
-    public async Task Unassigning_a_Specialist_from_a_completed_Inspection_should_fail()
+    public async Task Unassigning_a_Specialist_from_a_submitted_Inspection_should_fail()
     {
         var result = await Host.UnassignSpecialist(Inspection.Id, Inspection.Version, CombGuidIdGeneration.NewGuid(), DateTimeOffset.Now);
 
@@ -37,7 +41,7 @@ public sealed class CompletedInspectionTests(AppFixture fixture) : ApiWithComple
     //lock
 
     [Fact]
-    public async Task Locking_a_completed_Inspection_should_fail()
+    public async Task Locking_a_submitted_Inspection_should_fail()
     {
         var result = await Host.LockInspection(Inspection.Id, CombGuidIdGeneration.NewGuid(), Inspection.Version, DateTimeOffset.Now);
 
@@ -47,11 +51,10 @@ public sealed class CompletedInspectionTests(AppFixture fixture) : ApiWithComple
         problemDetails.Detail.ShouldBe(InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Assigned, Inspection.Id));
     }
 
-
     //unlock
 
     [Fact]
-    public async Task Unlocking_a_completed_Inspection_should_fail()
+    public async Task Unlocking_a_submitted_Inspection_should_fail()
     {
         var result = await Host.UnlockInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now);
 
@@ -59,38 +62,68 @@ public sealed class CompletedInspectionTests(AppFixture fixture) : ApiWithComple
         problemDetails.ShouldNotBeNull();
         problemDetails.Status.ShouldBe(500);
         problemDetails.Detail.ShouldBe(InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Locked, Inspection.Id));
-    }
+    }    
 
     //submit
+        
+    [Fact]
+    public async Task Submitting_Inspection_result_to_a_submitted_Inspection_by_lock_holding_Specialist_should_succeed()
+    {
+        var newFormId = CombGuidIdGeneration.NewGuid();
+
+        await Host.SubmitInspection(Inspection.Id, Inspection.Version, newFormId, DateTimeOffset.Now, BaselineData.LockHoldingSpecialist);
+
+        var result = await Host.GetInspectionDetails(Inspection.Id);
+
+        var inspection = await result.ReadAsJsonAsync<InspectionDetails>();
+
+        inspection.ShouldNotBeNull();
+        inspection.Status.ShouldBe(InspectionStatus.Submitted);
+        inspection.FormId.ShouldBe(newFormId);       
+    }
 
     [Fact]
-    public async Task Submitting_Inspection_result_to_a_completed_Inspection_should_fail()
+    public async Task Submitting_Inspection_result_to_a_submitted_Inspection_by_another_user_should_fail()
     {
         var result = await Host.SubmitInspection(Inspection.Id, Inspection.Version, CombGuidIdGeneration.NewGuid(), DateTimeOffset.Now);
 
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
         problemDetails.ShouldNotBeNull();
         problemDetails.Status.ShouldBe(500);
-        problemDetails.Detail.ShouldBe(InvalidStateException.GetInvalidStateExceptionMessageForSubmitting(Inspection.Id));
+        problemDetails.Detail.ShouldBe(SubmitEndpoints.GetInvalidSubmittingAttemptErrorMessage());
     }
 
     //sign
+    [Fact]
+    public async Task Signing_a_submitted_Inspection_by_lock_holding_Specialist_should_succeed()
+    {
+        var url = internet.Url();
+
+        await Host.SignInspection(Inspection.Id, Inspection.Version, url, DateTimeOffset.Now, BaselineData.LockHoldingSpecialist);
+        var result = await Host.GetInspectionDetails(Inspection.Id);
+
+        var inspection = await result.ReadAsJsonAsync<InspectionDetails>();
+
+        inspection.ShouldNotBeNull();
+        inspection.Status.ShouldBe(InspectionStatus.Signed);
+        inspection.SignatureLink.ShouldBe(url);        
+    }
 
     [Fact]
-    public async Task Signing_a_completed_Inspection_should_fail()
+    public async Task Signing_a_submitted_Inspection_by_another_user_should_fail()
     {
         var result = await Host.SignInspection(Inspection.Id, Inspection.Version, internet.Url(), DateTimeOffset.Now);
 
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
         problemDetails.ShouldNotBeNull();
         problemDetails.Status.ShouldBe(500);
-        problemDetails.Detail.ShouldBe(InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Submitted, Inspection.Id));
+        problemDetails.Detail.ShouldBe(SignEndpoints.GetInvalidSigningAttemptErrorMessage());
     }
 
     //close
 
     [Fact]
-    public async Task Closeing_a_completed_Inspection_should_fail()
+    public async Task Closeing_a_submitted_Inspection_should_fail()
     {
         var result = await Host.CloseInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now);
 
@@ -103,7 +136,7 @@ public sealed class CompletedInspectionTests(AppFixture fixture) : ApiWithComple
     //review
 
     [Fact]
-    public async Task Reviewing_a_completed_Inspection_should_fail()
+    public async Task Reviewing_a_submitted_Inspection_should_fail()
     {
         var result = await Host.ReviewInspection(Inspection.Id, Inspection.Version, true, loremIpsum.Paragraph(), DateTimeOffset.Now);
 
@@ -116,7 +149,7 @@ public sealed class CompletedInspectionTests(AppFixture fixture) : ApiWithComple
     //reopen
 
     [Fact]
-    public async Task Reopening_a_completed_Inspection_should_fail()
+    public async Task Reopening_a_submitted_Inspection_should_fail()
     {
         var result = await Host.ReopenInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now);
 
@@ -129,7 +162,7 @@ public sealed class CompletedInspectionTests(AppFixture fixture) : ApiWithComple
     //complete
 
     [Fact]
-    public async Task Completing_a_completed_Inspection_should_fail()
+    public async Task Completing_a_submitted_Inspection_should_fail()
     {
         var result = await Host.CompleteInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now);
 

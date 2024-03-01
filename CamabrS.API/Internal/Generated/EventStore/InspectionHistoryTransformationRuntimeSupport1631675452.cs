@@ -33,6 +33,34 @@ namespace Marten.Generated.EventStore
                     var inspectionHistory20 = Projection.Transform(event_CompleteInspection43);
                     operations.Store(inspectionHistory20);
                     break;
+                case Marten.Events.IEvent<CamabrS.API.Inspection.Inspection.LockInspection> event_LockInspection29:
+                    var inspectionHistory6 = Projection.Transform(event_LockInspection29);
+                    operations.Store(inspectionHistory6);
+                    break;
+                case Marten.Events.IEvent<CamabrS.API.Inspection.Inspection.ReopenInspection> event_ReopenInspection41:
+                    var inspectionHistory18 = Projection.Transform(event_ReopenInspection41);
+                    operations.Store(inspectionHistory18);
+                    break;
+                case Marten.Events.IEvent<CamabrS.API.Inspection.Inspection.ReviewInspection> event_ReviewInspection39:
+                    var inspectionHistory16 = Projection.Transform(event_ReviewInspection39);
+                    operations.Store(inspectionHistory16);
+                    break;
+                case Marten.Events.IEvent<CamabrS.API.Inspection.Inspection.SignInspection> event_SignInspection35:
+                    var inspectionHistory12 = Projection.Transform(event_SignInspection35);
+                    operations.Store(inspectionHistory12);
+                    break;
+                case Marten.Events.IEvent<CamabrS.API.Inspection.Inspection.SubmitInspectionResult> event_SubmitInspectionResult33:
+                    var inspectionHistory10 = Projection.Transform(event_SubmitInspectionResult33);
+                    operations.Store(inspectionHistory10);
+                    break;
+                case Marten.Events.IEvent<CamabrS.API.Inspection.Inspection.UnassignSpecialist> event_UnassignSpecialist27:
+                    var inspectionHistory4 = Projection.Transform(event_UnassignSpecialist27);
+                    operations.Store(inspectionHistory4);
+                    break;
+                case Marten.Events.IEvent<CamabrS.API.Inspection.Inspection.UnlockInspection> event_UnlockInspection31:
+                    var inspectionHistory8 = Projection.Transform(event_UnlockInspection31);
+                    operations.Store(inspectionHistory8);
+                    break;
                 case Marten.Events.IEvent<CamabrS.API.Inspection.InspectionClosed> event_InspectionClosed38:
                     var inspectionHistory15 = Projection.Transform(event_InspectionClosed38);
                     operations.Store(inspectionHistory15);
@@ -69,22 +97,6 @@ namespace Marten.Generated.EventStore
                     var inspectionHistory9 = Projection.Transform(event_InspectionUnlocked32);
                     operations.Store(inspectionHistory9);
                     break;
-                case Marten.Events.IEvent<CamabrS.API.Inspection.Inspection.LockInspection> event_LockInspection29:
-                    var inspectionHistory6 = Projection.Transform(event_LockInspection29);
-                    operations.Store(inspectionHistory6);
-                    break;
-                case Marten.Events.IEvent<CamabrS.API.Inspection.Inspection.ReopenInspection> event_ReopenInspection41:
-                    var inspectionHistory18 = Projection.Transform(event_ReopenInspection41);
-                    operations.Store(inspectionHistory18);
-                    break;
-                case Marten.Events.IEvent<CamabrS.API.Inspection.Inspection.ReviewInspection> event_ReviewInspection39:
-                    var inspectionHistory16 = Projection.Transform(event_ReviewInspection39);
-                    operations.Store(inspectionHistory16);
-                    break;
-                case Marten.Events.IEvent<CamabrS.API.Inspection.Inspection.SignInspection> event_SignInspection35:
-                    var inspectionHistory12 = Projection.Transform(event_SignInspection35);
-                    operations.Store(inspectionHistory12);
-                    break;
                 case Marten.Events.IEvent<CamabrS.API.Inspection.SpecialistAssigned> event_SpecialistAssigned26:
                     var inspectionHistory3 = Projection.Transform(event_SpecialistAssigned26);
                     operations.Store(inspectionHistory3);
@@ -92,18 +104,6 @@ namespace Marten.Generated.EventStore
                 case Marten.Events.IEvent<CamabrS.API.Inspection.SpecialistUnassigned> event_SpecialistUnassigned28:
                     var inspectionHistory5 = Projection.Transform(event_SpecialistUnassigned28);
                     operations.Store(inspectionHistory5);
-                    break;
-                case Marten.Events.IEvent<CamabrS.API.Inspection.Inspection.SubmitInspectionResult> event_SubmitInspectionResult33:
-                    var inspectionHistory10 = Projection.Transform(event_SubmitInspectionResult33);
-                    operations.Store(inspectionHistory10);
-                    break;
-                case Marten.Events.IEvent<CamabrS.API.Inspection.Inspection.UnassignSpecialist> event_UnassignSpecialist27:
-                    var inspectionHistory4 = Projection.Transform(event_UnassignSpecialist27);
-                    operations.Store(inspectionHistory4);
-                    break;
-                case Marten.Events.IEvent<CamabrS.API.Inspection.Inspection.UnlockInspection> event_UnlockInspection31:
-                    var inspectionHistory8 = Projection.Transform(event_UnlockInspection31);
-                    operations.Store(inspectionHistory8);
                     break;
             }
 
