@@ -33,7 +33,7 @@ jobs:
       run: docker-compose up -d
 
     - name: Run tests
-      run: dotnet test CamabrS.IntegrationTests/CamabrS.IntegrationTests.csproj --no-build docker compose up --build camabrsdb --logger "trx;LogFileName=test-results.trx"
+      run: dotnet test CamabrS.IntegrationTests/CamabrS.IntegrationTests.csproj --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"
 
     - name: Stop containers
       if: always()
