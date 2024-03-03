@@ -1,8 +1,16 @@
 version: '3.4'
 
-services:       
+services:
+  camabrs.api:
+    image: ${DOCKER_REGISTRY-}camabrsapi
+    build:
+      context: .
+      dockerfile: CamabrS.API/Dockerfile
+    depends_on:
+      - camabrs-db
+
   camabrs-db:
-    image: postgres:latest
+    image: clkao/postgres-plv8
     container_name: camabrsdb
     environment:
       - POSTGRES_DB=postgres
