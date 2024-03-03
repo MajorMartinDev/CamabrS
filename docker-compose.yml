@@ -22,3 +22,6 @@ services:
 networks:
     pg_network:
         driver: bridge
+
+volumes:
+    postgres:
