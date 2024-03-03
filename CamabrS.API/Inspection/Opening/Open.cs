@@ -1,0 +1,57 @@
+﻿using CamabrS.API.Asset.GettingDetails;
+using CamabrS.API.Core.Http;
+using CamabrS.API.Inspection.Assigning;
+
+namespace CamabrS.API.Inspection.Opening;
+
+public sealed record OpenInspection(Guid AssetId, DateTimeOffset OpenedAt)
+{
+    public sealed class OpenInspectionValidator : AbstractValidator<OpenInspection>
+    {
+        public OpenInspectionValidator()
+        {
+            RuleFor(x => x.AssetId).NotEmpty().NotNull();
+        }
+    }
+};
+
+public static class OpenEndpoints
+{
+    public const string OpenEnpoint = "/api/inspections/open"; 
+    
+    public static string GetAssetNotExistsErrorDetail(Guid assetId) 
+        => $"Asset with id {assetId} does not exist!";
+
+    [WolverineBefore]
+    public static async Task<ProblemDetails> ValidateInspectionState(
+        OpenInspection command,
+        IDocumentSession session)
+    {
+        var assetExists = await session.Query<AssetDetails>()
+            .AnyAsync(x => x.Id == command.AssetId);
+
+        return assetExists
+            ? WolverineContinue.NoProblems            
+            : new ProblemDetails
+                {
+                    Status = 403,
+                    Detail = GetAssetNotExistsErrorDetail(command.AssetId)
+            };
+    }    
+
+    [WolverinePost(OpenEnpoint)]
+    public static (ApiCreationResponse, IStartStream) OpenInspection(
+        OpenInspection command,        
+        User user)
+    {
+        var (assetId, openedAt) = command;
+
+        var inspectionOpened = new InspectionOpened(user.Id, assetId, openedAt);
+
+        var open = MartenOps.StartStream<Inspection>(inspectionOpened);
+
+        return (new ApiCreationResponse(
+            open.StreamId, 1, [AssignEndpoints.AssignEnpoint]), 
+            open);
+    }
+}
