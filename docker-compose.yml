@@ -20,3 +20,5 @@ services:
       - ./.containers/database:/var/lib/postgresql/data
     ports:
       - 5432:5432
+    networks:
+      - pg_network
