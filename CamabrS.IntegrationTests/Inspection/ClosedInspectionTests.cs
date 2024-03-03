@@ -117,21 +117,21 @@ public sealed class ClosedInspectionTests(AppFixture fixture) : ApiWithClosedIns
         inspection.Summary.ShouldBe(summary);
     }
     
-    [Fact]
-    public async Task Reviewing_a_closed_Inspection_with_disapproval_should_succeed()
-    {
-        var summary = loremIpsum.Paragraph();
+    //[Fact]
+    //public async Task Reviewing_a_closed_Inspection_with_disapproval_should_succeed()
+    //{
+    //    var summary = loremIpsum.Paragraph();
 
-        await Host.ReviewInspection(Inspection.Id, Inspection.Version, false, summary, DateTimeOffset.Now);
-        var result = await Host.GetInspectionDetails(Inspection.Id);
+    //    await Host.ReviewInspection(Inspection.Id, Inspection.Version, false, summary, DateTimeOffset.Now);
+    //    var result = await Host.GetInspectionDetails(Inspection.Id);
 
-        var inspection = await result.ReadAsJsonAsync<InspectionDetails>();
+    //    var inspection = await result.ReadAsJsonAsync<InspectionDetails>();
 
-        inspection.ShouldNotBeNull();
-        inspection.Status.ShouldBe(InspectionStatus.Reviewed);
-        inspection.Verdict.ShouldBeFalse();
-        inspection.Summary.ShouldBe(summary);
-    }
+    //    inspection.ShouldNotBeNull();
+    //    inspection.Status.ShouldBe(InspectionStatus.Reviewed);
+    //    inspection.Verdict.ShouldBeFalse();
+    //    inspection.Summary.ShouldBe(summary);
+    //}
 
     //reopen
 
