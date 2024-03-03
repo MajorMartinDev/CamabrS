@@ -24,7 +24,7 @@ jobs:
         dotnet-version: 8.0.x
         
     - name: Restore dependencies
-      run: dotnet restore /CamabrS.sln
+      run: dotnet restore CamabrS.sln
       
     - name: Build
       run: dotnet build --no-restore
