@@ -8,28 +8,15 @@ services:
       dockerfile: CamabrS.API/Dockerfile
     depends_on:
       - camabrs-db
-
+       
   camabrs-db:
-    image: clkao/postgres-plv8
+    image: postgres:latest
     container_name: camabrsdb
     environment:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres   
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./.containers/database:/var/lib/postgresql/data
     ports:
       - 5432:5432
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
-      interval: 30s
-      timeout: 60s
-      retries: 5
-      start_period: 80s
-    networks:
-      - pg_network    
-
-networks:
-    pg_network:
-        driver: bridge
-
-volumes:
-    postgres:

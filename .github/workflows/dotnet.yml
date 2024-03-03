@@ -30,7 +30,7 @@ jobs:
       run: dotnet build CamabrS.sln --no-restore
       
     - name: Start containers
-      run: docker-compose up
+      run: docker-compose up -d
 
     - name: Run tests
       run: dotnet test --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"
