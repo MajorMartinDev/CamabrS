@@ -33,7 +33,13 @@ jobs:
       run: docker-compose up -d
 
     - name: Run tests
-      run: dotnet test CamabrS.IntegrationTests/CamabrS.IntegrationTests.csproj --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"
+      run: dotnet test CamabrS.IntegrationTests/CamabrS.IntegrationTests.csproj --no-build --verbosity normal --logger "trx;LogFileName=xtests.trx"
+
+    - name: Publish Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always()
+      with:
+        trx_files: "/home/runner/work/CamabrS/CamabrS/CamabrS.IntegrationTests/TestResults/xtests.trx"      
 
     - name: Stop containers
       if: always()
