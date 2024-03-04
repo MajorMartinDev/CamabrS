@@ -47,7 +47,7 @@ public static class UnlockEndpoints
         return (
             new ApiResponse(
                 (version + events.Count),
-                [UnassignEndpoints.UnassignEnpoint, LockEndpoints.LockEnpoint]),
+                [AssignEndpoints.AssignEnpoint, UnassignEndpoints.UnassignEnpoint, LockEndpoints.LockEnpoint]),
                 events, messages);
     }    
 }

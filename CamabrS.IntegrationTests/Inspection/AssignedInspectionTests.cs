@@ -1,7 +1,7 @@
 ﻿using CamabrS.API.Inspection;
 using CamabrS.API.Inspection.Assigning;
-using CamabrS.API.Inspection.GettingDetails;
 using CamabrS.API.Inspection.Locking;
+using CamabrS.API.Inspection.Submitting;
 using CamabrS.IntegrationTests.Inspection.Fixtures;
 
 namespace CamabrS.IntegrationTests.Inspection;
@@ -16,15 +16,20 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : ApiWithAssigne
     [Fact]
     public async Task Assigning_another_Specialist_to_an_assigned_Inspection_should_succeed()
     {
-        await Host.AssignSpecialist(Inspection.Id, Inspection.Version, BaselineData.AnotherAssignedSpecialist, DateTimeOffset.Now);
-        var result = await Host.GetInspectionDetails(Inspection.Id);
+        var result = await Host.AssignSpecialist(
+            Inspection.Id, Inspection.Version, BaselineData.AnotherAssignedSpecialist, DateTimeOffset.Now);
 
-        var inspection = await result.ReadAsJsonAsync<InspectionDetails>();
+        result.ApiResponseShouldHave(
+            InspectionStreamVersions.AssignedAnother, 
+            [UnassignEndpoints.UnassignEnpoint, AssignEndpoints.AssignEnpoint, LockEndpoints.LockEnpoint]);
 
-        inspection.ShouldNotBeNull();
-        inspection.Status.ShouldBe(InspectionStatus.Assigned);
-        inspection.AssignedSpecialists.Length.ShouldBe(2);
-        inspection.AssignedSpecialists.Contains(BaselineData.AnotherAssignedSpecialist).ShouldBeTrue();       
+        await Host.InspectionDetailsShouldBe(
+            Inspection with 
+            { 
+                Status = InspectionStatus.Assigned,
+                AssignedSpecialists = [BaselineData.LockHoldingSpecialist, BaselineData.AnotherAssignedSpecialist],
+                Version = InspectionStreamVersions.AssignedAnother
+            });            
     }
 
     [Fact]
@@ -56,14 +61,19 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : ApiWithAssigne
     [Fact]
     public async Task Unassigning_a_Specialist_from_an_assigned_Inspection_should_succeed()
     {
-        await Host.UnassignSpecialist(Inspection.Id, Inspection.Version, BaselineData.LockHoldingSpecialist, DateTimeOffset.Now);
+        var result = await Host.UnassignSpecialist(Inspection.Id, Inspection.Version, BaselineData.LockHoldingSpecialist, DateTimeOffset.Now);
 
-        var result = await Host.GetInspectionDetails(Inspection.Id);
-        var inspection = await result.ReadAsJsonAsync<InspectionDetails>();
-        
-        inspection.ShouldNotBeNull();
-        inspection.AssignedSpecialists.Length.ShouldBe(0);
-        inspection.Status.ShouldBe(InspectionStatus.Opened);
+        result.ApiResponseShouldHave(
+            InspectionStreamVersions.Unassigned, 
+            [AssignEndpoints.AssignEnpoint]);
+
+        await Host.InspectionDetailsShouldBe(
+            Inspection with
+            {
+                Status = InspectionStatus.Opened,
+                AssignedSpecialists = [],
+                Version = InspectionStreamVersions.Unassigned
+            });       
     }
 
     [Fact]
@@ -82,15 +92,21 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : ApiWithAssigne
     [Fact]
     public async Task Locking_Inspection_should_succeed()
     {
-        await Host.LockInspection(Inspection.Id, BaselineData.LockHoldingSpecialist, 
+        var result = await Host.LockInspection(Inspection.Id, BaselineData.LockHoldingSpecialist, 
             Inspection.Version, DateTimeOffset.Now);
 
-        var result = await Host.GetInspectionDetails(Inspection.Id);
-        var inspection = await result.ReadAsJsonAsync<InspectionDetails>();
+        result.ApiResponseShouldHave(
+            InspectionStreamVersions.Locked, 
+            [UnlockEndpoints.UnlockEnpoint, SubmitEndpoints.SubmitEnpoint]);
 
-        inspection.ShouldNotBeNull();
-        inspection.LockHoldingSpecialist.ShouldBe(BaselineData.LockHoldingSpecialist);
-        inspection.Status.ShouldBe(InspectionStatus.Locked);
+        await Host.InspectionDetailsShouldBe(
+            Inspection with
+            {
+                Status = InspectionStatus.Locked,
+                LockHoldingSpecialist = BaselineData.LockHoldingSpecialist,
+                AssignedSpecialists = [BaselineData.LockHoldingSpecialist],
+                Version = InspectionStreamVersions.Locked
+            });        
     }
 
     [Fact]

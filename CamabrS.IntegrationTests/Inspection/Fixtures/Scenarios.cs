@@ -352,6 +352,19 @@ public static class Scenarios{
             x.WithClaim(new Claim("user-id", userId.ToString()));
         });
 
+    public static async Task<IScenarioResult> InspectionDetailsShouldBe(
+        this IAlbaHost api,
+        InspectionDetails inspection
+    )
+    {
+        var result = await api.GetInspectionDetails(inspection.Id);
+
+        var updated = await result.ReadAsJsonAsync<InspectionDetails>();
+        updated.ShouldBeEquivalentTo(inspection);
+
+        return result;
+    }
+
     public static async Task<Guid> GetCreatedId(this IScenarioResult result)
     {
         var response = await result.ReadAsJsonAsync<ApiCreationResponse>();
@@ -359,4 +372,22 @@ public static class Scenarios{
 
         return response.Id;
     }    
+}
+
+public static class InspectionStreamVersions
+{
+    public const int Open = 1;
+    public const int Assigned = 3;
+    public const int Locked = 5;
+    public const int Submitted = 7;
+    public const int Signed = 9;
+    public const int Closed = 11;
+    public const int Reviewed = 13;
+    public const int Completed = 15;
+
+    public const int AssignedAnother = 5;
+    public const int Unassigned = 5;
+    public const int Unlocked = 7;
+    public const int Resubmitted = 9;
+    public const int Reopened = 15;
 }

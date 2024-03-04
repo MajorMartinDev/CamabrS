@@ -1,6 +1,10 @@
 ﻿using CamabrS.API.Inspection;
 using CamabrS.API.Inspection.GettingDetails;
+using CamabrS.API.Inspection.Reviewing;
+using CamabrS.API.Inspection.Signing;
+using CamabrS.API.Inspection.Submitting;
 using CamabrS.IntegrationTests.Inspection.Fixtures;
+using static FastExpressionCompiler.ExpressionCompiler;
 
 namespace CamabrS.IntegrationTests.Inspection;
 
@@ -92,13 +96,19 @@ public sealed class SignedInspectionTests(AppFixture fixture) : ApiWithSignedIns
     [Fact]
     public async Task Closeing_a_signed_Inspection_should_succeed()
     {
-        await Host.CloseInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now);
-        var result = await Host.GetInspectionDetails(Inspection.Id);
+        var result = await Host.CloseInspection(
+            Inspection.Id, Inspection.Version, DateTimeOffset.Now);
 
-        var inspection = await result.ReadAsJsonAsync<InspectionDetails>();
+        result.ApiResponseShouldHave(
+            InspectionStreamVersions.Closed,
+            [ReviewEndpoints.ReviewEnpoint]);
 
-        inspection.ShouldNotBeNull();
-        inspection.Status.ShouldBe(InspectionStatus.Closed);        
+        await Host.InspectionDetailsShouldBe(
+            Inspection with
+            {
+                Status = InspectionStatus.Closed,               
+                Version = InspectionStreamVersions.Closed
+            });
     }    
 
     //review

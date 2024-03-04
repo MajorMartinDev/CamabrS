@@ -1,8 +1,12 @@
 ﻿using CamabrS.API.Inspection;
+using CamabrS.API.Inspection.Assigning;
 using CamabrS.API.Inspection.GettingDetails;
 using CamabrS.API.Inspection.Locking;
+using CamabrS.API.Inspection.Reopening;
+using CamabrS.API.Inspection.Signing;
 using CamabrS.API.Inspection.Submitting;
 using CamabrS.IntegrationTests.Inspection.Fixtures;
+using static FastExpressionCompiler.ExpressionCompiler;
 
 namespace CamabrS.IntegrationTests.Inspection;
 public sealed class LockedInspectionTests(AppFixture fixture) : ApiWithLockedInspection(fixture)
@@ -54,14 +58,20 @@ public sealed class LockedInspectionTests(AppFixture fixture) : ApiWithLockedIns
     [Fact]
     public async Task Unlock_a_locked_Inspection_by_lock_holding_Specialist_should_succeed()
     {
-        await Host.UnlockInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now, BaselineData.LockHoldingSpecialist);
-        var result = await Host.GetInspectionDetails(Inspection.Id);
+        var result = await Host.UnlockInspection(
+            Inspection.Id, Inspection.Version, DateTimeOffset.Now, BaselineData.LockHoldingSpecialist);
+        
+        result.ApiResponseShouldHave(
+            InspectionStreamVersions.Unlocked, 
+            [AssignEndpoints.AssignEnpoint, UnassignEndpoints.UnassignEnpoint, LockEndpoints.LockEnpoint]);
 
-        var inspection = await result.ReadAsJsonAsync<InspectionDetails>();
-
-        inspection.ShouldNotBeNull();
-        inspection.Status.ShouldBe(InspectionStatus.Assigned);
-        inspection.LockHoldingSpecialist.ShouldBe(null);       
+        await Host.InspectionDetailsShouldBe(
+            Inspection with
+            {
+                Status = InspectionStatus.Assigned,
+                LockHoldingSpecialist = null,
+                Version = InspectionStreamVersions.Unlocked
+            });               
     }
 
     [Fact]
@@ -80,13 +90,22 @@ public sealed class LockedInspectionTests(AppFixture fixture) : ApiWithLockedIns
     [Fact]
     public async Task Submitting_Inspection_result_to_a_locked_Inspection_by_lock_holding_Specialist_should_succeed()
     {
-        await Host.SubmitInspection(Inspection.Id, Inspection.Version, CombGuidIdGeneration.NewGuid(), DateTimeOffset.Now, BaselineData.LockHoldingSpecialist);
-        var result = await Host.GetInspectionDetails(Inspection.Id);
+        var formId = CombGuidIdGeneration.NewGuid();
 
-        var inspection = await result.ReadAsJsonAsync<InspectionDetails>();
+        var result = await Host.SubmitInspection(
+            Inspection.Id, Inspection.Version, formId, DateTimeOffset.Now, BaselineData.LockHoldingSpecialist);
 
-        inspection.ShouldNotBeNull();
-        inspection.Status.ShouldBe(InspectionStatus.Submitted);        
+        result.ApiResponseShouldHave(
+            InspectionStreamVersions.Submitted,
+            [SubmitEndpoints.SubmitEnpoint, SignEndpoints.SignEnpoint]);
+
+        await Host.InspectionDetailsShouldBe(
+            Inspection with
+            {
+                Status = InspectionStatus.Submitted,
+                FormId = formId,
+                Version = InspectionStreamVersions.Submitted
+            });
     }
 
     [Fact]

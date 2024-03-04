@@ -1,6 +1,10 @@
 ﻿using CamabrS.API.Inspection;
+using CamabrS.API.Inspection.Assigning;
 using CamabrS.API.Inspection.GettingDetails;
+using CamabrS.API.Inspection.Signing;
+using CamabrS.API.Inspection.Submitting;
 using CamabrS.IntegrationTests.Inspection.Fixtures;
+using static FastExpressionCompiler.ExpressionCompiler;
 
 namespace CamabrS.IntegrationTests.Inspection;
 public sealed class ReviewedInspectionTests(AppFixture fixture) : ApiWithReviewedInspection(fixture)
@@ -117,14 +121,21 @@ public sealed class ReviewedInspectionTests(AppFixture fixture) : ApiWithReviewe
     [Fact]
     public async Task Reopening_a_reviewed_Inspection_should_succeed()
     {
-        await Host.ReopenInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now);
-        var result = await Host.GetInspectionDetails(Inspection.Id);
+        var result = await Host.ReopenInspection(
+            Inspection.Id, Inspection.Version, DateTimeOffset.Now);
+        
+        result.ApiResponseShouldHave(
+            InspectionStreamVersions.Reopened,
+            [AssignEndpoints.AssignEnpoint]);
 
-        var inspection = await result.ReadAsJsonAsync<InspectionDetails>();
-
-        inspection.ShouldNotBeNull();
-        inspection.Status.ShouldBe(InspectionStatus.Opened);
-        inspection.AssignedSpecialists.Length.ShouldBe(0);
+        await Host.InspectionDetailsShouldBe(
+            Inspection with
+            {
+                Status = InspectionStatus.Opened,
+                AssignedSpecialists = [],
+                LockHoldingSpecialist = null,
+                Version = InspectionStreamVersions.Reopened
+            });        
     }
 
     //complete
@@ -132,12 +143,18 @@ public sealed class ReviewedInspectionTests(AppFixture fixture) : ApiWithReviewe
     [Fact]
     public async Task Completeing_a_reviewed_Inspection_should_succeed()
     {
-        await Host.CompleteInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now);
-        var result = await Host.GetInspectionDetails(Inspection.Id);
+        var result = await Host.CompleteInspection(
+            Inspection.Id, Inspection.Version, DateTimeOffset.Now);
 
-        var inspection = await result.ReadAsJsonAsync<InspectionDetails>();
+        result.ApiResponseShouldHave(
+            InspectionStreamVersions.Completed,
+            []);
 
-        inspection.ShouldNotBeNull();
-        inspection.Status.ShouldBe(InspectionStatus.Completed);
+        await Host.InspectionDetailsShouldBe(
+            Inspection with
+            {
+                Status = InspectionStatus.Completed,
+                Version = InspectionStreamVersions.Completed
+            });
     }
 }

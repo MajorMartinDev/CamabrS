@@ -1,5 +1,8 @@
 ﻿using CamabrS.API.Inspection;
-using CamabrS.API.Inspection.GettingDetails;
+using CamabrS.API.Inspection.Assigning;
+using CamabrS.API.Inspection.Completing;
+using CamabrS.API.Inspection.Locking;
+using CamabrS.API.Inspection.Reopening;
 using CamabrS.IntegrationTests.Inspection.Fixtures;
 
 namespace CamabrS.IntegrationTests.Inspection;
@@ -106,15 +109,22 @@ public sealed class ClosedInspectionTests(AppFixture fixture) : ApiWithClosedIns
     {
         var summary = loremIpsum.Paragraph();
 
-        await Host.ReviewInspection(Inspection.Id, Inspection.Version, ReviewVerdict.Approved, summary, DateTimeOffset.Now);
-        var result = await Host.GetInspectionDetails(Inspection.Id);
+        var result = await Host.ReviewInspection(
+            Inspection.Id, Inspection.Version, ReviewVerdict.Approved, summary, DateTimeOffset.Now);
 
-        var inspection = await result.ReadAsJsonAsync<InspectionDetails>();
+        result.ApiResponseShouldHave(
+            InspectionStreamVersions.Reviewed, 
+            [CompleteEndpoints.CompleteEnpoint]);
 
-        inspection.ShouldNotBeNull();
-        inspection.Status.ShouldBe(InspectionStatus.Reviewed);
-        inspection.Verdict.ShouldBe(ReviewVerdict.Approved);
-        inspection.Summary.ShouldBe(summary);
+        await Host.InspectionDetailsShouldBe(
+            Inspection with
+            {
+                Status = InspectionStatus.Reviewed,
+                Verdict = ReviewVerdict.Approved,
+                Summary = summary,
+                AssignedSpecialists = [BaselineData.LockHoldingSpecialist],
+                Version = InspectionStreamVersions.Reviewed
+            });        
     }
 
     [Fact]
@@ -122,15 +132,22 @@ public sealed class ClosedInspectionTests(AppFixture fixture) : ApiWithClosedIns
     {
         var summary = loremIpsum.Paragraph();
 
-        await Host.ReviewInspection(Inspection.Id, Inspection.Version, ReviewVerdict.Disapproved, summary, DateTimeOffset.Now);
-        var result = await Host.GetInspectionDetails(Inspection.Id);
+        var result = await Host.ReviewInspection(
+            Inspection.Id, Inspection.Version, ReviewVerdict.Disapproved, summary, DateTimeOffset.Now);
 
-        var inspection = await result.ReadAsJsonAsync<InspectionDetails>();
+        result.ApiResponseShouldHave(
+            InspectionStreamVersions.Reviewed, 
+            [ReopenEndpoints.ReopenEnpoint]);
 
-        inspection.ShouldNotBeNull();
-        inspection.Status.ShouldBe(InspectionStatus.Reviewed);
-        inspection.Verdict.ShouldBe(ReviewVerdict.Disapproved);
-        inspection.Summary.ShouldBe(summary);
+        await Host.InspectionDetailsShouldBe(
+            Inspection with
+            {
+                Status = InspectionStatus.Reviewed,
+                Verdict = ReviewVerdict.Disapproved,
+                Summary = summary,
+                AssignedSpecialists = [BaselineData.LockHoldingSpecialist],
+                Version = InspectionStreamVersions.Reviewed
+            });
     }
 
     //reopen

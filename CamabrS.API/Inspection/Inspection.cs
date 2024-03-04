@@ -61,7 +61,7 @@ public sealed record Inspection(
        this with { Status = InspectionStatus.Reviewed };
 
     public Inspection Apply(InspectionReopened inspectionReopened) =>
-       this with { Status = InspectionStatus.Opened, AssignedSpecialists = [] };
+       this with { Status = InspectionStatus.Opened, AssignedSpecialists = [], LockHoldingSpecialist = null };
 
     public Inspection Apply(InspectionCompleted inspectionCompleted) =>
        this with { Status = InspectionStatus.Completed };

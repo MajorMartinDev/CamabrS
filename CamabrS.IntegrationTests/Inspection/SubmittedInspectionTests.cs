@@ -1,9 +1,12 @@
 ﻿using CamabrS.API.Inspection;
+using CamabrS.API.Inspection.Closeing;
 using CamabrS.API.Inspection.GettingDetails;
+using CamabrS.API.Inspection.Reviewing;
 using CamabrS.API.Inspection.Signing;
 using CamabrS.API.Inspection.Submitting;
 using CamabrS.IntegrationTests.Inspection.Fixtures;
 using System;
+using static FastExpressionCompiler.ExpressionCompiler;
 
 namespace CamabrS.IntegrationTests.Inspection;
 
@@ -71,15 +74,20 @@ public sealed class SubmittedInspectionTests(AppFixture fixture) : ApiWithSubmit
     {
         var newFormId = CombGuidIdGeneration.NewGuid();
 
-        await Host.SubmitInspection(Inspection.Id, Inspection.Version, newFormId, DateTimeOffset.Now, BaselineData.LockHoldingSpecialist);
+        var result = await Host.SubmitInspection(
+            Inspection.Id, Inspection.Version, newFormId, DateTimeOffset.Now, BaselineData.LockHoldingSpecialist);
 
-        var result = await Host.GetInspectionDetails(Inspection.Id);
+        result.ApiResponseShouldHave(
+            InspectionStreamVersions.Resubmitted,
+            [SubmitEndpoints.SubmitEnpoint, SignEndpoints.SignEnpoint]);
 
-        var inspection = await result.ReadAsJsonAsync<InspectionDetails>();
-
-        inspection.ShouldNotBeNull();
-        inspection.Status.ShouldBe(InspectionStatus.Submitted);
-        inspection.FormId.ShouldBe(newFormId);       
+        await Host.InspectionDetailsShouldBe(
+            Inspection with
+            {
+                Status = InspectionStatus.Submitted,
+                FormId = newFormId,
+                Version = InspectionStreamVersions.Resubmitted
+            });               
     }
 
     [Fact]
@@ -99,14 +107,20 @@ public sealed class SubmittedInspectionTests(AppFixture fixture) : ApiWithSubmit
     {
         var url = internet.Url();
 
-        await Host.SignInspection(Inspection.Id, Inspection.Version, url, DateTimeOffset.Now, BaselineData.LockHoldingSpecialist);
-        var result = await Host.GetInspectionDetails(Inspection.Id);
+        var result = await Host.SignInspection(
+            Inspection.Id, Inspection.Version, url, DateTimeOffset.Now, BaselineData.LockHoldingSpecialist);
 
-        var inspection = await result.ReadAsJsonAsync<InspectionDetails>();
+        result.ApiResponseShouldHave(
+            InspectionStreamVersions.Signed,
+            [CloseEndpoints.CloseEnpoint]);
 
-        inspection.ShouldNotBeNull();
-        inspection.Status.ShouldBe(InspectionStatus.Signed);
-        inspection.SignatureLink.ShouldBe(url);        
+        await Host.InspectionDetailsShouldBe(
+            Inspection with
+            {
+                Status = InspectionStatus.Signed,
+                SignatureLink = url,
+                Version = InspectionStreamVersions.Signed
+            });
     }
 
     [Fact]
