@@ -14,6 +14,10 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    permissions:
+        checks: write
+        pull-requests: write
+
     steps:
     - name: Check Out Repo
       uses: actions/checkout@v4
@@ -36,7 +40,7 @@ jobs:
       run: dotnet test CamabrS.IntegrationTests/CamabrS.IntegrationTests.csproj --no-build --verbosity normal --logger "trx;LogFileName=xtests.trx"
 
     - name: Publish Test Results
-      uses: EnricoMi/publish-unit-test-result-action@v2
+      uses: EnricoMi/publish-unit-test-result-action@v2      
       if: always()
       with:
         trx_files: "/home/runner/work/CamabrS/CamabrS/CamabrS.IntegrationTests/TestResults/xtests.trx"      
