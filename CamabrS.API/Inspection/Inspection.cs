@@ -18,7 +18,7 @@ public sealed record Inspection(
     public sealed record SubmitInspectionResult(Guid InspectionId, Guid SubmittedBy, Guid FormId, DateTimeOffset SubmittedAt);
     public sealed record SignInspection(Guid InspectionId, Guid SignedBy, string SignatureLink, DateTimeOffset SignedAt);
     public sealed record CloseInspection(Guid InspectionId, Guid ClosedBy, DateTimeOffset ClosedAt);
-    public sealed record ReviewInspection(Guid InspectionId, Guid ReviewedBy, bool Verdict, string Summary, DateTimeOffset ReviewedAt);
+    public sealed record ReviewInspection(Guid InspectionId, Guid ReviewedBy, ReviewVerdict Verdict, string Summary, DateTimeOffset ReviewedAt);
     public sealed record ReopenInspection(Guid InspectionId, Guid ReopenedBy, DateTimeOffset ReopenedAt);
     public sealed record CompleteInspection(Guid InspectionId, Guid CompletedBy, DateTimeOffset CompletedAt);
 
@@ -88,6 +88,13 @@ public enum InspectionStatus
     Completed
 }
 
+public enum ReviewVerdict
+{
+    NotReviewed,
+    Approved,
+    Disapproved
+}
+
 public sealed record InspectionOpened(Guid OpenedBy, Guid AssetId, DateTimeOffset OpenedAt);
 public sealed record SpecialistAssigned(Guid InspectionId, Guid AssignedBy, Guid SpecialistId, DateTimeOffset AssignedAt);
 public sealed record SpecialistUnassigned(Guid InspectionId,Guid UnassignedBy, Guid SpecialistId, DateTimeOffset UnassignedAt);
@@ -96,7 +103,7 @@ public sealed record InspectionUnlocked(Guid InspectionId, Guid UnlockedBy, Date
 public sealed record InspectionResultSubmitted(Guid InspectionId, Guid SubmittedBy, Guid FormId, DateTimeOffset SubmittedAt);
 public sealed record InspectionSigned(Guid InspectionId, Guid SignedBy, string SignatureLink, DateTimeOffset SignedAt);
 public sealed record InspectionClosed(Guid InspectionId, Guid ClosedBy, DateTimeOffset ClosedAt);
-public sealed record InspectionReviewed(Guid InspectionId, Guid ReviewedBy, bool Verdict, string Summary, DateTimeOffset ReviewedAt);
+public sealed record InspectionReviewed(Guid InspectionId, Guid ReviewedBy, ReviewVerdict Verdict, string Summary, DateTimeOffset ReviewedAt);
 public sealed record InspectionReopened(Guid InspectionId, Guid ReopenedBy, DateTimeOffset ReopenedAt);
 public sealed record InspectionCompleted(Guid InspectionId, Guid CompletedBy, DateTimeOffset CompletedAt);
 

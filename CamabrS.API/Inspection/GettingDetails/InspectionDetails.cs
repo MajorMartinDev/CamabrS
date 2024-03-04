@@ -7,7 +7,7 @@ public sealed record InspectionDetails
     InspectionStatus Status,
     Guid? LockHoldingSpecialist = null,
     Guid FormId = default,
-    bool Verdict = default,
+    ReviewVerdict Verdict = default,
     string? SignatureLink = default,
     string? Summary = default,
     int Version = 1);

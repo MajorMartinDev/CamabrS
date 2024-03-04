@@ -106,32 +106,32 @@ public sealed class ClosedInspectionTests(AppFixture fixture) : ApiWithClosedIns
     {
         var summary = loremIpsum.Paragraph();
 
-        await Host.ReviewInspection(Inspection.Id, Inspection.Version, true, summary, DateTimeOffset.Now);
+        await Host.ReviewInspection(Inspection.Id, Inspection.Version, ReviewVerdict.Approved, summary, DateTimeOffset.Now);
         var result = await Host.GetInspectionDetails(Inspection.Id);
 
         var inspection = await result.ReadAsJsonAsync<InspectionDetails>();
 
         inspection.ShouldNotBeNull();
         inspection.Status.ShouldBe(InspectionStatus.Reviewed);
-        inspection.Verdict.ShouldBeTrue();
+        inspection.Verdict.ShouldBe(ReviewVerdict.Approved);
         inspection.Summary.ShouldBe(summary);
     }
-    
-    //[Fact]
-    //public async Task Reviewing_a_closed_Inspection_with_disapproval_should_succeed()
-    //{
-    //    var summary = loremIpsum.Paragraph();
 
-    //    await Host.ReviewInspection(Inspection.Id, Inspection.Version, false, summary, DateTimeOffset.Now);
-    //    var result = await Host.GetInspectionDetails(Inspection.Id);
+    [Fact]
+    public async Task Reviewing_a_closed_Inspection_with_disapproval_should_succeed()
+    {
+        var summary = loremIpsum.Paragraph();
 
-    //    var inspection = await result.ReadAsJsonAsync<InspectionDetails>();
+        await Host.ReviewInspection(Inspection.Id, Inspection.Version, ReviewVerdict.Disapproved, summary, DateTimeOffset.Now);
+        var result = await Host.GetInspectionDetails(Inspection.Id);
 
-    //    inspection.ShouldNotBeNull();
-    //    inspection.Status.ShouldBe(InspectionStatus.Reviewed);
-    //    inspection.Verdict.ShouldBeFalse();
-    //    inspection.Summary.ShouldBe(summary);
-    //}
+        var inspection = await result.ReadAsJsonAsync<InspectionDetails>();
+
+        inspection.ShouldNotBeNull();
+        inspection.Status.ShouldBe(InspectionStatus.Reviewed);
+        inspection.Verdict.ShouldBe(ReviewVerdict.Disapproved);
+        inspection.Summary.ShouldBe(summary);
+    }
 
     //reopen
 

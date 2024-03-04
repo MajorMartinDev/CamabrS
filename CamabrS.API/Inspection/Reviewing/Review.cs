@@ -4,7 +4,7 @@ using CamabrS.API.Inspection.Completing;
 
 namespace CamabrS.API.Inspection.Reviewing;
 
-public sealed record ReviewInspection(Guid InspectionId, int Version, bool Verdict, string Summary, DateTimeOffset ReviewedAt)
+public sealed record ReviewInspection(Guid InspectionId, int Version, ReviewVerdict Verdict, string Summary, DateTimeOffset ReviewedAt)
 {
     public sealed class ReviewInspectionValidator : AbstractValidator<ReviewInspection>
     {
@@ -48,9 +48,9 @@ public static class ReviewEndpoints
                 events, messages);
     }
 
-    public static List<string> GetNextAvailableSteps(bool verdict)
+    public static List<string> GetNextAvailableSteps(ReviewVerdict verdict)
     {
-        return verdict is true ? 
+        return verdict == ReviewVerdict.Approved ? 
             [CompleteEndpoints.CompleteEnpoint] : [ReopenEndpoints.ReopenEnpoint];
     }
 }

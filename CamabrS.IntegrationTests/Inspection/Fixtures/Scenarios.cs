@@ -129,7 +129,7 @@ public static class Scenarios{
         var reviewedAt = DateTimeOffset.UtcNow;
 
         var inspection = await api.ClosedInspection();
-        var result = await api.ReviewInspection(inspection.Id, inspection.Version, true, summary, reviewedAt);
+        var result = await api.ReviewInspection(inspection.Id, inspection.Version, ReviewVerdict.Approved, summary, reviewedAt);
 
         result = await api.GetInspectionDetails(inspection.Id);
         inspection = await result.ReadAsJsonAsync<InspectionDetails>();
@@ -137,7 +137,7 @@ public static class Scenarios{
         inspection.ShouldNotBeNull();
         inspection.Status.ShouldBe(InspectionStatus.Reviewed);
         inspection.Summary.ShouldBe(summary);
-        inspection.Verdict.ShouldBeTrue();
+        inspection.Verdict.ShouldBe(ReviewVerdict.Approved);
         return inspection;
     }
 
@@ -294,7 +294,7 @@ public static class Scenarios{
         this IAlbaHost api,
         Guid inspectionId,
         int expectedVersion,
-        bool verdict,
+        ReviewVerdict verdict,
         string summary,
         DateTimeOffset reviewedAt,
         Guid userId = default) =>

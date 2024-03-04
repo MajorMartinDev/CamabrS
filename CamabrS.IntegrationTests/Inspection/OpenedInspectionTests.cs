@@ -121,7 +121,7 @@ public sealed class OpenedInspectionTests(AppFixture fixture) : ApiWithOpenedIns
     [Fact]
     public async Task Reviewing_an_opened_Inspection_should_fail()
     {
-        var result = await Host.ReviewInspection(Inspection.Id, Inspection.Version, true, loremIpsum.Paragraph(), DateTimeOffset.Now);
+        var result = await Host.ReviewInspection(Inspection.Id, Inspection.Version, ReviewVerdict.Approved, loremIpsum.Paragraph(), DateTimeOffset.Now);
 
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
         problemDetails.ShouldNotBeNull();
