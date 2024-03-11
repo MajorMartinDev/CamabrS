@@ -40,15 +40,18 @@ public static class UnassignEndpoints
         if (specialistWasNotAssigned) throw new InvalidOperationException(GetSpecialistWasPreviouslyAssignedErrorDetail(specialistId, inspectionId));
 
         events.Add(new Inspection.UnassignSpecialist(inspectionId, user.Id, specialistId, unassignedAt));
-       
-        events.Add(new SpecialistUnassigned(inspectionId, user.Id, specialistId, unassignedAt));
+
+        SpecialistUnassigned specialistUnassigned = new(inspectionId, user.Id, specialistId, unassignedAt);
+        events.Add(specialistUnassigned);
 
         //TODO send off message to notify Specialist that they got unassigned from an inspection
+
+        var newState = inspection.Apply(specialistUnassigned);
 
         return (
             new ApiResponse(
                 (version + events.Count),
-                [AssignEndpoints.AssignEnpoint]), 
-                events, messages);
+                NextInspectionSteps.GetNextSteps(newState.Status)),
+            events, messages);
     }    
 }

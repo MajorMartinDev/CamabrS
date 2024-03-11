@@ -1,5 +1,4 @@
 ﻿using CamabrS.API.Core.Http;
-using CamabrS.API.Inspection.Signing;
 
 namespace CamabrS.API.Inspection.Submitting;
 
@@ -44,12 +43,15 @@ public static class SubmitEndpoints
 
         events.Add(new Inspection.SubmitInspectionResult(inspectionId, user.Id, formId, submittedAt));
 
-        events.Add(new InspectionResultSubmitted(inspectionId, user.Id, formId, submittedAt));
+        InspectionResultSubmitted inspectionResultSubmitted = new(inspectionId, user.Id, formId, submittedAt);
+        events.Add(inspectionResultSubmitted);
+
+        var newState = inspection.Apply(inspectionResultSubmitted);
 
         return (
             new ApiResponse(
                 (version + events.Count),
-                [SubmitEnpoint, SignEndpoints.SignEnpoint]),
-                events, messages);
+                NextInspectionSteps.GetNextSteps(newState.Status)),
+            events, messages);
     }    
 }

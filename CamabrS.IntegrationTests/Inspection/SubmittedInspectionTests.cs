@@ -1,5 +1,4 @@
 ﻿using CamabrS.API.Inspection;
-using CamabrS.API.Inspection.Closeing;
 using CamabrS.API.Inspection.Signing;
 using CamabrS.API.Inspection.Submitting;
 using CamabrS.IntegrationTests.Inspection.Fixtures;
@@ -71,19 +70,19 @@ public sealed class SubmittedInspectionTests(AppFixture fixture) : ApiWithSubmit
         var newFormId = CombGuidIdGeneration.NewGuid();
 
         var result = await Host.SubmitInspection(
-            Inspection.Id, Inspection.Version, newFormId, DateTimeOffset.Now, BaselineData.LockHoldingSpecialist);
+            Inspection.Id, Inspection.Version, newFormId, DateTimeOffset.Now, BaselineData.LockHoldingSpecialist);        
 
-        result.ApiResponseShouldHave(
-            InspectionStreamVersions.Resubmitted,
-            [SubmitEndpoints.SubmitEnpoint, SignEndpoints.SignEnpoint]);
-
-        await Host.InspectionDetailsShouldBe(
+        var updated = await Host.InspectionDetailsShouldBe(
             Inspection with
             {
                 Status = InspectionStatus.Submitted,
                 FormId = newFormId,
                 Version = InspectionStreamVersions.Resubmitted
-            });               
+            });
+
+        result.ApiResponseShouldHave(
+            InspectionStreamVersions.Resubmitted,
+            NextInspectionSteps.GetNextSteps(updated.Status, updated.Verdict));
     }
 
     [Fact]
@@ -104,19 +103,19 @@ public sealed class SubmittedInspectionTests(AppFixture fixture) : ApiWithSubmit
         var url = internet.Url();
 
         var result = await Host.SignInspection(
-            Inspection.Id, Inspection.Version, url, DateTimeOffset.Now, BaselineData.LockHoldingSpecialist);
+            Inspection.Id, Inspection.Version, url, DateTimeOffset.Now, BaselineData.LockHoldingSpecialist);        
 
-        result.ApiResponseShouldHave(
-            InspectionStreamVersions.Signed,
-            [CloseEndpoints.CloseEnpoint]);
-
-        await Host.InspectionDetailsShouldBe(
+        var updated = await Host.InspectionDetailsShouldBe(
             Inspection with
             {
                 Status = InspectionStatus.Signed,
                 SignatureLink = url,
                 Version = InspectionStreamVersions.Signed
             });
+
+        result.ApiResponseShouldHave(
+            InspectionStreamVersions.Signed,
+            NextInspectionSteps.GetNextSteps(updated.Status, updated.Verdict));
     }
 
     [Fact]

@@ -1,12 +1,6 @@
-﻿using Bogus.DataSets;
-using CamabrS.API.Inspection;
+﻿using CamabrS.API.Inspection;
 using CamabrS.API.Inspection.Assigning;
-using CamabrS.API.Inspection.GettingDetails;
-using CamabrS.API.Inspection.Locking;
-using CamabrS.API.Inspection.Signing;
-using CamabrS.API.Inspection.Submitting;
 using CamabrS.IntegrationTests.Inspection.Fixtures;
-using static FastExpressionCompiler.ExpressionCompiler;
 
 namespace CamabrS.IntegrationTests.Inspection;
 public sealed class OpenedInspectionTests(AppFixture fixture) : ApiWithOpenedInspection(fixture)
@@ -20,19 +14,19 @@ public sealed class OpenedInspectionTests(AppFixture fixture) : ApiWithOpenedIns
     public async Task Assigning_a_Specialist_to_an_open_Inspection_should_succeed()
     {
         var result = await Host.AssignSpecialist(
-            Inspection.Id, Inspection.Version, BaselineData.LockHoldingSpecialist, DateTimeOffset.Now);
+            Inspection.Id, Inspection.Version, BaselineData.LockHoldingSpecialist, DateTimeOffset.Now);        
 
-        result.ApiResponseShouldHave(
-            InspectionStreamVersions.Assigned,
-            [UnassignEndpoints.UnassignEnpoint, AssignEndpoints.AssignEnpoint, LockEndpoints.LockEnpoint]);
-
-        await Host.InspectionDetailsShouldBe(
+        var updated = await Host.InspectionDetailsShouldBe(
             Inspection with
             {
                 Status = InspectionStatus.Assigned,
                 AssignedSpecialists = [BaselineData.LockHoldingSpecialist],
                 Version = InspectionStreamVersions.Assigned                
-            });        
+            });
+
+        result.ApiResponseShouldHave(
+            InspectionStreamVersions.Assigned,
+            NextInspectionSteps.GetNextSteps(updated.Status, updated.Verdict));
     }
 
     [Fact]

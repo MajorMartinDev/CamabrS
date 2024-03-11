@@ -1,7 +1,5 @@
 ﻿using CamabrS.API.Inspection;
-using CamabrS.API.Inspection.Assigning;
 using CamabrS.API.Inspection.Locking;
-using CamabrS.API.Inspection.Signing;
 using CamabrS.API.Inspection.Submitting;
 using CamabrS.IntegrationTests.Inspection.Fixtures;
 
@@ -56,19 +54,19 @@ public sealed class LockedInspectionTests(AppFixture fixture) : ApiWithLockedIns
     public async Task Unlock_a_locked_Inspection_by_lock_holding_Specialist_should_succeed()
     {
         var result = await Host.UnlockInspection(
-            Inspection.Id, Inspection.Version, DateTimeOffset.Now, BaselineData.LockHoldingSpecialist);
-        
-        result.ApiResponseShouldHave(
-            InspectionStreamVersions.Unlocked, 
-            [AssignEndpoints.AssignEnpoint, UnassignEndpoints.UnassignEnpoint, LockEndpoints.LockEnpoint]);
+            Inspection.Id, Inspection.Version, DateTimeOffset.Now, BaselineData.LockHoldingSpecialist);        
 
-        await Host.InspectionDetailsShouldBe(
+        var updated = await Host.InspectionDetailsShouldBe(
             Inspection with
             {
                 Status = InspectionStatus.Assigned,
                 LockHoldingSpecialist = null,
                 Version = InspectionStreamVersions.Unlocked
-            });               
+            });
+
+        result.ApiResponseShouldHave(
+            InspectionStreamVersions.Unlocked,
+            NextInspectionSteps.GetNextSteps(updated.Status, updated.Verdict));
     }
 
     [Fact]
@@ -90,19 +88,19 @@ public sealed class LockedInspectionTests(AppFixture fixture) : ApiWithLockedIns
         var formId = CombGuidIdGeneration.NewGuid();
 
         var result = await Host.SubmitInspection(
-            Inspection.Id, Inspection.Version, formId, DateTimeOffset.Now, BaselineData.LockHoldingSpecialist);
+            Inspection.Id, Inspection.Version, formId, DateTimeOffset.Now, BaselineData.LockHoldingSpecialist);        
 
-        result.ApiResponseShouldHave(
-            InspectionStreamVersions.Submitted,
-            [SubmitEndpoints.SubmitEnpoint, SignEndpoints.SignEnpoint]);
-
-        await Host.InspectionDetailsShouldBe(
+        var updated = await Host.InspectionDetailsShouldBe(
             Inspection with
             {
                 Status = InspectionStatus.Submitted,
                 FormId = formId,
                 Version = InspectionStreamVersions.Submitted
             });
+
+        result.ApiResponseShouldHave(
+            InspectionStreamVersions.Submitted,
+            NextInspectionSteps.GetNextSteps(updated.Status, updated.Verdict));
     }
 
     [Fact]

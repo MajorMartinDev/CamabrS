@@ -6,13 +6,13 @@ public static class ApiResponseAssertion
     public static void ApiResponseShouldHave(
         this IScenarioResult? result,
         int version,
-        List<string> availableActions)
+        List<string> nextSteps)
     {
         result.ShouldNotBeNull();
 
         var apiResponse = result.ReadAsJson<ApiResponse>();
         apiResponse.ShouldNotBeNull();
         apiResponse.Version.ShouldBe(version);
-        apiResponse.AvailableActions.ShouldBe(availableActions);
+        apiResponse.NextSteps.ShouldBe(nextSteps);
     }
 }

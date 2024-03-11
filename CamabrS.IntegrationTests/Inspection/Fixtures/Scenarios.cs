@@ -353,7 +353,7 @@ public static class Scenarios{
             x.WithClaim(new Claim("user-id", userId.ToString()));
         });
 
-    public static async Task<IScenarioResult> InspectionDetailsShouldBe(
+    public static async Task<InspectionDetails> InspectionDetailsShouldBe(
         this IAlbaHost api,
         InspectionDetails inspection
     )
@@ -361,9 +361,10 @@ public static class Scenarios{
         var result = await api.GetInspectionDetails(inspection.Id);
 
         var updated = await result.ReadAsJsonAsync<InspectionDetails>();
+        updated.ShouldNotBeNull();
         updated.ShouldBeEquivalentTo(inspection);
 
-        return result;
+        return updated;
     }
 
     public static async Task<Guid> GetCreatedId(this IScenarioResult result)

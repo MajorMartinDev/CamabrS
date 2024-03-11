@@ -1,5 +1,4 @@
 ﻿using CamabrS.API.Core.Http;
-using CamabrS.API.Inspection.Reviewing;
 
 namespace CamabrS.API.Inspection.Closeing;
 
@@ -35,12 +34,15 @@ public static class CloseEndpoints
 
         events.Add(new Inspection.CloseInspection(inspectionId, user.Id, closedAt));
 
-        events.Add(new InspectionClosed(inspectionId, user.Id, closedAt));
+        InspectionClosed inspectionClosed = new(inspectionId, user.Id, closedAt);
+        events.Add(inspectionClosed);
+
+        var newState = inspection.Apply(inspectionClosed);
 
         return (
             new ApiResponse(
                 (version + events.Count), 
-                [ReviewEndpoints.ReviewEnpoint]),
-                events, messages);
+                NextInspectionSteps.GetNextSteps(newState.Status)),
+            events, messages);
     }    
 }

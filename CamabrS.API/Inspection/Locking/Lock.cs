@@ -1,5 +1,4 @@
 ﻿using CamabrS.API.Core.Http;
-using CamabrS.API.Inspection.Submitting;
 
 namespace CamabrS.API.Inspection.Locking;
 
@@ -42,12 +41,15 @@ public static class LockEndpoints
 
         events.Add(new Inspection.LockInspection(inspectionId, lockHoldingSpecialist, user.Id, lockedAt));
 
-        events.Add(new InspectionLocked(inspectionId, lockHoldingSpecialist, user.Id, lockedAt));
+        InspectionLocked inspectionLocked = new(inspectionId, lockHoldingSpecialist, user.Id, lockedAt);
+        events.Add(inspectionLocked);
+
+        var newState = inspection.Apply(inspectionLocked);
 
         return (
             new ApiResponse(
                 (version + events.Count),
-                [UnlockEndpoints.UnlockEnpoint, SubmitEndpoints.SubmitEnpoint]),
-                events, messages);
+                NextInspectionSteps.GetNextSteps(newState.Status)),
+            events, messages);
     }    
 }

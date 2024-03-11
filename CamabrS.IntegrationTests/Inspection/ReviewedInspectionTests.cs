@@ -1,5 +1,4 @@
 ﻿using CamabrS.API.Inspection;
-using CamabrS.API.Inspection.Assigning;
 using CamabrS.API.Inspection.Reopening;
 using CamabrS.IntegrationTests.Inspection.Fixtures;
 
@@ -133,13 +132,9 @@ public sealed class ReviewedInspectionTests(AppFixture fixture) : ApiWithReviewe
         Inspection = await Host.ReviewedInspection(ReviewVerdict.Disapproved);        
 
         var result = await Host.ReopenInspection(
-            Inspection.Id, Inspection.Version, DateTimeOffset.Now);
+            Inspection.Id, Inspection.Version, DateTimeOffset.Now);        
 
-        result.ApiResponseShouldHave(
-            InspectionStreamVersions.Reopened,
-            [AssignEndpoints.AssignEnpoint]);
-
-        await Host.InspectionDetailsShouldBe(
+        var updated = await Host.InspectionDetailsShouldBe(
             Inspection with
             {
                 Status = InspectionStatus.Opened,
@@ -147,6 +142,10 @@ public sealed class ReviewedInspectionTests(AppFixture fixture) : ApiWithReviewe
                 LockHoldingSpecialist = null,
                 Version = InspectionStreamVersions.Reopened
             });
+
+        result.ApiResponseShouldHave(
+            InspectionStreamVersions.Reopened,
+            NextInspectionSteps.GetNextSteps(updated.Status, updated.Verdict));
     }
 
     //complete
@@ -155,17 +154,17 @@ public sealed class ReviewedInspectionTests(AppFixture fixture) : ApiWithReviewe
     public async Task Completeing_a_reviewed_Inspection_should_succeed()
     {
         var result = await Host.CompleteInspection(
-            Inspection.Id, Inspection.Version, DateTimeOffset.Now);
+            Inspection.Id, Inspection.Version, DateTimeOffset.Now);        
 
-        result.ApiResponseShouldHave(
-            InspectionStreamVersions.Completed,
-            []);
-
-        await Host.InspectionDetailsShouldBe(
+        var updated = await Host.InspectionDetailsShouldBe(
             Inspection with
             {
                 Status = InspectionStatus.Completed,
                 Version = InspectionStreamVersions.Completed
             });
+
+        result.ApiResponseShouldHave(
+            InspectionStreamVersions.Completed,
+            NextInspectionSteps.GetNextSteps(updated.Status, updated.Verdict));
     }
 }

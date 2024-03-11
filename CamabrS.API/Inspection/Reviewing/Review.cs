@@ -1,6 +1,4 @@
 ﻿using CamabrS.API.Core.Http;
-using CamabrS.API.Inspection.Reopening;
-using CamabrS.API.Inspection.Completing;
 
 namespace CamabrS.API.Inspection.Reviewing;
 
@@ -39,18 +37,15 @@ public static class ReviewEndpoints
 
         events.Add(new Inspection.ReviewInspection(inspectionId, user.Id, verdict, summary, reviewedAt));
 
-        events.Add(new InspectionReviewed(inspectionId, user.Id, verdict, summary, reviewedAt));
+        InspectionReviewed inspectionReviewed = new(inspectionId, user.Id, verdict, summary, reviewedAt);
+        events.Add(inspectionReviewed);
+
+        var newState = inspection.Apply(inspectionReviewed);
 
         return (
             new ApiResponse(
                 (version + events.Count),                
-                GetNextAvailableSteps(verdict)), 
-                events, messages);
-    }
-
-    public static List<string> GetNextAvailableSteps(ReviewVerdict verdict)
-    {
-        return verdict == ReviewVerdict.Approved ? 
-            [CompleteEndpoints.CompleteEnpoint] : [ReopenEndpoints.ReopenEnpoint];
-    }
+                NextInspectionSteps.GetNextSteps(newState.Status, newState.Verdict)), 
+            events, messages);
+    }   
 }

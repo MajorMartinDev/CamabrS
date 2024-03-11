@@ -1,8 +1,4 @@
 ﻿using CamabrS.API.Inspection;
-using CamabrS.API.Inspection.Assigning;
-using CamabrS.API.Inspection.Completing;
-using CamabrS.API.Inspection.Locking;
-using CamabrS.API.Inspection.Reopening;
 using CamabrS.IntegrationTests.Inspection.Fixtures;
 
 namespace CamabrS.IntegrationTests.Inspection;
@@ -110,13 +106,9 @@ public sealed class ClosedInspectionTests(AppFixture fixture) : ApiWithClosedIns
         var summary = loremIpsum.Paragraph();
 
         var result = await Host.ReviewInspection(
-            Inspection.Id, Inspection.Version, ReviewVerdict.Approved, summary, DateTimeOffset.Now);
+            Inspection.Id, Inspection.Version, ReviewVerdict.Approved, summary, DateTimeOffset.Now);        
 
-        result.ApiResponseShouldHave(
-            InspectionStreamVersions.Reviewed, 
-            [CompleteEndpoints.CompleteEnpoint]);
-
-        await Host.InspectionDetailsShouldBe(
+        var updated = await Host.InspectionDetailsShouldBe(
             Inspection with
             {
                 Status = InspectionStatus.Reviewed,
@@ -124,7 +116,11 @@ public sealed class ClosedInspectionTests(AppFixture fixture) : ApiWithClosedIns
                 Summary = summary,
                 AssignedSpecialists = [BaselineData.LockHoldingSpecialist],
                 Version = InspectionStreamVersions.Reviewed
-            });        
+            });
+
+        result.ApiResponseShouldHave(
+            InspectionStreamVersions.Reviewed,
+            NextInspectionSteps.GetNextSteps(updated.Status, updated.Verdict));
     }
 
     [Fact]
@@ -133,13 +129,9 @@ public sealed class ClosedInspectionTests(AppFixture fixture) : ApiWithClosedIns
         var summary = loremIpsum.Paragraph();
 
         var result = await Host.ReviewInspection(
-            Inspection.Id, Inspection.Version, ReviewVerdict.Disapproved, summary, DateTimeOffset.Now);
+            Inspection.Id, Inspection.Version, ReviewVerdict.Disapproved, summary, DateTimeOffset.Now);        
 
-        result.ApiResponseShouldHave(
-            InspectionStreamVersions.Reviewed, 
-            [ReopenEndpoints.ReopenEnpoint]);
-
-        await Host.InspectionDetailsShouldBe(
+        var updated = await Host.InspectionDetailsShouldBe(
             Inspection with
             {
                 Status = InspectionStatus.Reviewed,
@@ -148,6 +140,10 @@ public sealed class ClosedInspectionTests(AppFixture fixture) : ApiWithClosedIns
                 AssignedSpecialists = [BaselineData.LockHoldingSpecialist],
                 Version = InspectionStreamVersions.Reviewed
             });
+
+        result.ApiResponseShouldHave(
+            InspectionStreamVersions.Reviewed,
+            NextInspectionSteps.GetNextSteps(updated.Status, updated.Verdict));
     }
 
     //reopen

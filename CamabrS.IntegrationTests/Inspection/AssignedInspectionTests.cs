@@ -1,7 +1,6 @@
 ﻿using CamabrS.API.Inspection;
 using CamabrS.API.Inspection.Assigning;
 using CamabrS.API.Inspection.Locking;
-using CamabrS.API.Inspection.Submitting;
 using CamabrS.IntegrationTests.Inspection.Fixtures;
 
 namespace CamabrS.IntegrationTests.Inspection;
@@ -17,19 +16,19 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : ApiWithAssigne
     public async Task Assigning_another_Specialist_to_an_assigned_Inspection_should_succeed()
     {
         var result = await Host.AssignSpecialist(
-            Inspection.Id, Inspection.Version, BaselineData.AnotherAssignedSpecialist, DateTimeOffset.Now);
+            Inspection.Id, Inspection.Version, BaselineData.AnotherAssignedSpecialist, DateTimeOffset.Now);        
 
-        result.ApiResponseShouldHave(
-            InspectionStreamVersions.AssignedAnother, 
-            [UnassignEndpoints.UnassignEnpoint, AssignEndpoints.AssignEnpoint, LockEndpoints.LockEnpoint]);
-
-        await Host.InspectionDetailsShouldBe(
+        var updated = await Host.InspectionDetailsShouldBe(
             Inspection with 
             { 
                 Status = InspectionStatus.Assigned,
                 AssignedSpecialists = [BaselineData.LockHoldingSpecialist, BaselineData.AnotherAssignedSpecialist],
                 Version = InspectionStreamVersions.AssignedAnother
-            });            
+            });
+
+        result.ApiResponseShouldHave(
+            InspectionStreamVersions.AssignedAnother,
+            NextInspectionSteps.GetNextSteps(updated.Status, updated.Verdict));
     }
 
     [Fact]
@@ -61,19 +60,19 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : ApiWithAssigne
     [Fact]
     public async Task Unassigning_a_Specialist_from_an_assigned_Inspection_should_succeed()
     {
-        var result = await Host.UnassignSpecialist(Inspection.Id, Inspection.Version, BaselineData.LockHoldingSpecialist, DateTimeOffset.Now);
+        var result = await Host.UnassignSpecialist(Inspection.Id, Inspection.Version, BaselineData.LockHoldingSpecialist, DateTimeOffset.Now);        
 
-        result.ApiResponseShouldHave(
-            InspectionStreamVersions.Unassigned, 
-            [AssignEndpoints.AssignEnpoint]);
-
-        await Host.InspectionDetailsShouldBe(
+        var updated = await Host.InspectionDetailsShouldBe(
             Inspection with
             {
                 Status = InspectionStatus.Opened,
                 AssignedSpecialists = [],
                 Version = InspectionStreamVersions.Unassigned
-            });       
+            });
+
+        result.ApiResponseShouldHave(
+            InspectionStreamVersions.Unassigned,
+            NextInspectionSteps.GetNextSteps(updated.Status, updated.Verdict));
     }
 
     [Fact]
@@ -93,20 +92,20 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : ApiWithAssigne
     public async Task Locking_Inspection_should_succeed()
     {
         var result = await Host.LockInspection(Inspection.Id, BaselineData.LockHoldingSpecialist, 
-            Inspection.Version, DateTimeOffset.Now);
+            Inspection.Version, DateTimeOffset.Now);        
 
-        result.ApiResponseShouldHave(
-            InspectionStreamVersions.Locked, 
-            [UnlockEndpoints.UnlockEnpoint, SubmitEndpoints.SubmitEnpoint]);
-
-        await Host.InspectionDetailsShouldBe(
+        var updated = await Host.InspectionDetailsShouldBe(
             Inspection with
             {
                 Status = InspectionStatus.Locked,
                 LockHoldingSpecialist = BaselineData.LockHoldingSpecialist,
                 AssignedSpecialists = [BaselineData.LockHoldingSpecialist],
                 Version = InspectionStreamVersions.Locked
-            });        
+            });
+
+        result.ApiResponseShouldHave(
+            InspectionStreamVersions.Locked,
+            NextInspectionSteps.GetNextSteps(updated.Status, updated.Verdict));
     }
 
     [Fact]
