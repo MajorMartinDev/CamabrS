@@ -4,6 +4,7 @@ public sealed record Inspection(
     Guid Id,
     Guid[] AssignedSpecialists,    
     InspectionStatus Status,
+    ReviewVerdict Verdict = default,
     Guid? LockHoldingSpecialist = null)
 {
     //These are needed for "command sourcing".
@@ -58,7 +59,7 @@ public sealed record Inspection(
        this with { Status = InspectionStatus.Closed };
 
     public Inspection Apply(InspectionReviewed inspectionReviewed) =>
-       this with { Status = InspectionStatus.Reviewed };
+       this with { Status = InspectionStatus.Reviewed, Verdict = inspectionReviewed.Verdict };
 
     public Inspection Apply(InspectionReopened inspectionReopened) =>
        this with { Status = InspectionStatus.Opened, AssignedSpecialists = [], LockHoldingSpecialist = null };

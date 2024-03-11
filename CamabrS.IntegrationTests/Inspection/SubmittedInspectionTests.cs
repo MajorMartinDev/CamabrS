@@ -1,12 +1,8 @@
 ﻿using CamabrS.API.Inspection;
 using CamabrS.API.Inspection.Closeing;
-using CamabrS.API.Inspection.GettingDetails;
-using CamabrS.API.Inspection.Reviewing;
 using CamabrS.API.Inspection.Signing;
 using CamabrS.API.Inspection.Submitting;
 using CamabrS.IntegrationTests.Inspection.Fixtures;
-using System;
-using static FastExpressionCompiler.ExpressionCompiler;
 
 namespace CamabrS.IntegrationTests.Inspection;
 

@@ -1,10 +1,7 @@
 ﻿using CamabrS.API.Inspection;
 using CamabrS.API.Inspection.Assigning;
-using CamabrS.API.Inspection.GettingDetails;
-using CamabrS.API.Inspection.Signing;
-using CamabrS.API.Inspection.Submitting;
+using CamabrS.API.Inspection.Reopening;
 using CamabrS.IntegrationTests.Inspection.Fixtures;
-using static FastExpressionCompiler.ExpressionCompiler;
 
 namespace CamabrS.IntegrationTests.Inspection;
 public sealed class ReviewedInspectionTests(AppFixture fixture) : ApiWithReviewedInspection(fixture)
@@ -119,11 +116,25 @@ public sealed class ReviewedInspectionTests(AppFixture fixture) : ApiWithReviewe
     //reopen
 
     [Fact]
-    public async Task Reopening_a_reviewed_Inspection_should_succeed()
+    public async Task Reopening_a_reviewed_and_approved_Inspection_should_fail()
     {
         var result = await Host.ReopenInspection(
             Inspection.Id, Inspection.Version, DateTimeOffset.Now);
-        
+
+        var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
+        problemDetails.ShouldNotBeNull();
+        problemDetails.Status.ShouldBe(500);
+        problemDetails.Detail.ShouldBe(ReopenEndpoints.ApprovedInspectionCanNotBeReopenedErrorMessage);
+    }
+
+    [Fact]
+    public async Task Reopening_a_reviewed_and_disapproved_Inspection_should_succeed()
+    {
+        Inspection = await Host.ReviewedInspection(ReviewVerdict.Disapproved);        
+
+        var result = await Host.ReopenInspection(
+            Inspection.Id, Inspection.Version, DateTimeOffset.Now);
+
         result.ApiResponseShouldHave(
             InspectionStreamVersions.Reopened,
             [AssignEndpoints.AssignEnpoint]);
@@ -135,11 +146,11 @@ public sealed class ReviewedInspectionTests(AppFixture fixture) : ApiWithReviewe
                 AssignedSpecialists = [],
                 LockHoldingSpecialist = null,
                 Version = InspectionStreamVersions.Reopened
-            });        
+            });
     }
 
     //complete
-   
+
     [Fact]
     public async Task Completeing_a_reviewed_Inspection_should_succeed()
     {

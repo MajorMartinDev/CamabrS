@@ -48,8 +48,8 @@ public static class SubmitEndpoints
 
         return (
             new ApiResponse(
-                (version + events.Count), 
-                [SignEndpoints.SignEnpoint]),
+                (version + events.Count),
+                [SubmitEnpoint, SignEndpoints.SignEnpoint]),
                 events, messages);
     }    
 }

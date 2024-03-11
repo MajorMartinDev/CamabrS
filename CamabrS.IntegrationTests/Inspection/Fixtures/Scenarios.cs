@@ -123,13 +123,14 @@ public static class Scenarios{
     }
 
     public static async Task<InspectionDetails> ReviewedInspection(
-        this IAlbaHost api)
+        this IAlbaHost api,
+        ReviewVerdict verdict = ReviewVerdict.Approved)
     {
         var summary = loremIpsum.Paragraph();
         var reviewedAt = DateTimeOffset.UtcNow;
 
         var inspection = await api.ClosedInspection();
-        var result = await api.ReviewInspection(inspection.Id, inspection.Version, ReviewVerdict.Approved, summary, reviewedAt);
+        var result = await api.ReviewInspection(inspection.Id, inspection.Version, verdict, summary, reviewedAt);
 
         result = await api.GetInspectionDetails(inspection.Id);
         inspection = await result.ReadAsJsonAsync<InspectionDetails>();
@@ -137,7 +138,7 @@ public static class Scenarios{
         inspection.ShouldNotBeNull();
         inspection.Status.ShouldBe(InspectionStatus.Reviewed);
         inspection.Summary.ShouldBe(summary);
-        inspection.Verdict.ShouldBe(ReviewVerdict.Approved);
+        inspection.Verdict.ShouldBe(verdict);
         return inspection;
     }
 

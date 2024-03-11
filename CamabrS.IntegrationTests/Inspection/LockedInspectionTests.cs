@@ -1,12 +1,9 @@
 ﻿using CamabrS.API.Inspection;
 using CamabrS.API.Inspection.Assigning;
-using CamabrS.API.Inspection.GettingDetails;
 using CamabrS.API.Inspection.Locking;
-using CamabrS.API.Inspection.Reopening;
 using CamabrS.API.Inspection.Signing;
 using CamabrS.API.Inspection.Submitting;
 using CamabrS.IntegrationTests.Inspection.Fixtures;
-using static FastExpressionCompiler.ExpressionCompiler;
 
 namespace CamabrS.IntegrationTests.Inspection;
 public sealed class LockedInspectionTests(AppFixture fixture) : ApiWithLockedInspection(fixture)
