@@ -88,7 +88,6 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : GivenAssignedI
         //when
         var result = await Host.UnassignSpecialist(Inspection.Id, Inspection.Version, BaselineData.AnotherSpecilaist, DateTimeOffset.Now);
 
-
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
         problemDetails.ShouldNotBeNull();
@@ -103,8 +102,7 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : GivenAssignedI
     {
         //when
         var result = await Host.LockInspection(Inspection.Id, BaselineData.LockHoldingSpecialist, 
-            Inspection.Version, DateTimeOffset.Now);        
-
+            Inspection.Version, DateTimeOffset.Now);
 
         //then
         var updated = await Host.InspectionDetailsShouldBe(
@@ -143,7 +141,6 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : GivenAssignedI
         //when
         var result = await Host.UnlockInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now, BaselineData.LockHoldingSpecialist);
 
-
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
         problemDetails.ShouldNotBeNull();
@@ -158,7 +155,6 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : GivenAssignedI
     {
         //when
         var result = await Host.SubmitInspection(Inspection.Id, Inspection.Version, CombGuidIdGeneration.NewGuid(), DateTimeOffset.Now, BaselineData.LockHoldingSpecialist);
-
 
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
@@ -190,7 +186,6 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : GivenAssignedI
         //when
         var result = await Host.CloseInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now);
 
-
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
         problemDetails.ShouldNotBeNull();
@@ -205,7 +200,6 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : GivenAssignedI
     {
         //when
         var result = await Host.ReviewInspection(Inspection.Id, Inspection.Version, ReviewVerdict.Approved, loremIpsum.Paragraph(), DateTimeOffset.Now);
-
 
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
@@ -222,7 +216,6 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : GivenAssignedI
         //when
         var result = await Host.ReopenInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now);
 
-
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
         problemDetails.ShouldNotBeNull();
@@ -237,7 +230,6 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : GivenAssignedI
     {
         //when
         var result = await Host.CompleteInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now);
-
 
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();

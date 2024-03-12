@@ -17,7 +17,6 @@ public sealed class LockedInspectionTests(AppFixture fixture) : GivenLockedInspe
         //when
         var result = await Host.AssignSpecialist(Inspection.Id, Inspection.Version, BaselineData.LockHoldingSpecialist, DateTimeOffset.Now);
 
-
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
         problemDetails.ShouldNotBeNull();
@@ -32,7 +31,6 @@ public sealed class LockedInspectionTests(AppFixture fixture) : GivenLockedInspe
     {
         //when
         var result = await Host.UnassignSpecialist(Inspection.Id, Inspection.Version, CombGuidIdGeneration.NewGuid(), DateTimeOffset.Now);
-
 
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
@@ -63,8 +61,7 @@ public sealed class LockedInspectionTests(AppFixture fixture) : GivenLockedInspe
     {
         //when
         var result = await Host.UnlockInspection(
-            Inspection.Id, Inspection.Version, DateTimeOffset.Now, BaselineData.LockHoldingSpecialist);        
-
+            Inspection.Id, Inspection.Version, DateTimeOffset.Now, BaselineData.LockHoldingSpecialist);
 
         //then
         var updated = await Host.InspectionDetailsShouldBe(
@@ -101,8 +98,7 @@ public sealed class LockedInspectionTests(AppFixture fixture) : GivenLockedInspe
         //when
         var formId = CombGuidIdGeneration.NewGuid();
         var result = await Host.SubmitInspection(
-            Inspection.Id, Inspection.Version, formId, DateTimeOffset.Now, BaselineData.LockHoldingSpecialist);        
-
+            Inspection.Id, Inspection.Version, formId, DateTimeOffset.Now, BaselineData.LockHoldingSpecialist);
 
         //then
         var updated = await Host.InspectionDetailsShouldBe(
@@ -124,7 +120,6 @@ public sealed class LockedInspectionTests(AppFixture fixture) : GivenLockedInspe
         //when
         var result = await Host.SubmitInspection(Inspection.Id, Inspection.Version, CombGuidIdGeneration.NewGuid(), DateTimeOffset.Now);
 
-
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
         problemDetails.ShouldNotBeNull();
@@ -139,7 +134,6 @@ public sealed class LockedInspectionTests(AppFixture fixture) : GivenLockedInspe
     {
         //when
         var result = await Host.SignInspection(Inspection.Id, Inspection.Version, internet.Url(), DateTimeOffset.Now);
-
 
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();

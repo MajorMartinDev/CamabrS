@@ -15,7 +15,6 @@ public sealed class ClosedInspectionTests(AppFixture fixture) : GivenClosedInspe
         //when
         var result = await Host.AssignSpecialist(Inspection.Id, Inspection.Version, BaselineData.LockHoldingSpecialist, DateTimeOffset.Now);
 
-
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
         problemDetails.ShouldNotBeNull();
@@ -61,7 +60,6 @@ public sealed class ClosedInspectionTests(AppFixture fixture) : GivenClosedInspe
         //when
         var result = await Host.UnlockInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now);
 
-
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
         problemDetails.ShouldNotBeNull();
@@ -76,7 +74,6 @@ public sealed class ClosedInspectionTests(AppFixture fixture) : GivenClosedInspe
     {   
         //when
         var result = await Host.SubmitInspection(Inspection.Id, Inspection.Version, CombGuidIdGeneration.NewGuid(), DateTimeOffset.Now);
-
 
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
@@ -107,7 +104,6 @@ public sealed class ClosedInspectionTests(AppFixture fixture) : GivenClosedInspe
     {
         //when
         var result = await Host.CloseInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now);
-
 
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
@@ -149,8 +145,7 @@ public sealed class ClosedInspectionTests(AppFixture fixture) : GivenClosedInspe
         //when
         var summary = loremIpsum.Paragraph();
         var result = await Host.ReviewInspection(
-            Inspection.Id, Inspection.Version, ReviewVerdict.Disapproved, summary, DateTimeOffset.Now);        
-
+            Inspection.Id, Inspection.Version, ReviewVerdict.Disapproved, summary, DateTimeOffset.Now);
 
         //then
         var updated = await Host.InspectionDetailsShouldBe(
@@ -176,7 +171,6 @@ public sealed class ClosedInspectionTests(AppFixture fixture) : GivenClosedInspe
         //when
         var result = await Host.ReopenInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now);
 
-
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
         problemDetails.ShouldNotBeNull();
@@ -191,7 +185,6 @@ public sealed class ClosedInspectionTests(AppFixture fixture) : GivenClosedInspe
     {
         //when
         var result = await Host.CompleteInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now);
-
 
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
