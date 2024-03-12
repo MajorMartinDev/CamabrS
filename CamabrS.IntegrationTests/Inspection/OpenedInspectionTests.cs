@@ -3,7 +3,7 @@ using CamabrS.API.Inspection.Assigning;
 using CamabrS.IntegrationTests.Inspection.Fixtures;
 
 namespace CamabrS.IntegrationTests.Inspection;
-public sealed class OpenedInspectionTests(AppFixture fixture) : ApiWithOpenedInspection(fixture)
+public sealed class OpenedInspectionTests(AppFixture fixture) : GivenOpenedInspection(fixture)
 {
     private static readonly Lorem loremIpsum = new();
     private static readonly Internet internet = new();
@@ -13,9 +13,11 @@ public sealed class OpenedInspectionTests(AppFixture fixture) : ApiWithOpenedIns
     [Fact]
     public async Task Assigning_a_Specialist_to_an_open_Inspection_should_succeed()
     {
+        //when
         var result = await Host.AssignSpecialist(
             Inspection.Id, Inspection.Version, BaselineData.LockHoldingSpecialist, DateTimeOffset.Now);        
 
+        //then
         var updated = await Host.InspectionDetailsShouldBe(
             Inspection with
             {
@@ -32,12 +34,14 @@ public sealed class OpenedInspectionTests(AppFixture fixture) : ApiWithOpenedIns
     [Fact]
     public async Task Assigning_a_non_existent_Specialist_should_fail()
     {
+        //when
         var specialistId = CombGuidIdGeneration.NewGuid();
         var result = await Host.AssignSpecialist(Inspection.Id, Inspection.Version, specialistId, DateTimeOffset.Now);
 
+        //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
         problemDetails.ShouldNotBeNull();
-        problemDetails.Status.ShouldBe(500);
+        problemDetails.Status.ShouldBe(StatusCodes.Status500InternalServerError);
         problemDetails.Detail.ShouldBe(AssignEndpoints.GetSpecialistNotExistsErrorDetail(specialistId));
     }
 
@@ -46,11 +50,13 @@ public sealed class OpenedInspectionTests(AppFixture fixture) : ApiWithOpenedIns
     [Fact]
     public async Task Unassigning_a_Specialist_from_an_opened_Inspection_should_fail()
     {
+        //when
         var result = await Host.UnassignSpecialist(Inspection.Id, Inspection.Version, CombGuidIdGeneration.NewGuid(), DateTimeOffset.Now);
 
+        //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
         problemDetails.ShouldNotBeNull();
-        problemDetails.Status.ShouldBe(500);
+        problemDetails.Status.ShouldBe(StatusCodes.Status403Forbidden);
         problemDetails.Detail.ShouldBe(InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Assigned, Inspection.Id));
     }
 
@@ -59,11 +65,13 @@ public sealed class OpenedInspectionTests(AppFixture fixture) : ApiWithOpenedIns
     [Fact]
     public async Task Locking_an_opened_Inspection_should_fail()
     {
+        //when
         var result = await Host.LockInspection(Inspection.Id, CombGuidIdGeneration.NewGuid(), Inspection.Version, DateTimeOffset.Now);
 
+        //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
         problemDetails.ShouldNotBeNull();
-        problemDetails.Status.ShouldBe(500);
+        problemDetails.Status.ShouldBe(StatusCodes.Status403Forbidden);
         problemDetails.Detail.ShouldBe(InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Assigned, Inspection.Id));
     }
 
@@ -72,11 +80,13 @@ public sealed class OpenedInspectionTests(AppFixture fixture) : ApiWithOpenedIns
     [Fact]
     public async Task Unlocking_an_opened_Inspection_should_fail()
     {
+        //when
         var result = await Host.UnlockInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now);
 
+        //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
         problemDetails.ShouldNotBeNull();
-        problemDetails.Status.ShouldBe(500);
+        problemDetails.Status.ShouldBe(StatusCodes.Status403Forbidden);
         problemDetails.Detail.ShouldBe(InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Locked, Inspection.Id));
     }
 
@@ -85,11 +95,13 @@ public sealed class OpenedInspectionTests(AppFixture fixture) : ApiWithOpenedIns
     [Fact]
     public async Task Submitting_an_opened_Inspection_result_by_any_Specialist_should_fail()
     {
+        //when
         var result = await Host.SubmitInspection(Inspection.Id, Inspection.Version, CombGuidIdGeneration.NewGuid(), DateTimeOffset.Now);
 
+        //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
         problemDetails.ShouldNotBeNull();
-        problemDetails.Status.ShouldBe(500);
+        problemDetails.Status.ShouldBe(StatusCodes.Status403Forbidden);
         problemDetails.Detail.ShouldBe(InvalidStateException.GetInvalidStateExceptionMessageForSubmitting(Inspection.Id));
     }
 
@@ -98,11 +110,13 @@ public sealed class OpenedInspectionTests(AppFixture fixture) : ApiWithOpenedIns
     [Fact]
     public async Task Signing_an_opened_Inspection_by_any_Specialist_should_fail()
     {
+        //when
         var result = await Host.SignInspection(Inspection.Id, Inspection.Version, internet.Url(), DateTimeOffset.Now);
 
+        //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
         problemDetails.ShouldNotBeNull();
-        problemDetails.Status.ShouldBe(500);
+        problemDetails.Status.ShouldBe(StatusCodes.Status403Forbidden);
         problemDetails.Detail.ShouldBe(InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Submitted, Inspection.Id));
     }
 
@@ -111,11 +125,13 @@ public sealed class OpenedInspectionTests(AppFixture fixture) : ApiWithOpenedIns
     [Fact]
     public async Task Closeing_an_opened_Inspection_should_fail()
     {
+        //when
         var result = await Host.CloseInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now);
 
+        //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
         problemDetails.ShouldNotBeNull();
-        problemDetails.Status.ShouldBe(500);
+        problemDetails.Status.ShouldBe(StatusCodes.Status403Forbidden);
         problemDetails.Detail.ShouldBe(InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Signed, Inspection.Id));
     }
 
@@ -124,11 +140,13 @@ public sealed class OpenedInspectionTests(AppFixture fixture) : ApiWithOpenedIns
     [Fact]
     public async Task Reviewing_an_opened_Inspection_should_fail()
     {
+        //when
         var result = await Host.ReviewInspection(Inspection.Id, Inspection.Version, ReviewVerdict.Approved, loremIpsum.Paragraph(), DateTimeOffset.Now);
 
+        //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
         problemDetails.ShouldNotBeNull();
-        problemDetails.Status.ShouldBe(500);
+        problemDetails.Status.ShouldBe(StatusCodes.Status403Forbidden);
         problemDetails.Detail.ShouldBe(InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Closed, Inspection.Id));
     }
 
@@ -137,11 +155,13 @@ public sealed class OpenedInspectionTests(AppFixture fixture) : ApiWithOpenedIns
     [Fact]
     public async Task Reopening_an_opened_Inspection_should_fail()
     {
+        //when
         var result = await Host.ReopenInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now);
 
+        //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
         problemDetails.ShouldNotBeNull();
-        problemDetails.Status.ShouldBe(500);
+        problemDetails.Status.ShouldBe(StatusCodes.Status403Forbidden);
         problemDetails.Detail.ShouldBe(InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Reviewed, Inspection.Id));
     }
 
@@ -150,11 +170,13 @@ public sealed class OpenedInspectionTests(AppFixture fixture) : ApiWithOpenedIns
     [Fact]
     public async Task Completing_an_opened_Inspection_should_fail()
     {
+        //when
         var result = await Host.CompleteInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now);
 
+        //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
         problemDetails.ShouldNotBeNull();
-        problemDetails.Status.ShouldBe(500);
+        problemDetails.Status.ShouldBe(StatusCodes.Status403Forbidden);
         problemDetails.Detail.ShouldBe(InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Reviewed, Inspection.Id));
     }
 }

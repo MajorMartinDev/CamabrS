@@ -15,6 +15,6 @@ public static class UserDetectionMiddleware
 
         // Nope, nope, nope. We got problems, so stop the presses and emit a ProblemDetails response
         // with a 400 status code telling the caller that there's no valid user for this request
-        return (new User(Guid.Empty), new ProblemDetails { Detail = "No valid user", Status = 400 });
+        return (new User(Guid.Empty), new ProblemDetails { Detail = "No valid user", Status = 400 });        
     }
 }

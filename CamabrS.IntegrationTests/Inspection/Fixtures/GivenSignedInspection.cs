@@ -2,10 +2,10 @@
 
 namespace CamabrS.IntegrationTests.Inspection.Fixtures;
 
-public class ApiWithReviewedInspection(AppFixture fixture) : IntegrationContext(fixture), IAsyncLifetime
+public class GivenSignedInspection(AppFixture fixture) : IntegrationContext(fixture), IAsyncLifetime
 {
     public override async Task InitializeAsync() =>
-        Inspection = await Host.ReviewedInspection();
+       Inspection = await Host.SignedInspection();
 
     public InspectionDetails Inspection { get; protected set; } = default!;
 }
