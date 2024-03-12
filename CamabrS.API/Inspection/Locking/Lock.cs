@@ -23,7 +23,7 @@ public static class LockEndpoints
     [WolverinePost(LockEnpoint), AggregateHandler]
     public static (ApiResponse, Events, OutgoingMessages) Post(
         LockInspection command,
-        Inspection inspection,        
+        [Required] Inspection inspection,        
         User user)
     {
         var events = new Events();

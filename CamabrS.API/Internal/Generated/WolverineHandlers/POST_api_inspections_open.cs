@@ -16,17 +16,17 @@ namespace Internal.Generated.WolverineHandlers
     {
         private readonly Wolverine.Http.WolverineHttpOptions _wolverineHttpOptions;
         private readonly Wolverine.Marten.Publishing.OutboxedSessionFactory _outboxedSessionFactory;
-        private readonly Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Opening.OpenInspection> _problemDetailSource;
         private readonly FluentValidation.IValidator<CamabrS.API.Inspection.Opening.OpenInspection> _validator;
         private readonly Wolverine.Runtime.IWolverineRuntime _wolverineRuntime;
+        private readonly Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Opening.OpenInspection> _problemDetailSource;
 
-        public POST_api_inspections_open(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Opening.OpenInspection> problemDetailSource, FluentValidation.IValidator<CamabrS.API.Inspection.Opening.OpenInspection> validator, Wolverine.Runtime.IWolverineRuntime wolverineRuntime) : base(wolverineHttpOptions)
+        public POST_api_inspections_open(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory, FluentValidation.IValidator<CamabrS.API.Inspection.Opening.OpenInspection> validator, Wolverine.Runtime.IWolverineRuntime wolverineRuntime, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Opening.OpenInspection> problemDetailSource) : base(wolverineHttpOptions)
         {
             _wolverineHttpOptions = wolverineHttpOptions;
             _outboxedSessionFactory = outboxedSessionFactory;
-            _problemDetailSource = problemDetailSource;
             _validator = validator;
             _wolverineRuntime = wolverineRuntime;
+            _problemDetailSource = problemDetailSource;
         }
 
 

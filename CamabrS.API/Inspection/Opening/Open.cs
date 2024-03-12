@@ -33,7 +33,7 @@ public static class OpenEndpoints
             ? WolverineContinue.NoProblems            
             : new ProblemDetails
                 {
-                    Status = 403,
+                    Status = StatusCodes.Status412PreconditionFailed,
                     Detail = GetAssetNotExistsErrorDetail(command.AssetId)
             };
     }    

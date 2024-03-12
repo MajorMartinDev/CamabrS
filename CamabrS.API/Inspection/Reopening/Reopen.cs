@@ -23,7 +23,7 @@ public static class ReopenEndpoints
     [WolverinePost(ReopenEnpoint), AggregateHandler]
     public static (ApiResponse, Events, OutgoingMessages) Post(
         ReopenInspection command,
-        Inspection inspection,        
+        [Required] Inspection inspection,        
         User user)
     {
         var events = new Events();

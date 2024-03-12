@@ -16,17 +16,17 @@ namespace Internal.Generated.WolverineHandlers
     {
         private readonly Wolverine.Http.WolverineHttpOptions _wolverineHttpOptions;
         private readonly Wolverine.Marten.Publishing.OutboxedSessionFactory _outboxedSessionFactory;
-        private readonly FluentValidation.IValidator<CamabrS.API.Inspection.Submitting.SubmitInspectionResult> _validator;
         private readonly Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Submitting.SubmitInspectionResult> _problemDetailSource;
         private readonly Wolverine.Runtime.IWolverineRuntime _wolverineRuntime;
+        private readonly FluentValidation.IValidator<CamabrS.API.Inspection.Submitting.SubmitInspectionResult> _validator;
 
-        public POST_api_inspections_submit(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory, FluentValidation.IValidator<CamabrS.API.Inspection.Submitting.SubmitInspectionResult> validator, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Submitting.SubmitInspectionResult> problemDetailSource, Wolverine.Runtime.IWolverineRuntime wolverineRuntime) : base(wolverineHttpOptions)
+        public POST_api_inspections_submit(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Submitting.SubmitInspectionResult> problemDetailSource, Wolverine.Runtime.IWolverineRuntime wolverineRuntime, FluentValidation.IValidator<CamabrS.API.Inspection.Submitting.SubmitInspectionResult> validator) : base(wolverineHttpOptions)
         {
             _wolverineHttpOptions = wolverineHttpOptions;
             _outboxedSessionFactory = outboxedSessionFactory;
-            _validator = validator;
             _problemDetailSource = problemDetailSource;
             _wolverineRuntime = wolverineRuntime;
+            _validator = validator;
         }
 
 
@@ -63,6 +63,13 @@ namespace Internal.Generated.WolverineHandlers
             
             // Loading Marten aggregate
             var eventStream = await eventStore.FetchForWriting<CamabrS.API.Inspection.Inspection>(command.InspectionId, command.Version, httpContext.RequestAborted).ConfigureAwait(false);
+
+            // 404 if this required object is null
+            if (eventStream.Aggregate == null)
+            {
+                httpContext.Response.StatusCode = 404;
+                return;
+            }
 
             
             // The actual HTTP request handler execution

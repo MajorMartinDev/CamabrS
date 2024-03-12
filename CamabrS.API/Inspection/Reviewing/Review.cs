@@ -23,7 +23,7 @@ public static class ReviewEndpoints
     [WolverinePost(ReviewEnpoint), AggregateHandler]
     public static (ApiResponse, Events, OutgoingMessages) Post(
         ReviewInspection command,
-        Inspection inspection,       
+        [Required] Inspection inspection,       
         User user)
     {
         var events = new Events();

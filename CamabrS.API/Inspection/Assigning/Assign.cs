@@ -36,13 +36,17 @@ public static class AssignEndpoints
 
         return specialistExists ? 
             WolverineContinue.NoProblems : 
-            new ProblemDetails { Detail = GetSpecialistNotExistsErrorDetail(specialistId) };         
+            new ProblemDetails 
+            { 
+                Status = StatusCodes.Status412PreconditionFailed, 
+                Detail = GetSpecialistNotExistsErrorDetail(specialistId) 
+            };         
     }
     
     [WolverinePost(AssignEnpoint), AggregateHandler]
     public static (ApiResponse, Events, OutgoingMessages) Post(
         AssignSpecialist command,
-        Inspection inspection,        
+        [Required] Inspection inspection,        
         User user)
     {
         var events = new Events();

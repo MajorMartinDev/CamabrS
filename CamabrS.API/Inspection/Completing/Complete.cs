@@ -20,7 +20,7 @@ public static class CompleteEndpoints
     [WolverinePost(CompleteEnpoint), AggregateHandler]
     public static (ApiResponse, Events, OutgoingMessages) Post(
         CompleteInspection command,
-        Inspection inspection,       
+        [Required] Inspection inspection,       
         User user)
     {
         var events = new Events();

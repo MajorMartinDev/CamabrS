@@ -23,7 +23,7 @@ public static class UnlockEndpoints
     [WolverinePost(UnlockEnpoint), AggregateHandler]
     public static (ApiResponse, Events, OutgoingMessages) Post(
         UnlockInspection command,
-        Inspection inspection,        
+        [Required] Inspection inspection,        
         User user)
     {
         var events = new Events();

@@ -43,7 +43,7 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : GivenAssignedI
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
         problemDetails.ShouldNotBeNull();
-        problemDetails.Status.ShouldBe(StatusCodes.Status500InternalServerError);
+        problemDetails.Status.ShouldBe(StatusCodes.Status412PreconditionFailed);
         problemDetails.Detail.ShouldBe(AssignEndpoints.GetSpecialistNotExistsErrorDetail(notExistingSpecialistId));
     }
 
@@ -58,7 +58,7 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : GivenAssignedI
         problemDetails.ShouldNotBeNull();
         problemDetails.Status.ShouldBe(StatusCodes.Status403Forbidden);
         problemDetails.Detail.ShouldBe(AssignEndpoints.GetSpecialistHasAlreadyBeenAddedErrorDetail(BaselineData.LockHoldingSpecialist));
-    }
+    }    
 
     //unassign
 
@@ -236,5 +236,5 @@ public sealed class AssignedInspectionTests(AppFixture fixture) : GivenAssignedI
         problemDetails.ShouldNotBeNull();
         problemDetails.Status.ShouldBe(StatusCodes.Status403Forbidden);
         problemDetails.Detail.ShouldBe(InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Reviewed, Inspection.Id));
-    }
+    }    
 }

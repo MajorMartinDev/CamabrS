@@ -41,9 +41,9 @@ public sealed class OpenedInspectionTests(AppFixture fixture) : GivenOpenedInspe
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
         problemDetails.ShouldNotBeNull();
-        problemDetails.Status.ShouldBe(StatusCodes.Status500InternalServerError);
+        problemDetails.Status.ShouldBe(StatusCodes.Status412PreconditionFailed);
         problemDetails.Detail.ShouldBe(AssignEndpoints.GetSpecialistNotExistsErrorDetail(specialistId));
-    }
+    }    
 
     //unassign
 

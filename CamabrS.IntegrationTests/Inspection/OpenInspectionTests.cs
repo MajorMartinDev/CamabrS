@@ -59,14 +59,14 @@ public sealed class OpenInspectionTests(AppFixture fixture) : IntegrationContext
                 .Json(new OpenInspection(assetId, openedAt))
                 .ToUrl(OpenEnpoint);
 
-            x.StatusCodeShouldBe(403);            
+            x.StatusCodeShouldBe(StatusCodes.Status412PreconditionFailed);            
 
             x.WithClaim(new Claim("user-id", user.Id.ToString()));
         });
 
         //then
         var result = initial.ReadAsJson<ProblemDetails>()!;
-        result.Status.ShouldBe(403);
+        result.Status.ShouldBe(StatusCodes.Status412PreconditionFailed);
         result.Detail.ShouldBe(GetAssetNotExistsErrorDetail(assetId));
     }
 }

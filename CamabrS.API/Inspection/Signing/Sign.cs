@@ -25,7 +25,7 @@ public static class SignEndpoints
     [WolverinePost(SignEnpoint), AggregateHandler]
     public static (ApiResponse, Events, OutgoingMessages) Post(
         SignInspection command,
-        Inspection inspection,        
+        [Required] Inspection inspection,        
         User user)
     {
         var events = new Events();

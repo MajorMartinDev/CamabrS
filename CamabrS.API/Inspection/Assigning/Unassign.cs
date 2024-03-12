@@ -24,7 +24,7 @@ public static class UnassignEndpoints
     [WolverinePost(UnassignEnpoint), AggregateHandler]
     public static (ApiResponse, Events, OutgoingMessages) Post(
         UnassignSpecialist command,
-        Inspection inspection,
+        [Required] Inspection inspection,
         User user)
     {
         var events = new Events();

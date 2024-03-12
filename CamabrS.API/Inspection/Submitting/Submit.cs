@@ -24,7 +24,7 @@ public static class SubmitEndpoints
     [WolverinePost(SubmitEnpoint), AggregateHandler]
     public static (ApiResponse, Events, OutgoingMessages) Post(
         SubmitInspectionResult command,
-        Inspection inspection,        
+        [Required] Inspection inspection,        
         User user)
     {
         var events = new Events();
