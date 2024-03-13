@@ -68,6 +68,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseExceptionHandler();
+
 app.MapWolverineEndpoints(opts =>
 {
     // Direct Wolverine.HTTP to use Fluent Validation

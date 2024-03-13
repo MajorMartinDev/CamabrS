@@ -15,18 +15,18 @@ namespace Internal.Generated.WolverineHandlers
     public class POST_api_inspections_reopen : Wolverine.Http.HttpHandler
     {
         private readonly Wolverine.Http.WolverineHttpOptions _wolverineHttpOptions;
-        private readonly Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Reopening.ReopenInspection> _problemDetailSource;
-        private readonly FluentValidation.IValidator<CamabrS.API.Inspection.Reopening.ReopenInspection> _validator;
         private readonly Wolverine.Marten.Publishing.OutboxedSessionFactory _outboxedSessionFactory;
+        private readonly FluentValidation.IValidator<CamabrS.API.Inspection.Reopening.ReopenInspection> _validator;
         private readonly Wolverine.Runtime.IWolverineRuntime _wolverineRuntime;
+        private readonly Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Reopening.ReopenInspection> _problemDetailSource;
 
-        public POST_api_inspections_reopen(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Reopening.ReopenInspection> problemDetailSource, FluentValidation.IValidator<CamabrS.API.Inspection.Reopening.ReopenInspection> validator, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory, Wolverine.Runtime.IWolverineRuntime wolverineRuntime) : base(wolverineHttpOptions)
+        public POST_api_inspections_reopen(Wolverine.Http.WolverineHttpOptions wolverineHttpOptions, Wolverine.Marten.Publishing.OutboxedSessionFactory outboxedSessionFactory, FluentValidation.IValidator<CamabrS.API.Inspection.Reopening.ReopenInspection> validator, Wolverine.Runtime.IWolverineRuntime wolverineRuntime, Wolverine.Http.FluentValidation.IProblemDetailSource<CamabrS.API.Inspection.Reopening.ReopenInspection> problemDetailSource) : base(wolverineHttpOptions)
         {
             _wolverineHttpOptions = wolverineHttpOptions;
-            _problemDetailSource = problemDetailSource;
-            _validator = validator;
             _outboxedSessionFactory = outboxedSessionFactory;
+            _validator = validator;
             _wolverineRuntime = wolverineRuntime;
+            _problemDetailSource = problemDetailSource;
         }
 
 
@@ -63,6 +63,13 @@ namespace Internal.Generated.WolverineHandlers
             
             // Loading Marten aggregate
             var eventStream = await eventStore.FetchForWriting<CamabrS.API.Inspection.Inspection>(command.InspectionId, command.Version, httpContext.RequestAborted).ConfigureAwait(false);
+
+            // 404 if this required object is null
+            if (eventStream.Aggregate == null)
+            {
+                httpContext.Response.StatusCode = 404;
+                return;
+            }
 
             
             // The actual HTTP request handler execution

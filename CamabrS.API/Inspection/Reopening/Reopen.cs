@@ -1,5 +1,4 @@
 ﻿using CamabrS.API.Core.Http;
-using CamabrS.API.Inspection.Assigning;
 
 namespace CamabrS.API.Inspection.Reopening;
 
@@ -18,10 +17,13 @@ public static class ReopenEndpoints
 {
     public const string ReopenEnpoint = "/api/inspections/reopen";
 
+    public const string ApprovedInspectionCanNotBeReopenedErrorMessage 
+        = "An approved Inspection can not be reopened!";
+
     [WolverinePost(ReopenEnpoint), AggregateHandler]
     public static (ApiResponse, Events, OutgoingMessages) Post(
         ReopenInspection command,
-        Inspection inspection,        
+        [Required] Inspection inspection,        
         User user)
     {
         var events = new Events();
@@ -33,16 +35,23 @@ public static class ReopenEndpoints
             throw new InvalidOperationException(
                 InvalidStateException.GetInvalidStateExceptionMessage(InspectionStatus.Reviewed, inspectionId));
 
+        if (inspection.Verdict != ReviewVerdict.Disapproved)
+            throw new InvalidOperationException(
+                ApprovedInspectionCanNotBeReopenedErrorMessage);
+
         events.Add(new Inspection.ReopenInspection(inspectionId, user.Id, reopenedAt));
 
-        events.Add(new InspectionReopened(inspectionId, user.Id, reopenedAt));
+        InspectionReopened inspectionReopened = new(inspectionId, user.Id, reopenedAt);
+        events.Add(inspectionReopened);
 
         //TODO send off message to notify Specialist that they got unassigned from an inspection
+
+        var newState = inspection.Apply(inspectionReopened);
 
         return (
             new ApiResponse(
                 (version + events.Count), 
-                [AssignEndpoints.AssignEnpoint]), 
-                events, messages);
+                NextInspectionSteps.GetNextSteps(newState.Status)),
+            events, messages);
     }    
 }

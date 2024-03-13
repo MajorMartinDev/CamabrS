@@ -7,7 +7,7 @@ public sealed record InspectionDetails
     InspectionStatus Status,
     Guid? LockHoldingSpecialist = null,
     Guid FormId = default,
-    bool Verdict = default,
+    ReviewVerdict Verdict = default,
     string? SignatureLink = default,
     string? Summary = default,
     int Version = 1);
@@ -49,7 +49,7 @@ public sealed class InspectionDetailsProjection: SingleStreamProjection<Inspecti
         current with { Status = InspectionStatus.Reviewed, Verdict = inspectionReviewed.Verdict, Summary = inspectionReviewed.Summary };
 
     public InspectionDetails Apply(InspectionReopened inspectionReopened, InspectionDetails current) =>
-        current with { Status = InspectionStatus.Opened, AssignedSpecialists = [] };
+        current with { Status = InspectionStatus.Opened, AssignedSpecialists = [], LockHoldingSpecialist = null };
 
     public InspectionDetails Apply(InspectionCompleted inspectionCompleted, InspectionDetails current) =>
         current with { Status = InspectionStatus.Completed };

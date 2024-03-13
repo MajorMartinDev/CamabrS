@@ -1,6 +1,5 @@
 ﻿using CamabrS.API.Asset.GettingDetails;
 using CamabrS.API.Core.Http;
-using CamabrS.API.Inspection.Assigning;
 
 namespace CamabrS.API.Inspection.Opening;
 
@@ -34,7 +33,7 @@ public static class OpenEndpoints
             ? WolverineContinue.NoProblems            
             : new ProblemDetails
                 {
-                    Status = 403,
+                    Status = StatusCodes.Status412PreconditionFailed,
                     Detail = GetAssetNotExistsErrorDetail(command.AssetId)
             };
     }    
@@ -50,8 +49,11 @@ public static class OpenEndpoints
 
         var open = MartenOps.StartStream<Inspection>(inspectionOpened);
 
-        return (new ApiCreationResponse(
-            open.StreamId, 1, [AssignEndpoints.AssignEnpoint]), 
+        return (
+            new ApiCreationResponse(
+                Id: open.StreamId, 
+                Version: 1, 
+                NextInspectionSteps.GetNextSteps(InspectionStatus.Opened)), 
             open);
     }
 }

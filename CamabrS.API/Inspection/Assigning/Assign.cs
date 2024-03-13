@@ -1,5 +1,4 @@
 ﻿using CamabrS.API.Core.Http;
-using CamabrS.API.Inspection.Locking;
 using CamabrS.API.Specialist.GettingDetails;
 
 namespace CamabrS.API.Inspection.Assigning;
@@ -37,13 +36,17 @@ public static class AssignEndpoints
 
         return specialistExists ? 
             WolverineContinue.NoProblems : 
-            new ProblemDetails { Detail = GetSpecialistNotExistsErrorDetail(specialistId) };         
+            new ProblemDetails 
+            { 
+                Status = StatusCodes.Status412PreconditionFailed, 
+                Detail = GetSpecialistNotExistsErrorDetail(specialistId) 
+            };         
     }
     
     [WolverinePost(AssignEnpoint), AggregateHandler]
     public static (ApiResponse, Events, OutgoingMessages) Post(
         AssignSpecialist command,
-        Inspection inspection,        
+        [Required] Inspection inspection,        
         User user)
     {
         var events = new Events();
@@ -64,14 +67,17 @@ public static class AssignEndpoints
 
         //TODO add missing business logic to check if the specialist can be assigned based on certifications
         //TODO consider saving or logging information if the specialist could not be assigned based in missing certification
-        events.Add(new SpecialistAssigned(inspectionId, user.Id, specialistId, assignedAt));
+        SpecialistAssigned specialistAssigned = new(inspectionId, user.Id, specialistId, assignedAt);
+        events.Add(specialistAssigned);
 
         //TODO send off message to notify Specialist that they got assigned an inspection
-        
+
+        var newState = inspection.Apply(specialistAssigned);
+
         return (
             new ApiResponse(
                 (version + events.Count),
-                [UnassignEndpoints.UnassignEnpoint, AssignEnpoint, LockEndpoints.LockEnpoint]),
+                NextInspectionSteps.GetNextSteps(newState.Status)),
             events, messages);
     }    
 }

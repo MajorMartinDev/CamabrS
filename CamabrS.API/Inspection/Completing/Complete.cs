@@ -20,7 +20,7 @@ public static class CompleteEndpoints
     [WolverinePost(CompleteEnpoint), AggregateHandler]
     public static (ApiResponse, Events, OutgoingMessages) Post(
         CompleteInspection command,
-        Inspection inspection,       
+        [Required] Inspection inspection,       
         User user)
     {
         var events = new Events();
@@ -34,12 +34,15 @@ public static class CompleteEndpoints
         
         events.Add(new Inspection.CompleteInspection(inspectionId, user.Id, completedAt));
 
-        events.Add(new InspectionCompleted(inspectionId, user.Id, completedAt));
+        InspectionCompleted inspectionCompleted = new(inspectionId, user.Id, completedAt);
+        events.Add(inspectionCompleted);
+
+        var newState = inspection.Apply(inspectionCompleted);
 
         return (
             new ApiResponse(
                 (version + events.Count), 
-                []),
-                events, messages);
+                NextInspectionSteps.GetNextSteps(newState.Status)),
+            events, messages);
     }    
 }

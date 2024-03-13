@@ -10,9 +10,11 @@ public sealed class OpenInspectionTests(AppFixture fixture) : IntegrationContext
     [Fact]
     public async Task Open_a_new_Inspection_should_succeed()
     {
+        //given
         var user = new User(Guid.NewGuid());
         var openedAt = DateTimeOffset.UtcNow;
         
+        //when
         var initial = await Host.Scenario(x =>
         {            
             x.Post
@@ -24,6 +26,7 @@ public sealed class OpenInspectionTests(AppFixture fixture) : IntegrationContext
             x.WithClaim(new Claim("user-id", user.Id.ToString()));            
         });
 
+        //then
         var inspectionId = initial.ReadAsJson<ApiCreationResponse>()!.Id;
 
         using var session = Store.LightweightSession();
@@ -43,24 +46,27 @@ public sealed class OpenInspectionTests(AppFixture fixture) : IntegrationContext
     [Fact]
     public async Task Open_a_new_Inspection_with_nonexistent_Asset_should_fail()
     {
+        //given
         var assetId = Guid.NewGuid();
         var openedAt = DateTimeOffset.UtcNow;
 
         var user = new User(Guid.NewGuid());
 
+        //when
         var initial = await Host.Scenario(x =>
         {
             x.Post
                 .Json(new OpenInspection(assetId, openedAt))
                 .ToUrl(OpenEnpoint);
 
-            x.StatusCodeShouldBe(403);            
+            x.StatusCodeShouldBe(StatusCodes.Status412PreconditionFailed);            
 
             x.WithClaim(new Claim("user-id", user.Id.ToString()));
         });
 
+        //then
         var result = initial.ReadAsJson<ProblemDetails>()!;
-        result.Status.ShouldBe(403);
+        result.Status.ShouldBe(StatusCodes.Status412PreconditionFailed);
         result.Detail.ShouldBe(GetAssetNotExistsErrorDetail(assetId));
     }
 }

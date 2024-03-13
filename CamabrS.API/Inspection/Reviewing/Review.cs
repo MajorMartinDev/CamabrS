@@ -1,10 +1,8 @@
 ﻿using CamabrS.API.Core.Http;
-using CamabrS.API.Inspection.Reopening;
-using CamabrS.API.Inspection.Completing;
 
 namespace CamabrS.API.Inspection.Reviewing;
 
-public sealed record ReviewInspection(Guid InspectionId, int Version, bool Verdict, string Summary, DateTimeOffset ReviewedAt)
+public sealed record ReviewInspection(Guid InspectionId, int Version, ReviewVerdict Verdict, string Summary, DateTimeOffset ReviewedAt)
 {
     public sealed class ReviewInspectionValidator : AbstractValidator<ReviewInspection>
     {
@@ -25,7 +23,7 @@ public static class ReviewEndpoints
     [WolverinePost(ReviewEnpoint), AggregateHandler]
     public static (ApiResponse, Events, OutgoingMessages) Post(
         ReviewInspection command,
-        Inspection inspection,       
+        [Required] Inspection inspection,       
         User user)
     {
         var events = new Events();
@@ -39,18 +37,15 @@ public static class ReviewEndpoints
 
         events.Add(new Inspection.ReviewInspection(inspectionId, user.Id, verdict, summary, reviewedAt));
 
-        events.Add(new InspectionReviewed(inspectionId, user.Id, verdict, summary, reviewedAt));
+        InspectionReviewed inspectionReviewed = new(inspectionId, user.Id, verdict, summary, reviewedAt);
+        events.Add(inspectionReviewed);
+
+        var newState = inspection.Apply(inspectionReviewed);
 
         return (
             new ApiResponse(
                 (version + events.Count),                
-                GetNextAvailableSteps(verdict)), 
-                events, messages);
-    }
-
-    public static List<string> GetNextAvailableSteps(bool verdict)
-    {
-        return verdict is true ? 
-            [CompleteEndpoints.CompleteEnpoint] : [ReopenEndpoints.ReopenEnpoint];
-    }
+                NextInspectionSteps.GetNextSteps(newState.Status, newState.Verdict)), 
+            events, messages);
+    }   
 }

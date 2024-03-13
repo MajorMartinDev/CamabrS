@@ -123,13 +123,14 @@ public static class Scenarios{
     }
 
     public static async Task<InspectionDetails> ReviewedInspection(
-        this IAlbaHost api)
+        this IAlbaHost api,
+        ReviewVerdict verdict = ReviewVerdict.Approved)
     {
         var summary = loremIpsum.Paragraph();
         var reviewedAt = DateTimeOffset.UtcNow;
 
         var inspection = await api.ClosedInspection();
-        var result = await api.ReviewInspection(inspection.Id, inspection.Version, true, summary, reviewedAt);
+        var result = await api.ReviewInspection(inspection.Id, inspection.Version, verdict, summary, reviewedAt);
 
         result = await api.GetInspectionDetails(inspection.Id);
         inspection = await result.ReadAsJsonAsync<InspectionDetails>();
@@ -137,7 +138,7 @@ public static class Scenarios{
         inspection.ShouldNotBeNull();
         inspection.Status.ShouldBe(InspectionStatus.Reviewed);
         inspection.Summary.ShouldBe(summary);
-        inspection.Verdict.ShouldBeTrue();
+        inspection.Verdict.ShouldBe(verdict);
         return inspection;
     }
 
@@ -294,7 +295,7 @@ public static class Scenarios{
         this IAlbaHost api,
         Guid inspectionId,
         int expectedVersion,
-        bool verdict,
+        ReviewVerdict verdict,
         string summary,
         DateTimeOffset reviewedAt,
         Guid userId = default) =>
@@ -352,6 +353,20 @@ public static class Scenarios{
             x.WithClaim(new Claim("user-id", userId.ToString()));
         });
 
+    public static async Task<InspectionDetails> InspectionDetailsShouldBe(
+        this IAlbaHost api,
+        InspectionDetails inspection
+    )
+    {
+        var result = await api.GetInspectionDetails(inspection.Id);
+
+        var updated = await result.ReadAsJsonAsync<InspectionDetails>();
+        updated.ShouldNotBeNull();
+        updated.ShouldBeEquivalentTo(inspection);
+
+        return updated;
+    }
+
     public static async Task<Guid> GetCreatedId(this IScenarioResult result)
     {
         var response = await result.ReadAsJsonAsync<ApiCreationResponse>();
@@ -359,4 +374,22 @@ public static class Scenarios{
 
         return response.Id;
     }    
+}
+
+public static class InspectionStreamVersions
+{
+    public const int Open = 1;
+    public const int Assigned = 3;
+    public const int Locked = 5;
+    public const int Submitted = 7;
+    public const int Signed = 9;
+    public const int Closed = 11;
+    public const int Reviewed = 13;
+    public const int Completed = 15;
+
+    public const int AssignedAnother = 5;
+    public const int Unassigned = 5;
+    public const int Unlocked = 7;
+    public const int Resubmitted = 9;
+    public const int Reopened = 15;
 }

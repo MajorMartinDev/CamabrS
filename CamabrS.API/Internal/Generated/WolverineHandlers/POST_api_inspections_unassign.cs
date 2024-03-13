@@ -64,6 +64,13 @@ namespace Internal.Generated.WolverineHandlers
             // Loading Marten aggregate
             var eventStream = await eventStore.FetchForWriting<CamabrS.API.Inspection.Inspection>(command.InspectionId, command.Version, httpContext.RequestAborted).ConfigureAwait(false);
 
+            // 404 if this required object is null
+            if (eventStream.Aggregate == null)
+            {
+                httpContext.Response.StatusCode = 404;
+                return;
+            }
+
             
             // The actual HTTP request handler execution
             (var apiResponse_response, var events, var outgoingMessages) = CamabrS.API.Inspection.Assigning.UnassignEndpoints.Post(command, eventStream.Aggregate, user);

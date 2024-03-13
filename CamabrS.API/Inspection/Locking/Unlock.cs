@@ -1,5 +1,4 @@
 ﻿using CamabrS.API.Core.Http;
-using CamabrS.API.Inspection.Assigning;
 
 namespace CamabrS.API.Inspection.Locking;
 
@@ -24,7 +23,7 @@ public static class UnlockEndpoints
     [WolverinePost(UnlockEnpoint), AggregateHandler]
     public static (ApiResponse, Events, OutgoingMessages) Post(
         UnlockInspection command,
-        Inspection inspection,        
+        [Required] Inspection inspection,        
         User user)
     {
         var events = new Events();
@@ -42,12 +41,15 @@ public static class UnlockEndpoints
 
         events.Add(new Inspection.UnlockInspection(inspectionId, user.Id, unlockedAt));
 
-        events.Add(new InspectionUnlocked(inspectionId, user.Id, unlockedAt));
+        InspectionUnlocked inspectionUnlocked = new(inspectionId, user.Id, unlockedAt);
+        events.Add(inspectionUnlocked);
+
+        var newState = inspection.Apply(inspectionUnlocked);
 
         return (
             new ApiResponse(
                 (version + events.Count),
-                [UnassignEndpoints.UnassignEnpoint, LockEndpoints.LockEnpoint]),
-                events, messages);
+                NextInspectionSteps.GetNextSteps(newState.Status)),
+            events, messages);
     }    
 }

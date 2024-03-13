@@ -1,5 +1,4 @@
 ﻿using CamabrS.API.Core.Http;
-using CamabrS.API.Inspection.Closeing;
 
 namespace CamabrS.API.Inspection.Signing;
 
@@ -26,7 +25,7 @@ public static class SignEndpoints
     [WolverinePost(SignEnpoint), AggregateHandler]
     public static (ApiResponse, Events, OutgoingMessages) Post(
         SignInspection command,
-        Inspection inspection,        
+        [Required] Inspection inspection,        
         User user)
     {
         var events = new Events();
@@ -44,12 +43,15 @@ public static class SignEndpoints
 
         events.Add(new Inspection.SignInspection(inspectionId, user.Id, signatureLink, signedAt));
 
-        events.Add(new InspectionSigned(inspectionId, user.Id, signatureLink, signedAt));
+        InspectionSigned inspectionSigned = new(inspectionId, user.Id, signatureLink, signedAt);
+        events.Add(inspectionSigned);
+
+        var newState = inspection.Apply(inspectionSigned);
 
         return (
             new ApiResponse(
                 (version + events.Count), 
-                [CloseEndpoints.CloseEnpoint]), 
-                events, messages);
+                NextInspectionSteps.GetNextSteps(newState.Status)), 
+            events, messages);
     }    
 }
