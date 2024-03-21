@@ -23,7 +23,7 @@ public sealed class OpenInspectionTests(AppFixture fixture) : IntegrationContext
 
             x.StatusCodeShouldBeOk();
 
-            x.WithClaim(new Claim("user-id", user.Id.ToString()));            
+            x.WithClaims(TestUser.CreateSuperuser(user.Id));
         });
 
         //then
@@ -59,9 +59,9 @@ public sealed class OpenInspectionTests(AppFixture fixture) : IntegrationContext
                 .Json(new OpenInspection(assetId, openedAt))
                 .ToUrl(OpenEnpoint);
 
-            x.StatusCodeShouldBe(StatusCodes.Status412PreconditionFailed);            
+            x.StatusCodeShouldBe(StatusCodes.Status412PreconditionFailed);
 
-            x.WithClaim(new Claim("user-id", user.Id.ToString()));
+            x.WithClaims(TestUser.CreateSuperuser());
         });
 
         //then

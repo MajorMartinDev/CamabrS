@@ -20,6 +20,7 @@ public static class ReviewEndpoints
 {
     public const string ReviewEnpoint = "/api/inspections/review";
 
+    [Authorize("can:review")]
     [WolverinePost(ReviewEnpoint), AggregateHandler]
     public static (ApiResponse, Events, OutgoingMessages) Post(
         ReviewInspection command,

@@ -22,6 +22,7 @@ public static class SignEndpoints
     public static string GetInvalidSigningAttemptErrorMessage()
         => "Inspection can only be signed by the lock holding specialist.";
 
+    [Authorize]
     [WolverinePost(SignEnpoint), AggregateHandler]
     public static (ApiResponse, Events, OutgoingMessages) Post(
         SignInspection command,

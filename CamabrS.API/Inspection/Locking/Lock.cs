@@ -20,6 +20,7 @@ public static class LockEndpoints
     public static string GetLockHoldingSpecialistWasNotAssignedErrorDetail(Guid specialistId, Guid inspectionId)
         => $"Specialist with id {specialistId} was not previously assigned to inspection {inspectionId}!";
 
+    [Authorize]
     [WolverinePost(LockEnpoint), AggregateHandler]
     public static (ApiResponse, Events, OutgoingMessages) Post(
         LockInspection command,

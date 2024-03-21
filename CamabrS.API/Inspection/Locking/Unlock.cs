@@ -20,6 +20,7 @@ public static class UnlockEndpoints
     public static string GetInvalidUnlockingAttemptErrorMessage()
         => "Inspection can only be unlocked by the lock holding specialist.";
 
+    [Authorize]
     [WolverinePost(UnlockEnpoint), AggregateHandler]
     public static (ApiResponse, Events, OutgoingMessages) Post(
         UnlockInspection command,

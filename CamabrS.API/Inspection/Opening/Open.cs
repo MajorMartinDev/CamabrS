@@ -36,8 +36,9 @@ public static class OpenEndpoints
                     Status = StatusCodes.Status412PreconditionFailed,
                     Detail = GetAssetNotExistsErrorDetail(command.AssetId)
             };
-    }    
+    }
 
+    [Authorize("can:open")]
     [WolverinePost(OpenEnpoint)]
     public static (ApiCreationResponse, IStartStream) OpenInspection(
         OpenInspection command,        

@@ -26,11 +26,11 @@ public static class AssignEndpoints
         => $"Specialist with id {specialistId} has already been assigned to the Inspection.";
 
     [WolverineBefore]
-    public static async Task<ProblemDetails> ValidateInspectionState(
+    public static async Task<ProblemDetails> CheckIfSpecialistExists(
         AssignSpecialist command,
         IDocumentSession session)
     {
-        var (inspectionId, _, specialistId, assignedAt) = command;
+        var (_, _, specialistId, _) = command;
 
         var specialistExists = await session.Query<SpecialistDetails>().AnyAsync(x => x.Id == specialistId);
 
@@ -42,7 +42,8 @@ public static class AssignEndpoints
                 Detail = GetSpecialistNotExistsErrorDetail(specialistId) 
             };         
     }
-    
+        
+    [Authorize("can:assign")]
     [WolverinePost(AssignEnpoint), AggregateHandler]
     public static (ApiResponse, Events, OutgoingMessages) Post(
         AssignSpecialist command,

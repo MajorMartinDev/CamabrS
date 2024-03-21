@@ -15,16 +15,20 @@ public sealed class OpenedInspectionTests(AppFixture fixture) : GivenOpenedInspe
     {
         //when
         var result = await Host.AssignSpecialist(
-            Inspection.Id, Inspection.Version, BaselineData.LockHoldingSpecialist, DateTimeOffset.Now);        
+            Inspection.Id, 
+            Inspection.Version, 
+            BaselineData.LockHoldingSpecialistId, 
+            DateTimeOffset.Now, 
+            TestUser.SuperuserWithLockHoldingId);        
 
         //then
         var updated = await Host.InspectionDetailsShouldBe(
             Inspection with
             {
                 Status = InspectionStatus.Assigned,
-                AssignedSpecialists = [BaselineData.LockHoldingSpecialist],
+                AssignedSpecialists = [BaselineData.LockHoldingSpecialistId],
                 Version = InspectionStreamVersions.Assigned                
-            });
+            }, TestUser.SuperuserWithLockHoldingId);
 
         result.ApiResponseShouldHave(
             InspectionStreamVersions.Assigned,
@@ -36,7 +40,12 @@ public sealed class OpenedInspectionTests(AppFixture fixture) : GivenOpenedInspe
     {
         //when
         var specialistId = CombGuidIdGeneration.NewGuid();
-        var result = await Host.AssignSpecialist(Inspection.Id, Inspection.Version, specialistId, DateTimeOffset.Now);
+        var result = await Host.AssignSpecialist
+            (Inspection.Id, 
+            Inspection.Version, 
+            specialistId, 
+            DateTimeOffset.Now, 
+            TestUser.SuperuserWithLockHoldingId);
 
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
@@ -51,7 +60,12 @@ public sealed class OpenedInspectionTests(AppFixture fixture) : GivenOpenedInspe
     public async Task Unassigning_a_Specialist_from_an_opened_Inspection_should_fail()
     {
         //when
-        var result = await Host.UnassignSpecialist(Inspection.Id, Inspection.Version, CombGuidIdGeneration.NewGuid(), DateTimeOffset.Now);
+        var result = await Host.UnassignSpecialist(
+            Inspection.Id, 
+            Inspection.Version, 
+            CombGuidIdGeneration.NewGuid(), 
+            DateTimeOffset.Now, 
+            TestUser.SuperuserWithLockHoldingId);
 
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
@@ -66,7 +80,12 @@ public sealed class OpenedInspectionTests(AppFixture fixture) : GivenOpenedInspe
     public async Task Locking_an_opened_Inspection_should_fail()
     {
         //when
-        var result = await Host.LockInspection(Inspection.Id, CombGuidIdGeneration.NewGuid(), Inspection.Version, DateTimeOffset.Now);
+        var result = await Host.LockInspection(
+            Inspection.Id, 
+            CombGuidIdGeneration.NewGuid(), 
+            Inspection.Version, 
+            DateTimeOffset.Now, 
+            TestUser.SuperuserWithLockHoldingId);
 
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
@@ -81,7 +100,11 @@ public sealed class OpenedInspectionTests(AppFixture fixture) : GivenOpenedInspe
     public async Task Unlocking_an_opened_Inspection_should_fail()
     {
         //when
-        var result = await Host.UnlockInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now);
+        var result = await Host.UnlockInspection(
+            Inspection.Id, 
+            Inspection.Version, 
+            DateTimeOffset.Now, 
+            TestUser.SuperuserWithLockHoldingId);
 
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
@@ -96,7 +119,12 @@ public sealed class OpenedInspectionTests(AppFixture fixture) : GivenOpenedInspe
     public async Task Submitting_an_opened_Inspection_result_by_any_Specialist_should_fail()
     {
         //when
-        var result = await Host.SubmitInspection(Inspection.Id, Inspection.Version, CombGuidIdGeneration.NewGuid(), DateTimeOffset.Now);
+        var result = await Host.SubmitInspection(
+            Inspection.Id, 
+            Inspection.Version, 
+            CombGuidIdGeneration.NewGuid(), 
+            DateTimeOffset.Now, 
+            TestUser.SuperuserWithLockHoldingId);
 
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
@@ -111,7 +139,12 @@ public sealed class OpenedInspectionTests(AppFixture fixture) : GivenOpenedInspe
     public async Task Signing_an_opened_Inspection_by_any_Specialist_should_fail()
     {
         //when
-        var result = await Host.SignInspection(Inspection.Id, Inspection.Version, internet.Url(), DateTimeOffset.Now);
+        var result = await Host.SignInspection(
+            Inspection.Id, 
+            Inspection.Version, 
+            internet.Url(), 
+            DateTimeOffset.Now, 
+            TestUser.SuperuserWithLockHoldingId);
 
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
@@ -126,7 +159,11 @@ public sealed class OpenedInspectionTests(AppFixture fixture) : GivenOpenedInspe
     public async Task Closeing_an_opened_Inspection_should_fail()
     {
         //when
-        var result = await Host.CloseInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now);
+        var result = await Host.CloseInspection(
+            Inspection.Id, 
+            Inspection.Version, 
+            DateTimeOffset.Now, 
+            TestUser.SuperuserWithLockHoldingId);
 
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
@@ -141,7 +178,14 @@ public sealed class OpenedInspectionTests(AppFixture fixture) : GivenOpenedInspe
     public async Task Reviewing_an_opened_Inspection_should_fail()
     {
         //when
-        var result = await Host.ReviewInspection(Inspection.Id, Inspection.Version, ReviewVerdict.Approved, loremIpsum.Paragraph(), DateTimeOffset.Now);
+        var result = 
+            await Host.ReviewInspection(
+                Inspection.Id, 
+                Inspection.Version, 
+                ReviewVerdict.Approved, 
+                loremIpsum.Paragraph(), 
+                DateTimeOffset.Now, 
+                TestUser.SuperuserWithLockHoldingId);
 
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
@@ -156,7 +200,11 @@ public sealed class OpenedInspectionTests(AppFixture fixture) : GivenOpenedInspe
     public async Task Reopening_an_opened_Inspection_should_fail()
     {
         //when
-        var result = await Host.ReopenInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now);
+        var result = await Host.ReopenInspection(
+            Inspection.Id, 
+            Inspection.Version, 
+            DateTimeOffset.Now, 
+            TestUser.SuperuserWithLockHoldingId);
 
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();
@@ -171,7 +219,11 @@ public sealed class OpenedInspectionTests(AppFixture fixture) : GivenOpenedInspe
     public async Task Completing_an_opened_Inspection_should_fail()
     {
         //when
-        var result = await Host.CompleteInspection(Inspection.Id, Inspection.Version, DateTimeOffset.Now);
+        var result = await Host.CompleteInspection(
+            Inspection.Id, 
+            Inspection.Version, 
+            DateTimeOffset.Now, 
+            TestUser.SuperuserWithLockHoldingId);
 
         //then
         var problemDetails = await result.ReadAsJsonAsync<ProblemDetails>();

@@ -1,4 +1,5 @@
 using CamabrS.API.Asset;
+using CamabrS.API.Core.Auth;
 using CamabrS.API.Core.Http;
 using CamabrS.API.Inspection;
 using CamabrS.API.Specialist;
@@ -6,6 +7,39 @@ using CamabrS.API.Specialist;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.ApplyOaktonExtensions();
+
+var domain = $"https://{builder.Configuration["Auth0:Domain"]}/";
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+.AddJwtBearer(options =>
+{
+    options.Authority = domain;
+    options.Audience = builder.Configuration["Auth0:Audience"];
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        NameClaimType = ClaimTypes.NameIdentifier
+    };
+});
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("can:open", policy => policy.Requirements.Add(new
+    HasScopeRequirement("can:open", domain)));
+
+    options.AddPolicy("can:assign", policy => policy.Requirements.Add(new
+    HasScopeRequirement("can:assign", domain)));
+
+    options.AddPolicy("can:close", policy => policy.Requirements.Add(new
+    HasScopeRequirement("can:close", domain)));
+
+    options.AddPolicy("can:review", policy => policy.Requirements.Add(new
+    HasScopeRequirement("can:review", domain)));
+
+    options.AddPolicy("can:complete", policy => policy.Requirements.Add(new
+    HasScopeRequirement("can:complete", domain)));
+
+});
+
+builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 
 builder.Services
     .AddDefaultExceptionHandler(
@@ -67,6 +101,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseExceptionHandler();
 
