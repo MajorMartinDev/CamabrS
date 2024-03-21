@@ -18,14 +18,15 @@ public static class Scenarios{
     private static readonly Internet internet = new();
 
     public static async Task<InspectionDetails> OpenedInspection(
-        this IAlbaHost api)
+        this IAlbaHost api,
+        TestUser testUser)
     {
         var assetId = BaselineData.DefaultTestAssetId;
         var createdAt = DateTimeOffset.UtcNow;
 
-        var result = await api.OpenInspection(assetId, createdAt);
+        var result = await api.OpenInspection(assetId, createdAt, testUser);
 
-        result = await api.GetInspectionDetails(await result.GetCreatedId());
+        result = await api.GetInspectionDetails(await result.GetCreatedId(), testUser);
         var inspection = await result.ReadAsJsonAsync<InspectionDetails>();
 
         inspection.ShouldNotBeNull();
@@ -35,15 +36,16 @@ public static class Scenarios{
     }
 
     public static async Task<InspectionDetails> AssignedInspection(
-        this IAlbaHost api)
+        this IAlbaHost api,
+        TestUser testUser)
     {        
-        var lockHoldingSpecialistId = BaselineData.LockHoldingSpecialist;
+        var lockHoldingSpecialistId = BaselineData.LockHoldingSpecialistId;
         var assignedAt = DateTimeOffset.UtcNow;        
 
-        var inspection = await api.OpenedInspection();
-        var result = await api.AssignSpecialist(inspection.Id, inspection.Version, lockHoldingSpecialistId, assignedAt);        
+        var inspection = await api.OpenedInspection(testUser);
+        var result = await api.AssignSpecialist(inspection.Id, inspection.Version, lockHoldingSpecialistId, assignedAt, testUser);        
 
-        result = await api.GetInspectionDetails(inspection.Id);
+        result = await api.GetInspectionDetails(inspection.Id, testUser);
         inspection = await result.ReadAsJsonAsync<InspectionDetails>();
 
         inspection.ShouldNotBeNull();
@@ -56,14 +58,15 @@ public static class Scenarios{
     }
 
     public static async Task<InspectionDetails> LockedInspection(
-        this IAlbaHost api)
+        this IAlbaHost api,
+        TestUser testUser)
     {
         var lockedAt = DateTimeOffset.UtcNow;
 
-        var inspection = await api.AssignedInspection();
-        var result = await api.LockInspection(inspection.Id, BaselineData.LockHoldingSpecialist, inspection.Version, lockedAt, BaselineData.LockHoldingSpecialist);
+        var inspection = await api.AssignedInspection(testUser);
+        var result = await api.LockInspection(inspection.Id, BaselineData.LockHoldingSpecialistId, inspection.Version, lockedAt, testUser);
 
-        result = await api.GetInspectionDetails(inspection.Id);
+        result = await api.GetInspectionDetails(inspection.Id, testUser);
         inspection = await result.ReadAsJsonAsync<InspectionDetails>();
 
         inspection.ShouldNotBeNull();
@@ -72,14 +75,15 @@ public static class Scenarios{
     }
 
     public static async Task<InspectionDetails> SubmittedInspection(
-        this IAlbaHost api)
+        this IAlbaHost api,
+        TestUser testUser)
     {
         var submittedAt = DateTimeOffset.UtcNow;
 
-        var inspection = await api.LockedInspection();
-        var result = await api.SubmitInspection(inspection.Id, inspection.Version, BaselineData.DefaultFormId, submittedAt, BaselineData.LockHoldingSpecialist);
+        var inspection = await api.LockedInspection(testUser);
+        var result = await api.SubmitInspection(inspection.Id, inspection.Version, BaselineData.DefaultFormId, submittedAt, testUser);
 
-        result = await api.GetInspectionDetails(inspection.Id);
+        result = await api.GetInspectionDetails(inspection.Id, testUser);
         inspection = await result.ReadAsJsonAsync<InspectionDetails>();
 
         inspection.ShouldNotBeNull();
@@ -89,15 +93,16 @@ public static class Scenarios{
     }
 
     public static async Task<InspectionDetails> SignedInspection(
-        this IAlbaHost api)
+        this IAlbaHost api,
+        TestUser testUser)
     {
         var signatureLink = internet.Url();
         var signedAt = DateTimeOffset.UtcNow;
 
-        var inspection = await api.SubmittedInspection();
-        var result = await api.SignInspection(inspection.Id, inspection.Version, signatureLink, signedAt, BaselineData.LockHoldingSpecialist);
+        var inspection = await api.SubmittedInspection(testUser);
+        var result = await api.SignInspection(inspection.Id, inspection.Version, signatureLink, signedAt, testUser);
 
-        result = await api.GetInspectionDetails(inspection.Id);
+        result = await api.GetInspectionDetails(inspection.Id, testUser);
         inspection = await result.ReadAsJsonAsync<InspectionDetails>();
 
         inspection.ShouldNotBeNull();
@@ -107,14 +112,15 @@ public static class Scenarios{
     }
 
     public static async Task<InspectionDetails> ClosedInspection(
-        this IAlbaHost api)
+        this IAlbaHost api,
+        TestUser testUser)
     {
         var closedAt = DateTimeOffset.UtcNow;
 
-        var inspection = await api.SignedInspection();
-        var result = await api.CloseInspection(inspection.Id, inspection.Version, closedAt);
+        var inspection = await api.SignedInspection(testUser);
+        var result = await api.CloseInspection(inspection.Id, inspection.Version, closedAt, testUser);
 
-        result = await api.GetInspectionDetails(inspection.Id);
+        result = await api.GetInspectionDetails(inspection.Id, testUser);
         inspection = await result.ReadAsJsonAsync<InspectionDetails>();
 
         inspection.ShouldNotBeNull();
@@ -124,15 +130,16 @@ public static class Scenarios{
 
     public static async Task<InspectionDetails> ReviewedInspection(
         this IAlbaHost api,
+        TestUser testUser,
         ReviewVerdict verdict = ReviewVerdict.Approved)
     {
         var summary = loremIpsum.Paragraph();
         var reviewedAt = DateTimeOffset.UtcNow;
 
-        var inspection = await api.ClosedInspection();
-        var result = await api.ReviewInspection(inspection.Id, inspection.Version, verdict, summary, reviewedAt);
+        var inspection = await api.ClosedInspection(testUser);
+        var result = await api.ReviewInspection(inspection.Id, inspection.Version, verdict, summary, reviewedAt, testUser);
 
-        result = await api.GetInspectionDetails(inspection.Id);
+        result = await api.GetInspectionDetails(inspection.Id, testUser);
         inspection = await result.ReadAsJsonAsync<InspectionDetails>();
 
         inspection.ShouldNotBeNull();
@@ -143,14 +150,15 @@ public static class Scenarios{
     }
 
     public static async Task<InspectionDetails> CompletedInspection(
-        this IAlbaHost api)
+        this IAlbaHost api, 
+        TestUser testUser)
     {
         var completedAt = DateTimeOffset.UtcNow;
 
-        var inspection = await api.ReviewedInspection();
-        var result = await api.CompleteInspection(inspection.Id, inspection.Version, completedAt);
+        var inspection = await api.ReviewedInspection(testUser);
+        var result = await api.CompleteInspection(inspection.Id, inspection.Version, completedAt, testUser);
 
-        result = await api.GetInspectionDetails(inspection.Id);
+        result = await api.GetInspectionDetails(inspection.Id, testUser);
         inspection = await result.ReadAsJsonAsync<InspectionDetails>();
 
         inspection.ShouldNotBeNull();
@@ -162,7 +170,7 @@ public static class Scenarios{
         this IAlbaHost api,
         Guid assetId,
         DateTimeOffset openedAt,
-        Guid userId = default) =>
+        TestUser user) =>
             api.Scenario(x => 
             {
                 x.Post.Url(OpenEndpoints.OpenEnpoint);
@@ -170,7 +178,7 @@ public static class Scenarios{
 
                 x.IgnoreStatusCode();
 
-                x.WithClaim(new Claim("user-id", userId.ToString()));                
+                x.WithClaims(user);
             });
 
     public static Task<IScenarioResult> AssignSpecialist(
@@ -179,16 +187,15 @@ public static class Scenarios{
         int expectedVersion,
         Guid specialistId,        
         DateTimeOffset assignedAt,
-        Guid userId = default) =>
+        TestUser user) =>
             api.Scenario(x =>
             {                
                 x.Post
                     .Json(new AssignSpecialist(inspectionId, expectedVersion, specialistId, assignedAt))
                     .ToUrl(AssignEndpoints.AssignEnpoint);
-
                 x.IgnoreStatusCode();
 
-                x.WithClaim(new Claim("user-id", userId.ToString()));                
+                x.WithClaims(user);
             });
 
     public static Task<IScenarioResult> UnassignSpecialist(
@@ -197,7 +204,7 @@ public static class Scenarios{
         int expectedVersion,
         Guid specialistId,        
         DateTimeOffset unassignedAt,
-        Guid userId = default) =>
+        TestUser user) =>
             api.Scenario(x =>
             {
                 x.Post.Url(UnassignEndpoints.UnassignEnpoint);
@@ -205,7 +212,7 @@ public static class Scenarios{
 
                 x.IgnoreStatusCode();
 
-                x.WithClaim(new Claim("user-id", userId.ToString()));                
+                x.WithClaims(user);
             });
 
     public static Task<IScenarioResult> LockInspection(
@@ -214,7 +221,7 @@ public static class Scenarios{
         Guid lockHoldingSpecialist,
         int expectedVersion,
         DateTimeOffset lockedAt,
-        Guid userId = default) =>
+        TestUser user) =>
             api.Scenario(x =>
             {
                 x.Post.Url(LockEndpoints.LockEnpoint);
@@ -222,7 +229,7 @@ public static class Scenarios{
 
                 x.IgnoreStatusCode();
 
-                x.WithClaim(new Claim("user-id", userId.ToString()));
+                x.WithClaims(user);
             });
 
     public static Task<IScenarioResult> UnlockInspection(
@@ -230,7 +237,7 @@ public static class Scenarios{
         Guid inspectionId,
         int expectedVersion,
         DateTimeOffset unlockedAt,
-        Guid userId = default) =>
+        TestUser user) =>
             api.Scenario(x =>
             {
                 x.Post.Url(UnlockEndpoints.UnlockEnpoint);
@@ -238,7 +245,7 @@ public static class Scenarios{
 
                 x.IgnoreStatusCode();
 
-                x.WithClaim(new Claim("user-id", userId.ToString()));
+                x.WithClaims(user);
             });
 
     public static Task<IScenarioResult> SubmitInspection(
@@ -247,7 +254,7 @@ public static class Scenarios{
         int expectedVersion,
         Guid formId,
         DateTimeOffset submittedAt,
-        Guid userId = default) =>
+        TestUser user) =>
             api.Scenario(x =>
             {
                 x.Post.Url(SubmitEndpoints.SubmitEnpoint);
@@ -255,7 +262,7 @@ public static class Scenarios{
 
                 x.IgnoreStatusCode();
 
-                x.WithClaim(new Claim("user-id", userId.ToString()));
+                x.WithClaims(user);
             });
 
     public static Task<IScenarioResult> SignInspection(
@@ -264,7 +271,7 @@ public static class Scenarios{
         int expectedVersion,
         string signatureLink,
         DateTimeOffset submittedAt,
-        Guid userId = default) =>
+        TestUser user) =>
             api.Scenario(x =>
             {
                 x.Post.Url(SignEndpoints.SignEnpoint);
@@ -272,7 +279,7 @@ public static class Scenarios{
 
                 x.IgnoreStatusCode();
 
-                x.WithClaim(new Claim("user-id", userId.ToString()));
+                x.WithClaims(user);
             });
 
     public static Task<IScenarioResult> CloseInspection(
@@ -280,7 +287,7 @@ public static class Scenarios{
         Guid inspectionId,
         int expectedVersion,
         DateTimeOffset closedAt,
-        Guid userId = default) =>
+        TestUser user) =>
             api.Scenario(x =>
             {
                 x.Post.Url(CloseEndpoints.CloseEnpoint);
@@ -288,7 +295,7 @@ public static class Scenarios{
 
                 x.IgnoreStatusCode();
 
-                x.WithClaim(new Claim("user-id", userId.ToString()));
+                x.WithClaims(user);
             });
 
     public static Task<IScenarioResult> ReviewInspection(
@@ -298,7 +305,7 @@ public static class Scenarios{
         ReviewVerdict verdict,
         string summary,
         DateTimeOffset reviewedAt,
-        Guid userId = default) =>
+        TestUser user) =>
             api.Scenario(x =>
             {
                 x.Post.Url(ReviewEndpoints.ReviewEnpoint);
@@ -306,7 +313,7 @@ public static class Scenarios{
 
                 x.IgnoreStatusCode();
 
-                x.WithClaim(new Claim("user-id", userId.ToString()));
+                x.WithClaims(user);
             });
 
     public static Task<IScenarioResult> ReopenInspection(
@@ -314,7 +321,7 @@ public static class Scenarios{
         Guid inspectionId,
         int expectedVersion,
         DateTimeOffset completedAt,
-        Guid userId = default) =>
+        TestUser user) =>
             api.Scenario(x =>
             {
                 x.Post.Url(ReopenEndpoints.ReopenEnpoint);
@@ -322,7 +329,7 @@ public static class Scenarios{
 
                 x.IgnoreStatusCode();
 
-                x.WithClaim(new Claim("user-id", userId.ToString()));
+                x.WithClaims(user);
             });
 
     public static Task<IScenarioResult> CompleteInspection(
@@ -330,7 +337,7 @@ public static class Scenarios{
         Guid inspectionId,
         int expectedVersion,
         DateTimeOffset completedAt,
-        Guid userId = default) =>
+        TestUser user) =>
             api.Scenario(x =>
             {
                 x.Post.Url(CompleteEndpoints.CompleteEnpoint);
@@ -338,27 +345,28 @@ public static class Scenarios{
 
                 x.IgnoreStatusCode();
 
-                x.WithClaim(new Claim("user-id", userId.ToString()));
+                x.WithClaims(user);
             });
 
     public static Task<IScenarioResult> GetInspectionDetails(
         this IAlbaHost api,
         Guid inspectionId,
-        Guid userId = default
+        TestUser user
     ) =>
         api.Scenario(x =>
         {
             x.Get.Url($"/api/inspections/{inspectionId}");
 
-            x.WithClaim(new Claim("user-id", userId.ToString()));
+            x.WithClaims(user);
         });
 
     public static async Task<InspectionDetails> InspectionDetailsShouldBe(
         this IAlbaHost api,
-        InspectionDetails inspection
+        InspectionDetails inspection,
+        TestUser user
     )
     {
-        var result = await api.GetInspectionDetails(inspection.Id);
+        var result = await api.GetInspectionDetails(inspection.Id, user);
 
         var updated = await result.ReadAsJsonAsync<InspectionDetails>();
         updated.ShouldNotBeNull();

@@ -19,8 +19,9 @@ public static class UnassignEndpoints
     public const string UnassignEnpoint = "/api/inspections/unassign";
 
     public static string GetSpecialistWasPreviouslyAssignedErrorDetail(Guid specialistId, Guid inspectionId)
-        => $"Specialist with id {specialistId} was not previously assigned to Inspection with id {inspectionId}!";    
-   
+        => $"Specialist with id {specialistId} was not previously assigned to Inspection with id {inspectionId}!";
+
+    [Authorize("can:assign")]
     [WolverinePost(UnassignEnpoint), AggregateHandler]
     public static (ApiResponse, Events, OutgoingMessages) Post(
         UnassignSpecialist command,

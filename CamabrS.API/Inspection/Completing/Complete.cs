@@ -17,6 +17,7 @@ public static class CompleteEndpoints
 {
     public const string CompleteEnpoint = "/api/inspections/complete";
 
+    [Authorize("can:complete")]
     [WolverinePost(CompleteEnpoint), AggregateHandler]
     public static (ApiResponse, Events, OutgoingMessages) Post(
         CompleteInspection command,

@@ -21,6 +21,7 @@ public static class SubmitEndpoints
     public static string GetInvalidSubmittingAttemptErrorMessage()
         => "Inspection can only be submitted by the lock holding specialist.";
 
+    [Authorize]
     [WolverinePost(SubmitEnpoint), AggregateHandler]
     public static (ApiResponse, Events, OutgoingMessages) Post(
         SubmitInspectionResult command,

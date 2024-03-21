@@ -20,6 +20,7 @@ public static class ReopenEndpoints
     public const string ApprovedInspectionCanNotBeReopenedErrorMessage 
         = "An approved Inspection can not be reopened!";
 
+    [Authorize("can:open")]
     [WolverinePost(ReopenEnpoint), AggregateHandler]
     public static (ApiResponse, Events, OutgoingMessages) Post(
         ReopenInspection command,

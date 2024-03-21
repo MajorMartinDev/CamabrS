@@ -64,7 +64,7 @@ namespace Internal.Generated.WolverineHandlers
             // Loading Marten aggregate
             var eventStream = await eventStore.FetchForWriting<CamabrS.API.Inspection.Inspection>(command.InspectionId, command.Version, httpContext.RequestAborted).ConfigureAwait(false);
 
-            var problemDetails3 = await CamabrS.API.Inspection.Assigning.AssignEndpoints.ValidateInspectionState(command, documentSession).ConfigureAwait(false);
+            var problemDetails3 = await CamabrS.API.Inspection.Assigning.AssignEndpoints.CheckIfSpecialistExists(command, documentSession).ConfigureAwait(false);
             // Evaluate whether the processing should stop if there are any problems
             if (!(ReferenceEquals(problemDetails3, Wolverine.Http.WolverineContinue.NoProblems)))
             {

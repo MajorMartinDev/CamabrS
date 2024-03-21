@@ -17,6 +17,7 @@ public static class CloseEndpoints
 {
     public const string CloseEnpoint = "/api/inspections/close";
 
+    [Authorize("can:close")]
     [WolverinePost(CloseEnpoint), AggregateHandler]
     public static (ApiResponse, Events, OutgoingMessages) Post(
         CloseInspection command,
